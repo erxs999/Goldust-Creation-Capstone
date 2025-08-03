@@ -1,0 +1,218 @@
+/* Redesign for category cards based on pending event card */
+.redesign-category-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px 115px;
+  margin-top: 32px;
+  max-width: 1500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.redesign-category-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 6px 32px 0 rgba(60,60,60,0.18);
+  padding: 32px 32px 28px 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 160px;  
+  transition: box-shadow 0.22s, transform 0.18s;
+  border: 1px solid #f0f0f0;
+  width: 100%;
+  max-width: 500px;
+  min-width: 380px;
+  margin: 0 auto;
+}
+.redesign-category-card:hover {
+  box-shadow: 0 12px 36px 0 rgba(60,60,60,0.28);
+  transform: translateY(-6px) scale(1.025);
+}
+.redesign-category-card-content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.redesign-category-card-imgwrap {
+  flex-shrink: 0;
+}
+.redesign-category-card-img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  background: #fff;
+}
+.redesign-category-card-img-placeholder {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: #eee;
+  color: #aaa;
+  font-size: 13px;
+  border: 1px solid #e0e0e0;
+}
+.redesign-category-card-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.redesign-category-card-title {
+  font-weight: 700;
+  font-size: 1.18rem;
+  color: #222;
+  margin-bottom: 2px;
+}
+.redesign-category-card-fields {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: #666;
+  font-size: 0.98rem;
+}
+.redesign-category-card-fields li {
+  margin: 0;
+  padding: 0;
+}
+.redesign-category-card-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 18px;
+}
+.redesign-category-card-btn {
+  background: #d4af37;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 7px 24px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.redesign-category-card-btn:hover {
+  background: #bfa12f;
+}
+/* Products & Services styles */
+.admin-products-root {
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
+   padding: 20px;
+  display: flex;
+  gap: 32px;
+}
+
+.admin-products-sidebar {
+  width: 220px;
+  background: #f2f2f2;
+  border-radius: 10px;
+  padding: 24px 16px;
+  min-height: 400px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  font-weight: 600;
+  color: #222;
+}
+.admin-products-main {
+  flex: 1;
+  margin-left: 270px;
+  padding: 30px 30px 30px 30px;
+  min-width: 0;
+  /* Ensure content is not hidden behind the fixed sidebar */
+}
+
+@media (max-width: 900px) {
+  .admin-products-main {
+    margin-left: 0;
+    padding: 18px 6px;
+  }
+}
+
+/* Make the Products & Services title black for visibility */
+.admin-products-title {
+  color: #111;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.admin-add-btn {
+  background: #d4af37;
+  color: #fff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 5px;
+  font-size: 1rem;
+  margin-bottom: 24px;
+  cursor: pointer;
+}
+.admin-add-btn:hover {
+  background: #b58f1b;
+}
+
+.admin-category-list {
+  margin-top: 16px;
+}
+.admin-category-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f7f7f7;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+.admin-category-item button {
+  background: #d4af37;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 12px;
+  cursor: pointer;
+}
+.admin-category-item button:hover {
+  background: #b58f1b;
+}
+
+.admin-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.admin-modal {
+  background: #fff;
+  padding: 32px 24px;
+  border-radius: 10px;
+  min-width: 320px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+}
+.admin-modal h3 {
+  margin-top: 0;
+  color: #111;
+}
+.admin-modal label {
+  display: block;
+  margin-bottom: 16px;
+}
+.admin-modal input[type="text"],
+.admin-modal input[type="number"] {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+.admin-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}

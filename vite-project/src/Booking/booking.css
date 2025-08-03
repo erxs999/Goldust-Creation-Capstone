@@ -1,0 +1,228 @@
+/* Force left alignment for all MUI TextField and Select inputs */
+.MuiInputBase-input,
+.MuiSelect-select,
+input.MuiInputBase-input,
+textarea.MuiInputBase-input,
+div.MuiSelect-select {
+  text-align: left !important;
+  font-weight: 400 !important;
+}
+/* Remove all focus outlines from MUI calendar and its children */
+.MuiPickersLayout-root *:focus,
+.MuiPickersLayout-root *:focus-visible,
+.MuiPickersLayout-root:focus,
+.MuiPickersLayout-root:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+/* Remove black outline (focus ring) from MUI calendar */
+.MuiPickersDay-root:focus-visible,
+.MuiPickersCalendarHeader-root:focus-visible,
+.MuiPickersYear-root:focus-visible,
+.MuiPickersMonth-root:focus-visible,
+.MuiPickersArrowSwitcher-button:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* MUI Calendar selected day custom styles */
+.MuiPickersDay-root.Mui-selected {
+  background-color: #ec4899 !important; /* pink-500 */
+  color: #fff !important;
+  box-shadow: none !important;
+  outline: none !important;
+  border: none !important;
+}
+.MuiPickersDay-root.Mui-selected:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+/* Two-column layout for calendar and form */
+.booking-main-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 40px;
+  width: 100%;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+}
+@media (max-width: 1100px) {
+  .booking-main-row {
+    flex-direction: column;
+    gap: 24px;
+    max-width: 100%;
+    align-items: center;
+  }
+}
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
+.booking-root {
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
+  background: #fff;
+  min-height: 100vh;
+  padding: 0;
+}
+.booking-header {
+  text-align: center;
+  padding: 0 0 20px 0;
+}
+.booking-header h2 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #222;
+  margin: 0 auto;
+} 
+.booking-main {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 40px;
+  margin-bottom: 30px;
+  margin-top: 40px;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+  color: #111;
+}
+
+
+.booking-calendar-box, .booking-form-box, .booking-services-box {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  padding: 32px 28px 28px 28px;
+  width: 100%;
+  max-width: 1000px !important;  
+  min-width: 280px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Manually adjust width for calendar and event location card */
+.booking-calendar-box {
+  width: 420px;
+  max-width: 100%;
+}
+.booking-form-box {
+  width: 370px;
+  max-width: 100%;
+}
+.booking-calendar-box {
+  margin-right: 40px;
+  align-items: center;
+  
+}
+.booking-services-box {
+  margin-bottom: 40px!important;
+  max-width: 1000px!important;
+}
+
+
+
+@media (max-width: 700px) {
+  .booking-main {
+    flex-direction: column;
+    max-width: 100%;
+    padding-left: 8px;
+    padding-right: 8px;
+    align-items: center;
+    gap: 24px;
+  }
+  .booking-form-box, .booking-calendar-box {
+    max-width: 100%;
+    min-width: 0;
+    padding: 20px 6px 18px 6px;
+    margin: 0 auto;
+  }
+}
+
+/* MUI Calendar font color override */
+.MuiPickersCalendarHeader-label, .MuiDayCalendar-weekDayLabel, .MuiDayCalendar-day {
+  color: #111 !important;
+}
+.booking-calendar-box h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+.booking-form-box form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+  align-items: flex-start;
+}
+.booking-field label {
+  font-weight: 500;
+  margin-bottom: 6px;
+  display: block;
+  color: #222;
+}
+.booking-radio-group {
+  display: flex;
+  gap: 20px;
+  margin-top: 6px;
+}
+/* .booking-services-box styles are now unified above for all cards */
+.booking-services-box h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 18px;
+  color: #111;
+}
+.booking-services-grid {
+  display: flex;
+  gap: 40px;
+  margin-bottom: 18px;
+}
+.booking-service-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.booking-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 18px;
+  width: 100%;
+}
+.booking-btn {
+  background-color: #f59e42;
+  color: #fff;
+  border: none;
+  padding: 10px 28px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  align-self: flex-end;
+}
+.booking-btn-next {
+  background-color: #6366f1;
+}
+.booking-btn:hover {
+  background-color: #e07c1b;
+}
+/* Special request text field expansion */
+.booking-special-request {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 100px;
+  resize: vertical;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+.booking-btn-next:hover {
+  background-color: #4338ca;
+}

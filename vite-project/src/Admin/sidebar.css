@@ -1,0 +1,118 @@
+/* Sidebar icon styling */
+.sidebar-link, .admin-logout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  padding-left: 18px;
+  text-align: left;
+  vertical-align: middle;
+}
+.sidebar-icon {
+  display: inline-flex;
+  align-items: center;
+  min-width: 1.5em;
+  justify-content: center;
+  vertical-align: middle;
+  position: relative;
+  top: 1px;
+}
+/* Logout button styling */
+.admin-logout-btn {
+  margin-top: 2rem;
+  margin-left: 18px;
+  width: calc(100% - 36px);
+  padding: 0.5rem 0.75rem;
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.97rem;
+  font-family: inherit;
+  font-weight: 500;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+}
+.admin-logout-btn:hover {
+  background: #c0392b;
+}
+/* Sidebar styles */
+.admin-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 270px;
+  height: 100vh;
+  background: #F4C542;
+  color: #222;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 32px 0 0 0;
+  z-index: 100;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.04);
+}
+.admin-sidebar-title {
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
+  font-weight: 800;
+  font-size: 1.2rem;
+  margin-bottom: 36px;
+  letter-spacing: 0.5px;
+}
+.admin-sidebar nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+.admin-sidebar nav ul li {
+  margin-bottom: 7px;
+  width: 100%;
+}
+.admin-sidebar nav ul li a {
+  text-decoration: none;
+  color: #222;
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
+  font-weight: 500;
+  font-size: 1rem;
+  padding: 10px 32px;
+  display: block;
+  border-radius: 6px 0 0 6px;
+  transition: background 0.2s, color 0.2s;
+}
+.admin-sidebar nav ul li.active a,
+.admin-sidebar nav ul li a:hover {
+  background: none;
+  color: #ffffff;
+}
+@media (max-width: 900px) {
+  .admin-sidebar {
+    position: static;
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    padding: 12px 0;
+    box-shadow: none;
+  }
+  .admin-sidebar-title {
+    margin: 0 24px 0 16px;
+    font-size: 1rem;
+  }
+  .admin-sidebar nav ul {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+  }
+  .admin-sidebar nav ul li {
+    margin-bottom: 0;
+  }
+  .admin-sidebar nav ul li a {
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+  }
+}

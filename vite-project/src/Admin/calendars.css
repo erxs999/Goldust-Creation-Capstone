@@ -1,0 +1,77 @@
+/* RSuite Calendar white background and black text override */
+.rs-calendar {
+  background: #fff !important;
+  color: #111 !important;
+  border-radius: 8px;
+}
+.rs-calendar-table-cell-content,
+.rs-calendar-table-cell-content:hover,
+.rs-calendar-table-cell-selected,
+.rs-calendar-table-cell-is-today {
+  background: #fff !important;
+  color: #111 !important;
+}
+.rs-calendar-header,
+.rs-calendar-header-title,
+.rs-calendar-header-toolbar,
+.rs-calendar-month-dropdown,
+.rs-calendar-month-dropdown-cell-content {
+  background: #fff !important;
+  color: #111 !important;
+}
+
+/* Make all calendar text black and background white */
+.rbc-calendar,
+.rbc-month-view,
+.rbc-header,
+.rbc-date-cell,
+.rbc-day-bg,
+.rbc-today,
+.rbc-off-range-bg,
+.rbc-event,
+.rbc-toolbar,
+.rbc-row-content,
+.rbc-row,
+.rbc-time-content,
+.rbc-timeslot-group,
+.rbc-time-header-content,
+.rbc-time-header,
+.rbc-time-view {
+  background: #fff !important;
+  color: #111 !important;
+  border-color: #bbb !important;
+}
+
+.rbc-header {
+  background: #f8f8f8 !important;
+  color: #111 !important;
+  border-bottom: 1px solid #bbb !important;
+}
+
+.rbc-today {
+  background: #f0f0f0 !important;
+}
+
+.rbc-event {
+  background: #e0e0e0 !important;
+  color: #111 !important;
+  border: 1px solid #bbb !important;
+}
+
+.rbc-off-range-bg {
+  background: #f8f8f8 !important;
+  color: #bbb !important;
+}
+
+.rbc-selected-cell {
+  background: #eaeaea !important;
+}
+
+.rbc-show-more {
+  color: #111 !important;
+}
+/* Calendars styles */
+.admin-calendars-root {
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
+
+}

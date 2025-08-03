@@ -1,0 +1,13 @@
+Add these images to src/assets/ for Home page:
+- hero.jpg (main hero background)
+- venue.jpg
+- dresses.jpg
+- cakes.jpg
+- food.jpg
+- decor.jpg
+- flowers.jpg
+- makeup.jpg
+- souvenirs.jpg
+- photo.jpg
+
+You can use your own images or stock images matching the categories.

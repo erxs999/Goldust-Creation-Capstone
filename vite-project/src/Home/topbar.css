@@ -1,0 +1,85 @@
+.topbar:not(.topbar-expanded) .topbar-logo-sub {
+  opacity: 0;
+  max-height: 0;
+}
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
+.topbar {
+  width: 100%;  
+  background:rgba(244, 195, 48, 0.649);  /* more translucent gold tint */
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.10);
+  padding: 15px 30px;
+  display: flex;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  font-family: 'Poppins';
+  transition: background 0.4s, height 0.4s, padding 0.4s, backdrop-filter 0.4s, box-shadow 0.4s;
+}
+
+.topbar.topbar-expanded {
+  background: rgba(244, 195, 48, 0.921);
+  backdrop-filter: blur(18px);
+  height: 100px;
+  padding: 35px 50px 25px 50px;
+}
+
+.topbar-logo {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: rgb(0, 0, 0);
+  flex-shrink: 0;
+  transition: font-size 0.4s, transform 0.4s;
+}
+
+
+.topbar-center {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  transition: gap 0.4s;
+}
+.topbar-link-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.topbar-link-sub {
+  font-size: 0.8rem;
+  color: #444;
+  opacity: 1;
+  margin-top: 2px;
+  letter-spacing: 0.5px;
+  transition: opacity 0.4s, max-height 0.4s;
+  max-height: 20px;
+  overflow: hidden;
+}
+.topbar:not(.topbar-expanded) .topbar-link-sub {
+  opacity: 0;
+  max-height: 0;
+}
+.topbar-right {
+margin-right: 100px;
+}
+
+
+
+.topbar-link {
+  color: rgb(0, 0, 0);
+  text-decoration: none;
+  font-size: 15px;
+ font-weight: lighter;
+  transition: color 0.3s, font-size 0.4s, letter-spacing 0.4s;
+}
+
+
+
+
+.topbar-link:hover {
+  color: rgb(255, 255, 255);
+}
