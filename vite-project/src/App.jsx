@@ -5,9 +5,10 @@ import Login from "./Authentication/Login";
 import SignUp from "./Authentication/SignUp";
 import Home from "./Home/Home";
 import ForgotPasswordFlow from "./Authentication/ForgotPasswordFlow";
-import Booking from "./Booking/Booking";
+import BookingInformation from "./Client/BookingInformation";
 import BookSummary from "./Booking/BookSummary";
 import BookAppointment from "./Booking/BookAppointment";
+import Booking from "./Booking/Booking";
 
 import Dashboard from "./Admin/Dashboard";
 import AdminBooking from "./Admin/Booking";
@@ -19,6 +20,10 @@ import UserClients from "./Admin/UserClients";
 import BackgroundGallery from "./Admin/BackgroundGallery";
 import Policy from "./Home/Policy";
 import "./App.css";
+import PersonalInformation from "./Client/PersonalInformation";
+import Notification from "./Client/Notification";
+import ClientSidebar from "./Client/ClientSidebar";
+import { Navigate } from "react-router-dom";
 
 function App() {
   return (
@@ -42,6 +47,14 @@ function App() {
         <Route path="/admin/user-clients" element={<UserClients />} />
         <Route path="/admin/background-gallery" element={<BackgroundGallery />} />
         <Route path="/forgot-password" element={<ForgotPasswordFlow />} />
+        {/* Client routes */}
+        <Route path="/client/home" element={<Home />} />
+        <Route path="/client/personal-information" element={<PersonalInformation />} />
+        <Route path="/client/message" element={<div style={{display:'flex'}}><ClientSidebar /><div style={{flex:1,padding:'32px'}}><h2>Message Page</h2></div></div>} />
+        <Route path="/client/booking-information" element={<BookingInformation />} />
+        <Route path="/client/services-information" element={<div style={{display:'flex'}}><ClientSidebar /><div style={{flex:1,padding:'32px'}}><h2>Services Information Page</h2></div></div>} />
+        <Route path="/client/notification" element={<Notification />} />
+        <Route path="/logout" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
   );
