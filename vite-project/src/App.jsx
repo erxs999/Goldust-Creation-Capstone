@@ -52,7 +52,7 @@ function App() {
         <Route path="/client/personal-information" element={<PersonalInformation />} />
         <Route path="/client/message" element={<div style={{display:'flex'}}><ClientSidebar /><div style={{flex:1,padding:'32px'}}><h2>Message Page</h2></div></div>} />
         <Route path="/client/booking-information" element={<BookingInformation />} />
-        <Route path="/client/services-information" element={<div style={{display:'flex'}}><ClientSidebar /><div style={{flex:1,padding:'32px'}}><h2>Services Information Page</h2></div></div>} />
+        
         <Route path="/client/notification" element={<Notification />} />
         <Route path="/logout" element={<Navigate to="/login" replace />} />
       </Routes>

@@ -1,0 +1,54 @@
+.booking-page {
+  display: flex;
+ 
+  min-height: 100vh;
+
+  
+
+}
+
+.booking-content {
+  display: flex;
+  flex: 1;
+  padding: 20px;
+  margin-left: 330px;
+  height: 95vh;
+  gap: 20px;
+}
+
+.booking-details,
+.payment-details {
+  background-color: white;
+  border-radius: 10px;
+  padding: 32px;
+  box-shadow: 0 0 0 2px #eee, 0 4px 24px 0 rgba(0,0,0,0.06);
+ 
+}
+
+.booking-details {
+  flex: 2;
+}
+
+.payment-details {
+  flex: 1;
+}
+
+.booking-item {
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.booking-item span {
+  font-weight: bold;
+}
+
+.special-request {
+  margin-top: 20px;
+  font-style: italic;
+  color: #555;
+}
+
+.total {
+  margin-top: 20px;
+  font-size: 18px;
+}
