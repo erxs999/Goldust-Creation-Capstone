@@ -20,9 +20,15 @@ import UserClients from "./Admin/UserClients";
 import BackgroundGallery from "./Admin/BackgroundGallery";
 import Policy from "./Home/Policy";
 import "./App.css";
+
 import PersonalInformation from "./Client/PersonalInformation";
 import Notification from "./Client/Notification";
 import ClientSidebar from "./Client/ClientSidebar";
+import SupplierSidebar from "./Supplier/SupplierSidebar";
+import SupplierInformation from "./Supplier/SupplierInformation";
+import SupplierNotifications from "./Supplier/Notifications";
+import Products from "./Supplier/Products";
+import Message from "./Supplier/Message";
 import { Navigate } from "react-router-dom";
 
 function App() {
@@ -54,6 +60,15 @@ function App() {
         <Route path="/client/booking-information" element={<BookingInformation />} />
         
         <Route path="/client/notification" element={<Notification />} />
+
+        {/* Supplier routes */}
+
+        <Route path="/supplier/sidebar" element={<SupplierSidebar />} />
+        <Route path="/supplier/information" element={<SupplierInformation />} />
+        <Route path="/supplier/notifications" element={<SupplierNotifications />} />
+        <Route path="/supplier/products" element={<Products />} />
+        <Route path="/supplier/message" element={<Message />} />
+
         <Route path="/logout" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
