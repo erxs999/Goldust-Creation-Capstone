@@ -1,0 +1,6 @@
+.booking-description-modal .MuiDialog-paper {
+  width: 1100px;
+  height: 900px;
+  max-width: 90vw;
+  max-height: 90vh;
+}

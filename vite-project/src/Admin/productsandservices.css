@@ -2,7 +2,7 @@
 .redesign-category-list {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20px 115px;
+  gap: 20px 10px;
   margin-top: 32px;
   max-width: 1500px;
   margin-left: auto;
@@ -67,7 +67,6 @@
   font-weight: 700;
   font-size: 1.18rem;
   color: #222;
-  margin-bottom: 2px;
 }
 .redesign-category-card-fields {
   margin: 0;
@@ -83,7 +82,6 @@
 .redesign-category-card-actions {
   display: flex;
   gap: 16px;
-  margin-top: 18px;
 }
 .redesign-category-card-btn {
   background: #d4af37;

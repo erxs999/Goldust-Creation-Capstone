@@ -1,7 +1,8 @@
 
 
 import React, { useState, useEffect } from 'react';
-import CategoryDetails from './CategoryDetails';
+import CategoryDetails1 from './CategoryDetails1';
+import SecondaryCategoryDetails from './SecondaryCategoryDetails';
 import Sidebar from './Sidebar';
 import './productsandservices.css';
 import Dialog from '@mui/material/Dialog';
@@ -156,7 +157,7 @@ export default function ProductsAndServices() {
                 <div
                   key={cat.title + idx}
                   className="redesign-category-card"
-                  onClick={() => setSelectedCategory(cat)}
+                  onClick={() => setSelectedCategory({ ...cat, idx })}
                 >
                   <div className="redesign-category-card-content">
                     <div className="redesign-category-card-imgwrap">
@@ -231,7 +232,11 @@ export default function ProductsAndServices() {
             </Dialog>
           </>
         ) : (
-          <CategoryDetails category={selectedCategory} onAddSubCategory={() => {}} />
+          selectedCategory.idx === 0 ? (
+            <CategoryDetails1 category={selectedCategory} onBack={() => setSelectedCategory(null)} />
+          ) : (
+            <SecondaryCategoryDetails category={selectedCategory} onBack={() => setSelectedCategory(null)} />
+          )
         )}
       </div>
     </div>
