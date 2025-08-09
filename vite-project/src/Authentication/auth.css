@@ -1,3 +1,16 @@
+/* Custom width for SignUpModal */
+.custom-signup-modal .MuiDialog-paper {
+  width: 500px;
+  overflow: hidden;
+}
+
+.custom-signup-modal .MuiDialogContent-root {
+  padding-top: 32px;
+  padding-bottom: 32px;
+  padding-left: 32px;
+  padding-right: 32px;
+  overflow: visible;
+}
 /* Two-panel modern auth layout with gold gradient and Poppins font */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
 

@@ -35,7 +35,13 @@ const SignUpModal = ({ open, onClose, onSelect }) => {
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      maxWidth={false}
+      fullWidth={false}
+      className="custom-signup-modal"
+    >
       <DialogTitle className="signup-modal-title">Choose Account Type</DialogTitle>
       <DialogContent>
         <Box className="signup-modal-options">
