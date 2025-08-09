@@ -1,7 +1,7 @@
 
 
 import React, { useState, useEffect } from 'react';
-import CategoryDetails1 from './CategoryDetails1';
+
 import SecondaryCategoryDetails from './SecondaryCategoryDetails';
 import Sidebar from './Sidebar';
 import './productsandservices.css';
