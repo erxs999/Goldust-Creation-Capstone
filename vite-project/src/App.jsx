@@ -13,6 +13,7 @@ import Booking from "./Booking/Booking";
 import Dashboard from "./Admin/Dashboard";
 import AdminBooking from "./Admin/Booking";
 import ProductsAndServices from "./Admin/ProductsAndServices";
+import SecondProductsAndServices from "./Admin/SecondProductsAndServices";
 import Reminders from "./Admin/Reminders";
 import Calendars from "./Admin/Calendars";
 import Suppliers from "./Admin/Suppliers";
@@ -46,7 +47,8 @@ function App() {
         {/* Admin routes */}
         <Route path="/admin/dashboard" element={<Dashboard />} />
         <Route path="/admin/booking" element={<AdminBooking />} />
-        <Route path="/admin/products-services" element={<ProductsAndServices />} />
+  <Route path="/admin/products-services" element={<ProductsAndServices />} />
+  <Route path="/admin/second-products-and-services/:categoryId" element={<SecondProductsAndServices />} />
         <Route path="/admin/reminders" element={<Reminders />} />
         <Route path="/admin/calendars" element={<Calendars />} />
         <Route path="/admin/suppliers" element={<Suppliers />} />

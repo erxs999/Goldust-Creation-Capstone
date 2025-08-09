@@ -1,9 +1,23 @@
-import React from 'react';
 
-export default function SecondaryCategoryDetails({ category, onBack }) {
+import React from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+
+export default function SecondProductsAndServices(props) {
+  // If navigated via route, get category from location.state
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { categoryId } = useParams();
+  const category = location.state?.category || props.category;
+
+  if (!category) {
+    // If no category data, go back to products-services
+    navigate('/admin/products-services');
+    return null;
+  }
+
   return (
     <div style={{ padding: 32, maxWidth: 600, margin: '0 auto' }}>
-      <button onClick={onBack} style={{ marginBottom: 24, background: '#e6b800', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 18px', fontWeight: 600, fontSize: 16, cursor: 'pointer' }}>Back</button>
+      <button onClick={() => navigate('/admin/products-services')} style={{ marginBottom: 24, background: '#e6b800', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 18px', fontWeight: 600, fontSize: 16, cursor: 'pointer' }}>Back</button>
       <div style={{
         background: '#fff',
         borderRadius: 16,

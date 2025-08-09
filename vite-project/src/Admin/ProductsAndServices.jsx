@@ -1,8 +1,7 @@
 
+import { useNavigate } from 'react-router-dom';
 
-import React, { useState, useEffect } from 'react';
 
-import SecondaryCategoryDetails from './SecondaryCategoryDetails';
 import Sidebar from './Sidebar';
 import './productsandservices.css';
 import Dialog from '@mui/material/Dialog';
@@ -14,6 +13,7 @@ import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import SecondProductsAndServices from './SecondProductsAndServices';
 
 const LOCAL_KEY = 'gd_categories';
 
@@ -29,6 +29,8 @@ function setStoredCategories(categories) {
   localStorage.setItem(LOCAL_KEY, JSON.stringify(categories));
 }
 
+import React, { useState, useEffect } from 'react';
+
 export default function ProductsAndServices() {
   const [categories, setCategories] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -40,6 +42,7 @@ export default function ProductsAndServices() {
   const [editImage, setEditImage] = useState('');
   const [editFields, setEditFields] = useState([{ label: '' }]);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setCategories(getStoredCategories());
@@ -143,6 +146,16 @@ export default function ProductsAndServices() {
     setStoredCategories(updated);
   };
 
+  // Navigation logic for category cards
+  const handleCategoryClick = (cat, idx) => {
+    if (idx === 0) {
+      setSelectedCategory({ ...cat, idx });
+    } else {
+      // Navigate to /admin/second-products-and-services/:categoryId and pass category data via state
+      navigate(`/admin/second-products-and-services/${encodeURIComponent(cat.title)}`, { state: { category: { ...cat, idx } } });
+    }
+  };
+
   return (
     <div className="admin-products-root">
       <Sidebar />
@@ -157,7 +170,7 @@ export default function ProductsAndServices() {
                 <div
                   key={cat.title + idx}
                   className="redesign-category-card"
-                  onClick={() => setSelectedCategory({ ...cat, idx })}
+                  onClick={() => handleCategoryClick(cat, idx)}
                 >
                   <div className="redesign-category-card-content">
                     <div className="redesign-category-card-imgwrap">
@@ -233,9 +246,23 @@ export default function ProductsAndServices() {
           </>
         ) : (
           selectedCategory.idx === 0 ? (
-            <CategoryDetails1 category={selectedCategory} onBack={() => setSelectedCategory(null)} />
+            <div style={{padding:32}}>
+              <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 24 }}>
+                <button onClick={() => setSelectedCategory(null)} style={{ background: '#e6b800', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 18px', fontWeight: 600, fontSize: 16, cursor: 'pointer' }}>Back</button>
+                <button style={{ background: '#e6b800', color: '#fff', border: 'none', borderRadius: 6, padding: '12px 24px', fontWeight: 600, fontSize: 16, cursor: 'pointer' }}>
+                  Add Secondary Category
+                </button>
+                <button style={{ background: '#fff', color: '#e6b800', border: '2px solid #e6b800', borderRadius: 6, padding: '12px 24px', fontWeight: 600, fontSize: 16, cursor: 'pointer' }}>
+                  Add Product/Service
+                </button>
+              </div>
+              <div style={{background:'#fff',borderRadius:16,boxShadow:'0 4px 24px 0 rgba(60,60,60,0.10)',padding:32,minHeight:300}}>
+                <h2 style={{ fontWeight: 700, fontSize: 28, margin: 0 }}>{selectedCategory.title}</h2>
+                <p>This is the first category. You can customize this section as needed.</p>
+              </div>
+            </div>
           ) : (
-            <SecondaryCategoryDetails category={selectedCategory} onBack={() => setSelectedCategory(null)} />
+            <SecondProductsAndServices category={selectedCategory} onBack={() => setSelectedCategory(null)} />
           )
         )}
       </div>
