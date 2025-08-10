@@ -1,9 +1,12 @@
 
+
 .supplier-sidebar {
   font-family: 'Poppins', 'Segoe UI', sans-serif;
-  background: linear-gradient(120deg, #f8b8d2 0%, #bb9708 25%, #ffb347 70%, #f5609e 100%);
-  background-size: 250% 250%;
-  animation: gold-pink-gradient-move 8s ease-in-out infinite alternate;
+  background: linear-gradient(135deg, #e2b23a 0%, #e86d9e 100%);
+  background-size: 200% 200%;
+  animation: gold-pink-gradient-move 8s ease-in-out infinite;
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
   border-radius: 12px;
   box-shadow: 0 0 0 2px #eee;
   padding: 32px 24px;
@@ -35,9 +38,10 @@
 
 .supplier-sidebar h2 {
   font-size: 1.3rem;
-  font-weight: 600;
+  font-weight: 800;
+  color: #fff;
   margin-bottom: 18px;
-  border-bottom: 1px solid #eee;
+  /* border-bottom removed */
   padding-bottom: 8px;
 }
 
@@ -47,17 +51,84 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 6px;
+}
+
+
+.supplier-sidebar li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1.08rem;
+  font-weight: 300;
+  color: #000000;
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 2px 0;
+  min-height: 32px;
+}
+
+.supplier-sidebar li a {
+  color: #000000 !important;
+  text-decoration: none;
+  transition: color 0.2s;
+  font-weight: 300;
+}
+
+.supplier-sidebar li:hover,
+.supplier-sidebar li:hover a {
+  color: #e2b23a !important;
+}
+
+.supplier-sidebar .icon {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes gold-pink-gradient-move {
+  0% {
+    background-position: 0% 100%;
+  }
+  50% {
+    background-position: 100% 0%;
+  }
+  100% {
+    background-position: 0% 100%;
+  }
+}
+
+.supplier-sidebar h2 {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 18px;
+  /* border-bottom removed */
+  padding-bottom: 8px;
+}
+
+.supplier-sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .supplier-sidebar li {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 1rem;
-  color: #222;
+  gap: 6px;
+  font-size: 1.08rem;
+  font-weight: 300;
+  color: #fff;
   cursor: pointer;
   transition: color 0.2s;
+  padding: 2px 0;
+  min-height: 32px;
 }
 
 .supplier-sidebar li:hover {
@@ -70,4 +141,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+.supplier-sidebar li a {
+  color: #ffffff !important;
+  text-decoration: none;
+  transition: color 0.2s;
+  font-weight: 300;
+
 }

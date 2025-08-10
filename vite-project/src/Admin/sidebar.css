@@ -47,14 +47,30 @@
   top: 0;
   width: 270px;
   height: 100vh;
-  background: #F4C542;
-  color: #222;
+  background: linear-gradient(135deg, #e2b23a 0%, #e86d9e 100%);
+  background-size: 200% 200%;
+  animation: gold-pink-gradient-move 8s ease-in-out infinite;
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  color: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   padding: 32px 0 0 0;
   z-index: 100;
   box-shadow: 2px 0 8px rgba(0,0,0,0.04);
+}
+
+@keyframes gold-pink-gradient-move {
+  0% {
+    background-position: 0% 100%;
+  }
+  50% {
+    background-position: 100% 0%;
+  }
+  100% {
+    background-position: 0% 100%;
+  }
 }
 .admin-sidebar-title {
   font-family: 'Poppins', 'Segoe UI', sans-serif;

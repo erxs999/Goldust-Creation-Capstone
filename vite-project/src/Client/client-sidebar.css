@@ -1,6 +1,9 @@
 
 .client-sidebar {
-  background: rgba(0, 0, 0, 0.55);
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #e2b23a 0%, #e86d9e 100%);
+  background-size: 200% 200%;
+  animation: gold-pink-gradient-move 8s ease-in-out infinite;
   backdrop-filter: blur(16px) saturate(160%);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
   border-radius: 12px;
@@ -34,9 +37,10 @@
 
 .client-sidebar h2 {
   font-size: 1.3rem;
-  font-weight: 600;
+  font-weight: 800;
+  color: #fff;
   margin-bottom: 18px;
-  border-bottom: 1px solid #eee;
+  /* border-bottom removed */
   padding-bottom: 8px;
 }
 
@@ -46,22 +50,24 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 6px;
 }
 
 
 .client-sidebar li {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 1rem;
-  color: #fff;
+  gap: 6px;
+  font-size: 1.08rem;
+  color: #000000;
   cursor: pointer;
   transition: color 0.2s;
+  padding: 2px 0;
+  min-height: 32px;
 }
 
 .client-sidebar li a {
-  color: #fff !important;
+  color: #000000 !important;
   text-decoration: none;
   transition: color 0.2s;
 }
@@ -72,18 +78,19 @@
 }
 
 .client-sidebar li a {
-  color: #fff !important;
+  color: #000000 !important;
   text-decoration: none;
   transition: color 0.2s;
+  font-weight: 300;
 }
 
 .client-sidebar li:hover,
 .client-sidebar li:hover a {
-  color: #e2b23a !important;
+  color: #ffffff !important;
 }
 
 .client-sidebar li:hover {
-  color: #e2b23a;
+  color: #ffffff;
 }
 
 .client-sidebar .icon {
