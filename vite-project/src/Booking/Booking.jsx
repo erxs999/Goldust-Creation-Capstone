@@ -123,14 +123,14 @@ const Booking = () => {
           <h3 style={{ fontWeight: 700 }}>Services and Products Availed</h3>
           {/* Show selected products/services from cart */}
           {form.products && form.products.length > 0 ? (
-            <div style={{ width: '100%', marginBottom: 24 }}>
+            <div style={{ width: '100%', marginBottom: 24, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               {form.products.map((item, idx) => (
                 <div key={idx} style={{
                   background: '#fafafa',
                   border: '1px solid #eee',
                   borderRadius: 6,
                   padding: 12,
-                  marginBottom: 10,
+                  marginBottom: 0,
                   display: 'flex',
                   alignItems: 'center',
                   gap: 16
@@ -155,7 +155,7 @@ const Booking = () => {
               multiline
               minRows={5}
               label="Enter your Special Request"
-              placeholder="Type any special requests here"
+              placeholder="Type any special requests here (special service, collaboration to other service provider, host and etc."
               variant="outlined"
               size="small"
             />
