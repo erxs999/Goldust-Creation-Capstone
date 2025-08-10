@@ -258,7 +258,7 @@ export default function ProductsAndServices() {
                     flexDirection: 'column',
                     alignItems: 'stretch',
                     overflow: 'hidden',
-                    margin: '0',
+                    margin: '0 24px 24px 0',
                   }}
                   onClick={() => handleCategoryClick(cat, idx)}
                 >
@@ -389,9 +389,9 @@ export default function ProductsAndServices() {
           </>
         ) : (
           selectedCategory.idx === 0 || selectedCategory.idx > 0 ? (
-            <div style={{ padding: '40px 48px 0 48px', maxWidth: 1200, margin: '0 auto' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-                <h2 style={{ fontWeight: 700, fontSize: 32, margin: 0 }}>
+            <div style={{ padding: '0px 48px 0 0px', maxWidth: 1200, margin: '0 auto' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32 }}>
+                <h2 style={{ fontWeight: 900, fontSize: 35, margin: 0 }}>
                   {selectedCategory.title}
                 </h2>
                 <div style={{ display: 'flex', gap: 16 }}>

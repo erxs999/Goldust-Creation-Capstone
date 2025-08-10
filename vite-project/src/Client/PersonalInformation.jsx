@@ -13,7 +13,9 @@ const PersonalInformation = () => {
         <div className="personal-info-header">
           <span className="personal-info-title">Profile</span>
           <div className="personal-info-buttons">
-            <Button className="personal-info-btn" variant="contained" style={{ background: '#F3C13A', color: '#222', width: 140, fontWeight: 'bold', fontSize: 16, padding: '10px 0', borderRadius: 8, transition: 'width 0.2s' }} onClick={() => setEditMode(true)}>Edit</Button>
+            {!editMode && (
+              <Button className="personal-info-btn" variant="contained" style={{ background: '#F3C13A', color: '#222', width: 140, fontWeight: 'bold', fontSize: 16, padding: '10px 0', borderRadius: 8, transition: 'width 0.2s' }} onClick={() => setEditMode(true)}>Edit</Button>
+            )}
             {editMode && (
               <Button className="personal-info-btn" variant="contained" style={{ background: '#F3C13A', color: '#222', width: 140, fontWeight: 'bold', fontSize: 16, padding: '10px 0', borderRadius: 8, transition: 'width 0.2s' }} type="submit">Save</Button>
             )}

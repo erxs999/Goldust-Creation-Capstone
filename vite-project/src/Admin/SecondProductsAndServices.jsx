@@ -39,7 +39,7 @@ export default function SecondProductsAndServices(props) {
             Add Subcategory
           </button>
           <button style={{ background: '#fff', color: '#e6b800', border: '2px solid #e6b800', borderRadius: 6, padding: '12px 24px', fontWeight: 600, fontSize: 16, cursor: 'pointer' }}>
-            Add Product/Service
+            Add Product/Services
           </button>
         </div>
       </div>

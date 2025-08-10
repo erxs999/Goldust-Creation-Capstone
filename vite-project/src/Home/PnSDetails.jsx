@@ -1,12 +1,27 @@
 
 import React, { useEffect, useState } from 'react';
+import IconButton from '@mui/material/IconButton';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import ProductDetailsModal from './ProductDetailsModal';
 import { useLocation } from 'react-router-dom';
 import TopBar from './TopBar';
 
 const PRODUCTS_LOCAL_KEY = 'gd_products_by_category';
 
+const CART_LOCAL_KEY = 'gd_event_cart';
+
 export default function PnSDetails() {
+  // Add to cart handler
+  function handleAddToCart(product) {
+    // Prevent duplicate entries by checking id/title
+    const cart = JSON.parse(localStorage.getItem(CART_LOCAL_KEY)) || [];
+    // You can use a unique id if available, fallback to title
+    const exists = cart.some(item => item.title === product.title);
+    if (!exists) {
+      cart.push(product);
+      localStorage.setItem(CART_LOCAL_KEY, JSON.stringify(cart));
+    }
+  }
   const location = useLocation();
   const [products, setProducts] = useState([]);
   const [categoryTitle, setCategoryTitle] = useState('');
@@ -98,13 +113,24 @@ export default function PnSDetails() {
                     color: '#888'
                   }}>No Image</div>
                 )}
-                <div style={{ padding: 24, paddingTop: 16, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                  <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 6, textAlign: 'left', width: '100%' }}>{prod.title}</div>
-                  {prod.price && (
-                    <div style={{ textAlign: 'left', color: '#888', fontWeight: 600, fontSize: 15, marginBottom: 4, width: '100%' }}>
-                      PHP {prod.price}
+                  <div style={{ padding: 24, paddingTop: 16 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div>
+                        <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 6, textAlign: 'left', width: '100%' }}>{prod.title}</div>
+                        {prod.price && (
+                          <div style={{ textAlign: 'left', color: '#888', fontWeight: 600, fontSize: 15, marginBottom: 4, width: '100%' }}>
+                            PHP {prod.price}
+                          </div>
+                        )}
+                      </div>
+                      <IconButton
+                        aria-label="add to cart"
+                        onClick={e => { e.stopPropagation(); handleAddToCart(prod); }}
+                        style={{ marginLeft: '8px', color: 'orange' }}
+                      >
+                        <AddShoppingCartIcon style={{ color: 'orange' }} />
+                      </IconButton>
                     </div>
-                  )}
                 </div>
               </div>
             ))}

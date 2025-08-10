@@ -1,3 +1,14 @@
+/* Ensure both buttons have the same font style and weight */
+.personal-info-btn {
+  height: 48px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: none !important;
+  font-weight: bold !important;
+  letter-spacing: 0 !important;
+}
 /* Updated to match client-main-content styles */
 .supplier-main-content {
   position: relative;
@@ -53,6 +64,7 @@
 .supplier-info-buttons {
   display: flex;
   gap: 16px;
+  align-items: center;
 }
 
 

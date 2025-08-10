@@ -1,12 +1,13 @@
 
 import React from 'react';
 import SupplierSidebar from './SupplierSidebar';
-import { TextField, Button } from '@mui/material';
+import { TextField, Button, FormControlLabel, Switch } from '@mui/material';
 import './supplier-information.css';
 
 
 const SupplierInformation = () => {
   const [editMode, setEditMode] = React.useState(false);
+  const [available, setAvailable] = React.useState(true);
   return (
     <div style={{ display: 'flex' }}>
       <SupplierSidebar />
@@ -14,7 +15,9 @@ const SupplierInformation = () => {
         <div className="personal-info-header">
           <span className="personal-info-title">Supplier Profile</span>
           <div className="personal-info-buttons">
-            <Button className="personal-info-btn" variant="contained" style={{ background: '#F3C13A', color: '#222', width: 140, fontWeight: 'bold', fontSize: 16, padding: '10px 0', borderRadius: 8, transition: 'width 0.2s' }} onClick={() => setEditMode(true)}>Edit</Button>
+            {!editMode && (
+              <Button className="personal-info-btn" variant="contained" style={{ background: '#F3C13A', color: '#222', width: 140, fontWeight: 'bold', fontSize: 16, padding: '10px 0', borderRadius: 8, transition: 'width 0.2s' }} onClick={() => setEditMode(true)}>Edit</Button>
+            )}
             {editMode && (
               <Button className="personal-info-btn" variant="contained" style={{ background: '#F3C13A', color: '#222', width: 140, fontWeight: 'bold', fontSize: 16, padding: '10px 0', borderRadius: 8, transition: 'width 0.2s' }} type="submit">Save</Button>
             )}
@@ -46,6 +49,44 @@ const SupplierInformation = () => {
               <label htmlFor="password" className="personal-info-label">Password</label>
               <TextField id="password" className="personal-info-field" placeholder="Enter your password" margin="normal" variant="outlined" type="password" size="small" fullWidth />
             </div>
+          </div>
+          <div style={{ marginTop: 32, marginBottom: 8 }}>
+            <div style={{ fontWeight: 500, fontSize: 16, marginBottom: 8 }}>
+              Are you in a mood as a supplier?
+            </div>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={available}
+                  onChange={e => setAvailable(e.target.checked)}
+                  sx={{
+                    '& .MuiSwitch-switchBase.Mui-checked': {
+                      color: '#F3C13A',
+                    },
+                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                      backgroundColor: '#F3C13A',
+                    },
+                    '& .MuiSwitch-switchBase': {
+                      color: '#e53935',
+                    },
+                    '& .MuiSwitch-switchBase + .MuiSwitch-track': {
+                      backgroundColor: '#e53935',
+                    },
+                  }}
+                />
+              }
+              label={
+                <span style={{
+                  color: available ? '#F3C13A' : '#e53935',
+                  fontWeight: 600,
+                  fontSize: 16
+                }}>
+                  {available ? 'Available' : 'Not Available'}
+                </span>
+              }
+              labelPlacement="end"
+              style={{ fontWeight: 600, fontSize: 16 }}
+            />
           </div>
         </form>
       </div>

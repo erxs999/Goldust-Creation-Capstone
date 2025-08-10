@@ -24,18 +24,16 @@ const Booking = () => {
     eventLocation: '',
     eventVenue: '',
     specialRequest: '',
-    gownsSuits: '',
-    venueStyling: '',
-    invitations: '',
-    catering: '',
-    flower: '',
-    photo: '',
-    cakes: '',
-    tokens: '',
-    makeup: '',
+    products: [], // will hold selected products/services
     guestCount: '',
     totalPrice: '',
   });
+
+  // On mount, load selected products/services from localStorage
+  React.useEffect(() => {
+    const selected = JSON.parse(localStorage.getItem('gd_booking_selected_products')) || [];
+    setForm(f => ({ ...f, products: selected }));
+  }, []);
   const navigate = useNavigate();
 
   // TODO: Wire up form state to inputs if needed
@@ -58,7 +56,7 @@ const Booking = () => {
               <StaticDatePicker
                 displayStaticWrapperAs="desktop"
                 value={date}
-                onChange={setDate}
+                onChange={(newValue) => setDate(newValue)}
                 slotProps={{
                   textField: { fullWidth: true, size: 'small' },
                   calendarHeader: { sx: { '& .MuiPickersCalendarHeader-label': { color: '#111' }, '& .MuiPickersArrowSwitcher-button': { color: '#111' } } },
@@ -122,69 +120,34 @@ const Booking = () => {
           </div>
         </div>
         <div className="booking-services-box" style={{ maxWidth: 900, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '0 auto' }}>
-          <h3>CHOOSE SERVICES</h3>
-          <div className="booking-services-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: 12, width: '100%' }}>
-            <FormControl fullWidth size="small" sx={{ mb: 2 }} style={{ flex: '1 1 45%', minWidth: 140 }}>
-              <InputLabel id="venue-styling-label">Venue Styling</InputLabel>
-              <Select labelId="venue-styling-label" label="Venue Styling" defaultValue="">
-                <MenuItem value="">Choose your state</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl fullWidth size="small" sx={{ mb: 2 }} style={{ flex: '1 1 45%', minWidth: 140 }}>
-              <InputLabel id="gowns-suits-label">Gowns and Suits</InputLabel>
-              <Select labelId="gowns-suits-label" label="Gowns and Suits" defaultValue="">
-                <MenuItem value="">Choose your state</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl fullWidth size="small" sx={{ mb: 2 }} style={{ flex: '1 1 45%', minWidth: 140 }}>
-              <InputLabel id="catering-label">Catering Service</InputLabel>
-              <Select labelId="catering-label" label="Catering Service" defaultValue="">
-                <MenuItem value="">Choose your state</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl fullWidth size="small" sx={{ mb: 2 }} style={{ flex: '1 1 45%', minWidth: 140 }}>
-              <InputLabel id="flower-label">Flower Entourage</InputLabel>
-              <Select labelId="flower-label" label="Flower Entourage" defaultValue="">
-                <MenuItem value="">Choose your state</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl fullWidth size="small" sx={{ mb: 2 }} style={{ flex: '1 1 45%', minWidth: 140 }}>
-              <InputLabel id="invitations-label">Invitations</InputLabel>
-              <Select labelId="invitations-label" label="Invitations" defaultValue="">
-                <MenuItem value="">Choose your state</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl fullWidth size="small" sx={{ mb: 2 }} style={{ flex: '1 1 45%', minWidth: 140 }}>
-              <InputLabel id="tokens-label">Tokens</InputLabel>
-              <Select labelId="tokens-label" label="Tokens" defaultValue="">
-                <MenuItem value="">Choose your state</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl fullWidth size="small" sx={{ mb: 2 }} style={{ flex: '1 1 45%', minWidth: 140 }}>
-              <InputLabel id="cakes-label">Cakes</InputLabel>
-              <Select labelId="cakes-label" label="Cakes" defaultValue="">
-                <MenuItem value="">Choose your state</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl fullWidth size="small" sx={{ mb: 2 }} style={{ flex: '1 1 45%', minWidth: 140 }}>
-              <InputLabel id="makeup-label">Make up and Hairstyle</InputLabel>
-              <Select labelId="makeup-label" label="Make up and Hairstyle" defaultValue="">
-                <MenuItem value="">Choose your state</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl fullWidth size="small" sx={{ mb: 2 }} style={{ flex: '1 1 45%', minWidth: 140 }}>
-              <InputLabel id="photo-label">Photo and Video</InputLabel>
-              <Select labelId="photo-label" label="Photo and Video" defaultValue="">
-                <MenuItem value="">Choose your state</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl fullWidth size="small" sx={{ mb: 2 }} style={{ flex: '1 1 45%', minWidth: 140 }}>
-              <InputLabel id="guest-label">Guest Count</InputLabel>
-              <Select labelId="guest-label" label="Guest Count" defaultValue="">
-                <MenuItem value="">Choose your state</MenuItem>
-              </Select>
-            </FormControl>
-          </div>
+          <h3 style={{ fontWeight: 700 }}>Services and Products Availed</h3>
+          {/* Show selected products/services from cart */}
+          {form.products && form.products.length > 0 ? (
+            <div style={{ width: '100%', marginBottom: 24 }}>
+              {form.products.map((item, idx) => (
+                <div key={idx} style={{
+                  background: '#fafafa',
+                  border: '1px solid #eee',
+                  borderRadius: 6,
+                  padding: 12,
+                  marginBottom: 10,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 16
+                }}>
+                  {item.image && (
+                    <img src={item.image} alt={item.title} style={{ width: 60, height: 48, objectFit: 'cover', borderRadius: 4 }} />
+                  )}
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 600 }}>{item.title}</div>
+                    {item.price && <div style={{ color: '#888', fontWeight: 500 }}>PHP {item.price}</div>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ color: '#888', marginBottom: 16 }}>No products/services selected yet.</div>
+          )}
           <div className="booking-field booking-special-request-row" style={{ width: '100%', marginTop: 16 }}>
             <TextField
               className="booking-special-request"
@@ -192,14 +155,10 @@ const Booking = () => {
               multiline
               minRows={5}
               label="Enter your Special Request"
-              placeholder="Type any special requests here..."
+              placeholder="Type any special requests here"
               variant="outlined"
               size="small"
             />
-          </div>
-          <div className="booking-actions" style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: 16, marginTop: 24 }}>
-
-            <button type="button" className="booking-btn booking-btn-next booking-btn-orange" style={{ background: '#ff9800', color: '#fff', border: 'none' }} onClick={handleNext}>Confirm</button>
           </div>
         </div>
       </div>

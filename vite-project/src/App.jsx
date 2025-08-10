@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./Authentication/Login";
 import SignUp from "./Authentication/SignUp";
 import Home from "./Home/Home";
+import EventCart from "./Home/EventCart";
 import PnSDetails from "./Home/PnSDetails";
 import ForgotPasswordFlow from "./Authentication/ForgotPasswordFlow";
 import BookingInformation from "./Client/BookingInformation";
@@ -46,6 +47,7 @@ function App() {
         <Route path="/book-appointment" element={<BookAppointment />} />
   <Route path="/policy" element={<Policy />} />
   <Route path="/pns-details" element={<PnSDetails />} />
+  <Route path="/event-cart" element={<EventCart />} />
         {/* Admin routes */}
         <Route path="/admin/dashboard" element={<Dashboard />} />
         <Route path="/admin/booking" element={<AdminBooking />} />
