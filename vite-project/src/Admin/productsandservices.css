@@ -21,9 +21,10 @@
   transition: box-shadow 0.22s, transform 0.18s;
   border: 1px solid #f0f0f0;
   width: 100%;
-  max-width: 500px;
+  max-width: 350px;
   min-width: 380px;
-  margin: 0 auto;
+  margin: 0;
+  justify-self: start;
 }
 .redesign-category-card:hover {
   box-shadow: 0 12px 36px 0 rgba(60,60,60,0.28);

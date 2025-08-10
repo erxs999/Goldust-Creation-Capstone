@@ -1,5 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
+import ProductDetailsModal from './ProductDetailsModal';
 import { useLocation } from 'react-router-dom';
 import TopBar from './TopBar';
 
@@ -9,6 +10,8 @@ export default function PnSDetails() {
   const location = useLocation();
   const [products, setProducts] = useState([]);
   const [categoryTitle, setCategoryTitle] = useState('');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
     // Try to get category from location.state or from query param
@@ -45,30 +48,67 @@ export default function PnSDetails() {
         {products.length === 0 ? (
           <div style={{ color: '#888', textAlign: 'center', fontSize: 18 }}>No products/services available.</div>
         ) : (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 32 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 40 }}>
             {products.map((prod, idx) => (
               <div
                 key={idx}
+                className="pns-card"
                 style={{
                   border: 'none',
-                  borderRadius: 16,
-                  padding: 16,
-                  minWidth: 220,
-                  maxWidth: 300,
+                  borderRadius: 0,
+                  padding: 0,
+                  minWidth: 340,
+                  maxWidth: 420,
                   background: '#fff',
-                  boxShadow: '0 4px 24px 0 rgba(0,0,0,0.10), 0 1.5px 6px 0 rgba(230,184,0,0.10)',
-                  transition: 'box-shadow 0.2s',
+                  boxShadow: '0 4px 24px 0 rgba(0,0,0,0.12)',
+                  transition: 'box-shadow 0.2s, transform 0.2s',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'stretch',
+                  overflow: 'hidden',
                 }}
+                onClick={() => { setSelectedProduct(prod); setModalOpen(true); }}
               >
+      <style>{`
+        .pns-card:hover {
+          box-shadow: 0 8px 32px 0 rgba(0,0,0,0.18);
+          transform: translateY(-8px);
+        }
+      `}</style>
                 {prod.image ? (
-                  <img src={prod.image} alt={prod.title} style={{ width: '100%', height: 120, objectFit: 'cover', borderRadius: 10, marginBottom: 8 }} />
+                  <img src={prod.image} alt={prod.title} style={{
+                    display: 'block',
+                    width: '100%',
+                    height: 220,
+                    objectFit: 'cover',
+                    borderRadius: 0,
+                    margin: 0,
+                  }} />
                 ) : (
-                  <div style={{ width: '100%', height: 120, background: '#eee', borderRadius: 10, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888' }}>No Image</div>
+                  <div style={{
+                    width: '100%',
+                    height: 220,
+                    background: '#eee',
+                    borderRadius: 0,
+                    margin: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#888'
+                  }}>No Image</div>
                 )}
-                {/* Removed product title */}
-                <div style={{ color: '#555', fontSize: 15 }}>{prod.description}</div>
+                <div style={{ padding: 24, paddingTop: 16, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                  <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 6, textAlign: 'left', width: '100%' }}>{prod.title}</div>
+                  {prod.price && (
+                    <div style={{ textAlign: 'left', color: '#888', fontWeight: 600, fontSize: 15, marginBottom: 4, width: '100%' }}>
+                      PHP {prod.price}
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
+            <ProductDetailsModal open={modalOpen} onClose={() => setModalOpen(false)} product={selectedProduct} />
           </div>
         )}
       </div>

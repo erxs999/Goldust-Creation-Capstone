@@ -1,5 +1,4 @@
 
-
 .supplier-sidebar {
   font-family: 'Poppins', 'Segoe UI', sans-serif;
   background: linear-gradient(135deg, #e2b23a 0%, #e86d9e 100%);
@@ -54,7 +53,6 @@
   gap: 6px;
 }
 
-
 .supplier-sidebar li {
   display: flex;
   align-items: center;
@@ -64,70 +62,7 @@
   color: #000000;
   cursor: pointer;
   transition: color 0.2s;
-  padding: 2px 0;
-  min-height: 32px;
-}
-
-.supplier-sidebar li a {
-  color: #000000 !important;
-  text-decoration: none;
-  transition: color 0.2s;
-  font-weight: 300;
-}
-
-.supplier-sidebar li:hover,
-.supplier-sidebar li:hover a {
-  color: #e2b23a !important;
-}
-
-.supplier-sidebar .icon {
-  width: 22px;
-  height: 22px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-@keyframes gold-pink-gradient-move {
-  0% {
-    background-position: 0% 100%;
-  }
-  50% {
-    background-position: 100% 0%;
-  }
-  100% {
-    background-position: 0% 100%;
-  }
-}
-
-.supplier-sidebar h2 {
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: #fff;
-  margin-bottom: 18px;
-  /* border-bottom removed */
-  padding-bottom: 8px;
-}
-
-.supplier-sidebar ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.supplier-sidebar li {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 1.08rem;
-  font-weight: 300;
-  color: #fff;
-  cursor: pointer;
-  transition: color 0.2s;
-  padding: 2px 0;
+  padding: 5px 0;
   min-height: 32px;
 }
 
@@ -143,7 +78,7 @@
   justify-content: center;
 }
 .supplier-sidebar li a {
-  color: #ffffff !important;
+  color: #000000 !important;
   text-decoration: none;
   transition: color 0.2s;
   font-weight: 300;
