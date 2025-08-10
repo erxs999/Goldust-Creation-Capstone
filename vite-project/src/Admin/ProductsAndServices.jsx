@@ -43,6 +43,26 @@ export default function ProductsAndServices() {
   const [editFields, setEditFields] = useState([{ label: '' }]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const navigate = useNavigate();
+  // State for Add Product/Service modal
+  const [showProductModal, setShowProductModal] = useState(false);
+  const [productImage, setProductImage] = useState("");
+  const [productTitle, setProductTitle] = useState("");
+  const [productDescription, setProductDescription] = useState("");
+  // State for products/services added in the selected category
+  const PRODUCTS_LOCAL_KEY = 'gd_products_by_category';
+  const [products, setProducts] = useState([]);
+
+  // Load products for selected category
+  useEffect(() => {
+    if (selectedCategory && selectedCategory.title) {
+      try {
+        const all = JSON.parse(localStorage.getItem(PRODUCTS_LOCAL_KEY)) || {};
+        setProducts(all[selectedCategory.title] || []);
+      } catch {
+        setProducts([]);
+      }
+    }
+  }, [selectedCategory]);
 
   useEffect(() => {
     setCategories(getStoredCategories());
@@ -148,12 +168,7 @@ export default function ProductsAndServices() {
 
   // Navigation logic for category cards
   const handleCategoryClick = (cat, idx) => {
-    if (idx === 0) {
-      setSelectedCategory({ ...cat, idx });
-    } else {
-      // Navigate to /admin/second-products-and-services/:categoryId and pass category data via state
-      navigate(`/admin/second-products-and-services/${encodeURIComponent(cat.title)}`, { state: { category: { ...cat, idx } } });
-    }
+    setSelectedCategory({ ...cat, idx });
   };
 
   return (
@@ -245,20 +260,187 @@ export default function ProductsAndServices() {
             </Dialog>
           </>
         ) : (
-          selectedCategory.idx === 0 ? (
+          selectedCategory.idx === 0 || selectedCategory.idx > 0 ? (
             <div style={{padding:32}}>
+              <h2 style={{ fontWeight: 700, fontSize: 32, marginBottom: 18 }}>
+                {selectedCategory.title}
+              </h2>
               <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 24 }}>
-                <button onClick={() => setSelectedCategory(null)} style={{ background: '#e6b800', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 18px', fontWeight: 600, fontSize: 16, cursor: 'pointer' }}>Back</button>
-                <button style={{ background: '#e6b800', color: '#fff', border: 'none', borderRadius: 6, padding: '12px 24px', fontWeight: 600, fontSize: 16, cursor: 'pointer' }}>
+                <button
+                  onClick={() => setSelectedCategory(null)}
+                  style={{
+                    background: '#e6b800',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: 6,
+                    height: 56,
+                    minWidth: 120,
+                    padding: '0 32px',
+                    fontWeight: 600,
+                    fontSize: 20,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  Back
+                </button>
+                <button
+                  style={{
+                    background: '#e6b800',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: 6,
+                    height: 56,
+                    minWidth: 220,
+                    padding: '0 32px',
+                    fontWeight: 600,
+                    fontSize: 20,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
                   Add Secondary Category
                 </button>
-                <button style={{ background: '#fff', color: '#e6b800', border: '2px solid #e6b800', borderRadius: 6, padding: '12px 24px', fontWeight: 600, fontSize: 16, cursor: 'pointer' }}>
+                <button
+                  style={{
+                    background: '#fff',
+                    color: '#e6b800',
+                    border: '2px solid #e6b800',
+                    borderRadius: 6,
+                    height: 56,
+                    minWidth: 220,
+                    padding: '0 32px',
+                    fontWeight: 600,
+                    fontSize: 20,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  onClick={() => setShowProductModal(true)}
+                >
                   Add Product/Service
                 </button>
               </div>
-              <div style={{background:'#fff',borderRadius:16,boxShadow:'0 4px 24px 0 rgba(60,60,60,0.10)',padding:32,minHeight:300}}>
-                <h2 style={{ fontWeight: 700, fontSize: 28, margin: 0 }}>{selectedCategory.title}</h2>
-                <p>This is the first category. You can customize this section as needed.</p>
+              {/* Product/Service Modal */}
+              <Dialog open={showProductModal} onClose={() => setShowProductModal(false)} maxWidth="xs" fullWidth>
+                <DialogTitle>Add Product/Service</DialogTitle>
+                <form onSubmit={e => {
+                  e.preventDefault();
+                  if (!productTitle.trim() || !productDescription.trim()) return;
+                  const newProduct = {
+                    image: productImage,
+                    title: productTitle,
+                    description: productDescription
+                  };
+                  setProducts(prev => {
+                    const updated = [...prev, newProduct];
+                    // Save to localStorage by category
+                    try {
+                      const all = JSON.parse(localStorage.getItem(PRODUCTS_LOCAL_KEY)) || {};
+                      all[selectedCategory.title] = updated;
+                      localStorage.setItem(PRODUCTS_LOCAL_KEY, JSON.stringify(all));
+                    } catch {}
+                    return updated;
+                  });
+                  setShowProductModal(false);
+                  setProductImage("");
+                  setProductTitle("");
+                  setProductDescription("");
+                }}>
+                  <DialogContent>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 16 }}>
+                      {productImage ? (
+                        <img
+                          src={productImage}
+                          alt="Preview"
+                          style={{ width: 120, height: 120, objectFit: 'cover', borderRadius: 8, marginBottom: 8, border: '1px solid #ccc' }}
+                        />
+                      ) : (
+                        <div style={{ width: 120, height: 120, background: '#eee', borderRadius: 8, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888', border: '1px solid #ccc' }}>
+                          No Image
+                        </div>
+                      )}
+                      <Button
+                        variant="outlined"
+                        component="label"
+                        sx={{ mb: 1 }}
+                      >
+                        Upload Picture
+                        <input
+                          type="file"
+                          accept="image/*"
+                          hidden
+                          onChange={e => {
+                            const file = e.target.files[0];
+                            if (!file) return;
+                            const reader = new FileReader();
+                            reader.onloadend = () => setProductImage(reader.result);
+                            reader.readAsDataURL(file);
+                          }}
+                        />
+                      </Button>
+                    </div>
+                    <TextField
+                      label="Product/Service Title"
+                      value={productTitle}
+                      onChange={e => setProductTitle(e.target.value)}
+                      fullWidth
+                      required
+                      margin="normal"
+                    />
+                    <TextField
+                      label="Description"
+                      value={productDescription}
+                      onChange={e => setProductDescription(e.target.value)}
+                      fullWidth
+                      required
+                      margin="normal"
+                      multiline
+                      minRows={3}
+                    />
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={() => setShowProductModal(false)} color="secondary">Cancel</Button>
+                    <Button type="submit" variant="contained">Add</Button>
+                  </DialogActions>
+                </form>
+              </Dialog>
+              {/* List of added products/services */}
+              <div style={{ marginTop: 32 }}>
+                {products.length === 0 ? (
+                  <div style={{ color: '#888', textAlign: 'center' }}>No products/services added yet.</div>
+                ) : (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
+                    {products.map((prod, idx) => (
+                      <div
+                        key={idx}
+                        style={{
+                          border: 'none',
+                          borderRadius: 16,
+                          padding: 16,
+                          minWidth: 220,
+                          maxWidth: 300,
+                          background: '#fff',
+                          boxShadow: '0 4px 24px 0 rgba(0,0,0,0.10), 0 1.5px 6px 0 rgba(230,184,0,0.10)',
+                          transition: 'box-shadow 0.2s',
+                        }}
+                      >
+                        {prod.image ? (
+                          <img src={prod.image} alt={prod.title} style={{ width: '100%', height: 120, objectFit: 'cover', borderRadius: 10, marginBottom: 8 }} />
+                        ) : (
+                          <div style={{ width: '100%', height: 120, background: '#eee', borderRadius: 10, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888' }}>No Image</div>
+                        )}
+                        <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 4 }}>{prod.title}</div>
+                        <div style={{ color: '#555', fontSize: 15 }}>{prod.description}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           ) : (

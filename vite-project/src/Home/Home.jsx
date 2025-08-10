@@ -1,5 +1,6 @@
 
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import TopBar from "./TopBar";
 import "./home.css";
 import "../Authentication/auth.css";
@@ -10,6 +11,8 @@ const Home = () => {
   const [categories, setCategories] = useState([]);
   const [bgImages, setBgImages] = useState([]);
   const [bgIndex, setBgIndex] = useState(0);
+  const navigate = useNavigate();
+
   useEffect(() => {
     try {
       const cats = JSON.parse(localStorage.getItem(LOCAL_KEY)) || [];
@@ -80,7 +83,12 @@ const Home = () => {
         <div className="home-services-grid">
           {categories.length === 0 && <div>No services yet.</div>}
           {categories.map((cat, idx) => (
-            <div key={cat.title + idx} className="home-service-card">
+            <div
+              key={cat.title + idx}
+              className="home-service-card"
+              style={{ cursor: 'pointer' }}
+              onClick={() => navigate('/pns-details', { state: { category: cat } })}
+            >
               {cat.image ? (
                 <div className="home-service-img-wrapper">
                   <img src={cat.image} alt={cat.title} className="home-service-img" />
