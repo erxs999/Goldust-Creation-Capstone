@@ -1,6 +1,9 @@
+
 .supplier-sidebar {
   font-family: 'Poppins', 'Segoe UI', sans-serif;
-  background: #fff;
+  background: linear-gradient(120deg, #f8b8d2 0%, #bb9708 25%, #ffb347 70%, #f5609e 100%);
+  background-size: 250% 250%;
+  animation: gold-pink-gradient-move 8s ease-in-out infinite alternate;
   border-radius: 12px;
   box-shadow: 0 0 0 2px #eee;
   padding: 32px 24px;
@@ -16,6 +19,18 @@
   flex-direction: column;
   gap: 24px;
   z-index: 10;
+}
+
+@keyframes gold-pink-gradient-move {
+  0% {
+    background-position: 0% 100%;
+  }
+  50% {
+    background-position: 100% 0%;
+  }
+  100% {
+    background-position: 0% 100%;
+  }
 }
 
 .supplier-sidebar h2 {

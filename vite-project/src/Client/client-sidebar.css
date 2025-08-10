@@ -1,12 +1,14 @@
+
 .client-sidebar {
-  background: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
   border-radius: 12px;
   box-shadow: 0 0 0 2px #eee;
   padding: 32px 24px;
   width: 260px;
   height: calc(95vh - 32px * 2);
   position: fixed;
-
   left: 20px;
   top: 20px;
   bottom: 20px;
@@ -16,6 +18,18 @@
   flex-direction: column;
   gap: 24px;
   z-index: 10;
+}
+
+@keyframes gold-pink-gradient-move {
+  0% {
+    background-position: 0% 100%;
+  }
+  50% {
+    background-position: 100% 0%;
+  }
+  100% {
+    background-position: 0% 100%;
+  }
 }
 
 .client-sidebar h2 {
@@ -35,14 +49,37 @@
   gap: 18px;
 }
 
+
 .client-sidebar li {
   display: flex;
   align-items: center;
   gap: 12px;
   font-size: 1rem;
-  color: #222;
+  color: #fff;
   cursor: pointer;
   transition: color 0.2s;
+}
+
+.client-sidebar li a {
+  color: #fff !important;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.client-sidebar li:hover,
+.client-sidebar li:hover a {
+  color: #e2b23a !important;
+}
+
+.client-sidebar li a {
+  color: #fff !important;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.client-sidebar li:hover,
+.client-sidebar li:hover a {
+  color: #e2b23a !important;
 }
 
 .client-sidebar li:hover {
