@@ -16,7 +16,7 @@ export default function ProductDetailsModal({ open, onClose, product, onEdit }) 
       <DialogContent style={{ background: '#f3f3f1', padding: 0 }}>
         {/* Image */}
         {image && (
-          <div style={{ width: '100%', height: 260, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+          <div style={{ width: '100%', height: 400, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
             <img src={image} alt={title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
         )}

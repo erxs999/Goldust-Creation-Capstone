@@ -1,6 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-
-
 import Sidebar from './Sidebar';
 import './productsandservices.css';
 import Dialog from '@mui/material/Dialog';
@@ -14,22 +12,9 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SecondProductsAndServices from './SecondProductsAndServices';
 import ProductDetailsModal from '../Home/ProductDetailsModal';
-
-const LOCAL_KEY = 'gd_categories';
-
-function getStoredCategories() {
-  try {
-    return JSON.parse(localStorage.getItem(LOCAL_KEY)) || [];
-  } catch {
-    return [];
-  }
-}
-
-function setStoredCategories(categories) {
-  localStorage.setItem(LOCAL_KEY, JSON.stringify(categories));
-}
-
 import React, { useState, useEffect } from 'react';
+
+const API_BASE = 'http://localhost:5050/api';
 
 export default function ProductsAndServices() {
   const [categories, setCategories] = useState([]);
@@ -61,21 +46,24 @@ export default function ProductsAndServices() {
   const [editProductIdx, setEditProductIdx] = useState(null);
   const [editProductData, setEditProductData] = useState({ image: '', title: '', price: '', description: '', additionals: [] });
 
-  // Load products for selected category
+
+  // Fetch categories from API
+  useEffect(() => {
+    fetch(`${API_BASE}/categories`)
+      .then(res => res.json())
+      .then(setCategories)
+      .catch(() => setCategories([]));
+  }, []);
+
+  // Fetch products for selected category from API
   useEffect(() => {
     if (selectedCategory && selectedCategory.title) {
-      try {
-        const all = JSON.parse(localStorage.getItem(PRODUCTS_LOCAL_KEY)) || {};
-        setProducts(all[selectedCategory.title] || []);
-      } catch {
-        setProducts([]);
-      }
+      fetch(`${API_BASE}/products/${encodeURIComponent(selectedCategory.title)}`)
+        .then(res => res.json())
+        .then(setProducts)
+        .catch(() => setProducts([]));
     }
   }, [selectedCategory]);
-
-  useEffect(() => {
-    setCategories(getStoredCategories());
-  }, []);
 
   const openModal = () => {
     setShowModal(true);
@@ -99,13 +87,19 @@ export default function ProductsAndServices() {
     setEditFields([{ label: '' }]);
   };
 
-  const handleAdd = (e) => {
+  const handleAdd = async (e) => {
     e.preventDefault();
     if (!newTitle.trim()) return;
     const newCat = { title: newTitle.trim(), image: newImage, fields: fields.map(f => ({ label: f.label })) };
-    const updated = [...categories, newCat];
-    setCategories(updated);
-    setStoredCategories(updated);
+    try {
+      const res = await fetch(`${API_BASE}/categories`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newCat),
+      });
+      const saved = await res.json();
+      setCategories([...categories, saved]);
+    } catch {}
     closeModal();
   };
 
@@ -117,14 +111,19 @@ export default function ProductsAndServices() {
     setShowModal(true);
   };
 
-  const handleUpdate = (e) => {
+  const handleUpdate = async (e) => {
     e.preventDefault();
     if (!editTitle.trim()) return;
-    const updated = categories.map((cat, i) =>
-      i === editIdx ? { ...cat, title: editTitle.trim(), image: editImage, fields: editFields.map(f => ({ label: f.label })) } : cat
-    );
-    setCategories(updated);
-    setStoredCategories(updated);
+    const catToUpdate = categories[editIdx];
+    try {
+      const res = await fetch(`${API_BASE}/categories/${catToUpdate._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...catToUpdate, title: editTitle.trim(), image: editImage, fields: editFields.map(f => ({ label: f.label })) }),
+      });
+      const updatedCat = await res.json();
+      setCategories(categories.map((cat, i) => i === editIdx ? updatedCat : cat));
+    } catch {}
     closeModal();
   };
 
@@ -168,11 +167,13 @@ export default function ProductsAndServices() {
     }
   };
 
-  const handleDelete = (idx) => {
+  const handleDelete = async (idx) => {
     if (!window.confirm('Delete this category?')) return;
-    const updated = categories.filter((_, i) => i !== idx);
-    setCategories(updated);
-    setStoredCategories(updated);
+    const catToDelete = categories[idx];
+    try {
+      await fetch(`${API_BASE}/categories/${catToDelete._id}`, { method: 'DELETE' });
+      setCategories(categories.filter((_, i) => i !== idx));
+    } catch {}
   };
 
   // Navigation logic for category cards
@@ -454,7 +455,7 @@ export default function ProductsAndServices() {
               {/* Product/Service Modal */}
               <Dialog open={showProductModal} onClose={() => setShowProductModal(false)} maxWidth="sm" fullWidth>
                 <DialogTitle>Add Product/Service</DialogTitle>
-                <form onSubmit={e => {
+                <form onSubmit={async e => {
                   e.preventDefault();
                   if (!productTitle.trim() || !productDescription.trim() || !productPrice.trim()) return;
                   const newProduct = {
@@ -462,18 +463,18 @@ export default function ProductsAndServices() {
                     title: productTitle,
                     description: productDescription,
                     price: productPrice,
-                    additionals: showAdditionals ? additionals.filter(a => a.description && a.price) : []
+                    additionals: showAdditionals ? additionals.filter(a => a.description && a.price) : [],
+                    categoryTitle: selectedCategory.title,
                   };
-                  setProducts(prev => {
-                    const updated = [...prev, newProduct];
-                    // Save to localStorage by category
-                    try {
-                      const all = JSON.parse(localStorage.getItem(PRODUCTS_LOCAL_KEY)) || {};
-                      all[selectedCategory.title] = updated;
-                      localStorage.setItem(PRODUCTS_LOCAL_KEY, JSON.stringify(all));
-                    } catch {}
-                    return updated;
-                  });
+                  try {
+                    const res = await fetch(`${API_BASE}/products`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(newProduct),
+                    });
+                    const saved = await res.json();
+                    setProducts(prev => [...prev, saved]);
+                  } catch {}
                   setShowProductModal(false);
                   setProductImage("");
                   setProductTitle("");
@@ -683,7 +684,20 @@ export default function ProductsAndServices() {
                     {/* Edit Product Modal */}
                     <Dialog open={showEditProductModal} onClose={() => setShowEditProductModal(false)} maxWidth="sm" fullWidth>
                       <DialogTitle>Edit Product/Service</DialogTitle>
-                      <form onSubmit={handleSaveEditProduct}>
+                      <form onSubmit={async e => {
+                        e.preventDefault();
+                        if (!editProductData.title.trim() || !editProductData.description.trim() || !editProductData.price.trim()) return;
+                        try {
+                          const res = await fetch(`${API_BASE}/products/${editProductData._id}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(editProductData),
+                          });
+                          const updated = await res.json();
+                          setProducts(products.map((p, i) => i === editProductIdx ? updated : p));
+                        } catch {}
+                        setShowEditProductModal(false);
+                      }}>
                         <DialogContent>
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 16 }}>
                             {editProductData.image ? (
