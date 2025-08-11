@@ -14,7 +14,7 @@ import SecondProductsAndServices from './SecondProductsAndServices';
 import ProductDetailsModal from '../Home/ProductDetailsModal';
 import React, { useState, useEffect } from 'react';
 
-const API_BASE = 'http://localhost:5050/api';
+const API_BASE = 'http://localhost:5051/api';
 
 export default function ProductsAndServices() {
   const [categories, setCategories] = useState([]);

@@ -11,8 +11,7 @@ import { Link, useLocation } from 'react-router-dom';
 const navLinks = [
   { label: 'Home', icon: <HomeIcon />, to: '/home' },
   { label: 'Personal Information', icon: <PersonIcon />, to: '/supplier/information' },
-  { label: 'Message', icon: <MessageIcon />, to: '/supplier/message' },
-  { label: 'Products', icon: <InfoIcon />, to: '/supplier/products' },
+  
   { label: 'Notifications', icon: <NotificationsIcon />, to: '/supplier/notifications' },
   { label: 'Log out', icon: <LogoutIcon />, to: '/logout' },
 ];

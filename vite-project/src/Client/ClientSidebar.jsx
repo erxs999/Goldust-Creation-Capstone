@@ -11,7 +11,7 @@ import { Link } from 'react-router-dom';
 const navLinks = [
   { label: 'Home', icon: <HomeIcon />, to: '/client/home' },
   { label: 'Personal Information', icon: <PersonIcon />, to: '/client/personal-information' },
-  { label: 'Message', icon: <MessageIcon />, to: '/client/message' },
+ 
   { label: 'Booking Information', icon: <InfoIcon />, to: '/client/booking-information' },
   { label: 'Notification', icon: <NotificationsIcon />, to: '/client/notification' },
   { label: 'Log out', icon: <LogoutIcon />, to: '/logout' },
