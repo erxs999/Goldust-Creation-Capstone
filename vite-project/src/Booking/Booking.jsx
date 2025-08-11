@@ -162,6 +162,25 @@ const Booking = () => {
           </div>
         </div>
       </div>
+      {/* Confirm Button */}
+  <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: 16, marginBottom: 80 }}>
+        <button
+          style={{
+            padding: '12px 32px',
+            background: '#ffb300',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 6,
+            fontWeight: 700,
+            fontSize: 16,
+            cursor: 'pointer',
+            minWidth: 180
+          }}
+          onClick={handleNext}
+        >
+          Confirm
+        </button>
+      </div>
     </div>
   );
 

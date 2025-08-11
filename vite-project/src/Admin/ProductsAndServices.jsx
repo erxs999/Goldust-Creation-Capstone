@@ -236,7 +236,13 @@ export default function ProductsAndServices() {
                 Add Category
               </button>
             </div>
-            <div className="admin-category-list redesign-category-list" style={{ display: 'flex', justifyContent: 'flex-start' }}>
+            <div className="admin-category-list redesign-category-list" style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gap: 32,
+              justifyContent: 'flex-start',
+              width: '100%'
+            }}>
               {categories.length === 0 && <div>No categories yet.</div>}
               {categories.map((cat, idx) => (
                 <div
