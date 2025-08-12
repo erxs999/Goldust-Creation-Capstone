@@ -11,5 +11,8 @@
     "react-big-calendar": "^1.19.4",
     "react-router-dom": "^7.6.3",
     "rsuite": "^5.83.2"
+  },
+  "devDependencies": {
+    "vite": "^7.1.2"
   }
 }
