@@ -5,7 +5,8 @@ import TopBar from "./TopBar";
 import "./home.css";
 import "../Authentication/auth.css";
 
-const LOCAL_KEY = 'gd_categories';
+
+const API_BASE = 'http://localhost:5051/api';
 
 const Home = () => {
   const [categories, setCategories] = useState([]);
@@ -14,12 +15,12 @@ const Home = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    try {
-      const cats = JSON.parse(localStorage.getItem(LOCAL_KEY)) || [];
-      setCategories(cats);
-    } catch {
-      setCategories([]);
-    }
+    // Fetch categories from API
+    fetch(`${API_BASE}/categories`)
+      .then(res => res.json())
+      .then(data => setCategories(Array.isArray(data) ? data : []))
+      .catch(() => setCategories([]));
+
     // Scroll to services if ?scroll=services is in the URL
     if (window.location.search.includes('scroll=services')) {
       setTimeout(() => {

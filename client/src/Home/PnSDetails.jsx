@@ -6,20 +6,24 @@ import ProductDetailsModal from './ProductDetailsModal';
 import { useLocation } from 'react-router-dom';
 import TopBar from './TopBar';
 
-const PRODUCTS_LOCAL_KEY = 'gd_products_by_category';
+
+const API_BASE = 'http://localhost:5051/api';
 
 const CART_LOCAL_KEY = 'gd_event_cart';
 
 export default function PnSDetails() {
   // Add to cart handler
-  function handleAddToCart(product) {
-    // Prevent duplicate entries by checking id/title
-    const cart = JSON.parse(localStorage.getItem(CART_LOCAL_KEY)) || [];
-    // You can use a unique id if available, fallback to title
-    const exists = cart.some(item => item.title === product.title);
-    if (!exists) {
-      cart.push(product);
-      localStorage.setItem(CART_LOCAL_KEY, JSON.stringify(cart));
+  async function handleAddToCart(product) {
+    // Add product to cart in DB
+    try {
+      await fetch(`${API_BASE}/cart`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(product)
+      });
+      // Optionally show a success message
+    } catch (err) {
+      // Optionally show an error message
     }
   }
   const location = useLocation();
@@ -40,12 +44,11 @@ export default function PnSDetails() {
     }
     setCategoryTitle(cat);
     if (cat) {
-      try {
-        const all = JSON.parse(localStorage.getItem(PRODUCTS_LOCAL_KEY)) || {};
-        setProducts(all[cat] || []);
-      } catch {
-        setProducts([]);
-      }
+      // Fetch products for this category from API
+  fetch(`${API_BASE}/products/${encodeURIComponent(cat)}`)
+        .then(res => res.json())
+        .then(data => setProducts(Array.isArray(data) ? data : []))
+        .catch(() => setProducts([]));
     } else {
       setProducts([]);
     }

@@ -1,3 +1,29 @@
+// ...existing code...
+// CART ROUTES (after mongoose init)
+const cartItemSchema = new mongoose.Schema({
+  product: Object, // store product snapshot
+  createdAt: { type: Date, default: Date.now }
+});
+const CartItem = mongoose.model('CartItem', cartItemSchema);
+
+// Get all cart items
+app.get('/api/cart', async (req, res) => {
+  const items = await CartItem.find();
+  res.json(items);
+});
+
+// Add to cart
+app.post('/api/cart', async (req, res) => {
+  const item = new CartItem({ product: req.body });
+  await item.save();
+  res.status(201).json(item);
+});
+
+// Delete from cart
+app.delete('/api/cart/:id', async (req, res) => {
+  await CartItem.findByIdAndDelete(req.params.id);
+  res.json({ success: true });
+});
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');

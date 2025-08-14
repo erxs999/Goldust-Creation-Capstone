@@ -4,21 +4,26 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import TopBar from './TopBar';
 
 
-const CART_LOCAL_KEY = 'gd_event_cart';
+const API_BASE = 'http://localhost:5051/api';
 
 const EventCart = () => {
   const [cart, setCart] = useState([]);
 
 
   useEffect(() => {
-    const items = JSON.parse(localStorage.getItem(CART_LOCAL_KEY)) || [];
-    setCart(items);
+    fetch(`${API_BASE}/cart`)
+      .then(res => res.json())
+      .then(data => setCart(Array.isArray(data) ? data : []))
+      .catch(() => setCart([]));
   }, []);
 
-  const handleDelete = (idxToDelete) => {
-    const newCart = cart.filter((_, idx) => idx !== idxToDelete);
-    setCart(newCart);
-    localStorage.setItem(CART_LOCAL_KEY, JSON.stringify(newCart));
+  const handleDelete = async (idxToDelete) => {
+    const item = cart[idxToDelete];
+    if (!item || !item._id) return;
+    try {
+      await fetch(`${API_BASE}/cart/${item._id}`, { method: 'DELETE' });
+      setCart(cart.filter((_, idx) => idx !== idxToDelete));
+    } catch {}
   };
 
   return (
@@ -43,12 +48,12 @@ const EventCart = () => {
                   gap: 20,
                   position: 'relative'
                 }}>
-                  {item.image && (
-                    <img src={item.image} alt={item.title} style={{ width: 100, height: 80, objectFit: 'cover', borderRadius: 6 }} />
+                  {item.product && item.product.image && (
+                    <img src={item.product.image} alt={item.product.title} style={{ width: 100, height: 80, objectFit: 'cover', borderRadius: 6 }} />
                   )}
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 700, fontSize: 18 }}>{item.title}</div>
-                    {item.price && <div style={{ color: '#888', fontWeight: 600, fontSize: 15 }}>PHP {item.price}</div>}
+                    <div style={{ fontWeight: 700, fontSize: 18 }}>{item.product ? item.product.title : ''}</div>
+                    {item.product && item.product.price && <div style={{ color: '#888', fontWeight: 600, fontSize: 15 }}>PHP {item.product.price}</div>}
                   </div>
                   <IconButton aria-label="delete" onClick={() => handleDelete(idx)} style={{ color: 'red' }}>
                     <DeleteIcon />
@@ -62,20 +67,21 @@ const EventCart = () => {
               <div style={{ marginBottom: 18 }}>
                 {cart.map((item, idx) => (
                   <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-                    <span>{item.title}</span>
-                    <span style={{ fontWeight: 600 }}>PHP {item.price || 0}</span>
+                    <span>{item.product ? item.product.title : ''}</span>
+                    <span style={{ fontWeight: 600 }}>PHP {item.product && item.product.price ? item.product.price : 0}</span>
                   </div>
                 ))}
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: 17, marginBottom: 24, borderTop: '1px solid #eee', paddingTop: 12 }}>
                 <span>Total</span>
-                <span style={{ color: 'orange' }}>PHP {cart.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0)}</span>
+                <span style={{ color: 'orange' }}>PHP {cart.reduce((sum, item) => sum + (parseFloat(item.product && item.product.price) || 0), 0)}</span>
               </div>
               <button
                 style={{ width: '100%', background: 'orange', color: '#fff', border: 'none', borderRadius: 6, padding: '12px 0', fontWeight: 700, fontSize: 16, cursor: 'pointer' }}
                 onClick={() => {
                   // Save cart to localStorage for Booking page to pick up
-                  localStorage.setItem('gd_booking_selected_products', JSON.stringify(cart));
+                  // Save cart to localStorage for Booking page to pick up (optional: update this to use DB as well)
+                  localStorage.setItem('gd_booking_selected_products', JSON.stringify(cart.map(item => item.product)));
                   window.location.href = '/booking';
                 }}
               >
