@@ -8,7 +8,10 @@ import {
   FormControlLabel,
   Checkbox,
   MenuItem,
-  FormGroup
+  FormGroup,
+  Select,
+  FormControl,
+  InputLabel
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import "./auth.css";
@@ -27,8 +30,7 @@ const SignUp = () => {
     phone: "",
     password: "",
     confirmPassword: "",
-    businessName: "",
-    role: accountType,
+    role: "user",
     agree: false,
   });
   const [type, setType] = useState(accountType);
@@ -46,43 +48,60 @@ const SignUp = () => {
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showOTPModal, setShowOTPModal] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
     if (form.password !== form.confirmPassword) {
-      setError("Passwords do not match");
+      setError("Passwords don't match!");
       return;
     }
-    
+
+    if (!form.agree) {
+      setError("Please agree to the terms and policy");
+      return;
+    }
+
     setError("");
     setLoading(true);
-    
+
     try {
-      await auth.register(form);
-      setShowOTPModal(true);
-    } catch (err) {
-      setError(err.response?.data?.message || "Registration failed. Please try again.");
+      const response = await fetch('http://localhost:5051/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: form.firstName,
+          lastName: form.lastName,
+          middleName: form.middleName,
+          email: form.email,
+          phone: form.phone,
+          password: form.password,
+          role: form.role
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        // Store the token and user info
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // Redirect based on role
+        if (data.user.role === 'admin') {
+          navigate('/admin/dashboard');
+        } else {
+          navigate('/dashboard');
+        }
+      } else {
+        setError(data.message || 'Registration failed');
+      }
+    } catch (error) {
+      setError('Registration failed. Please try again.');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleVerifyOTP = async (otp) => {
-    try {
-      const response = await auth.verifyOTP({
-        email: form.email,
-        otp
-      });
-      
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      
-      // Redirect based on role
-      if (form.role === 'supplier') navigate('/supplier/dashboard');
-      else navigate('/client/dashboard');
-    } catch (err) {
-      setError(err.response?.data?.message || "OTP verification failed. Please try again.");
     }
   };
 
@@ -136,18 +155,18 @@ const SignUp = () => {
                   required
                   className="auth-input"
                 />
-                {type === 'supplier' && (
-                  <TextField
-                    label="Business Name"
-                    name="businessName"
-                    value={form.businessName}
+                <FormControl fullWidth margin="dense" className="auth-input">
+                  <InputLabel>Role</InputLabel>
+                  <Select
+                    name="role"
+                    value={form.role}
                     onChange={handleChange}
-                    fullWidth
-                    margin="dense"
-                    required
-                    className="auth-input"
-                  />
-                )}
+                    label="Role"
+                  >
+                    <MenuItem value="user">User</MenuItem>
+                    <MenuItem value="admin">Admin</MenuItem>
+                  </Select>
+                </FormControl>
                 <TextField
                   label="Email address"
                   name="email"

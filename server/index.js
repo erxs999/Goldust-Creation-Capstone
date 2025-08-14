@@ -8,7 +8,6 @@ const app = express();
 const PORT = 5051;
 const User = require('./models/User');
 const auth = require('./middleware/auth');
-const { sendOTP, sendPasswordResetEmail } = require('./services/emailService');
 
 app.use(cors());
 
@@ -119,7 +118,7 @@ app.delete('/api/products/:id', async (req, res) => {
 // Authentication Routes
 app.post('/api/auth/register', async (req, res) => {
   try {
-    const { email, password, firstName, lastName, middleName, phone, businessName, role } = req.body;
+    const { email, password, firstName, lastName, middleName, phone, role } = req.body;
 
     // Check if user exists
     const existingUser = await User.findOne({ email });
@@ -131,10 +130,6 @@ app.post('/api/auth/register', async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Generate OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-
     // Create new user
     const user = new User({
       email,
@@ -143,18 +138,23 @@ app.post('/api/auth/register', async (req, res) => {
       lastName,
       middleName,
       phone,
-      businessName,
-      role,
-      otp: {
-        code: otp,
-        expires: otpExpires
-      }
+      role: role || 'user'
     });
 
     await user.save();
-    await sendOTP(email, otp);
-
-    res.status(201).json({ message: 'Registration successful. Please verify your email.' });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'your-secret-key');
+    
+    res.status(201).json({ 
+      message: 'Registration successful',
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName
+      }
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -202,12 +202,17 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    if (!user.isVerified) {
-      return res.status(400).json({ message: 'Please verify your email first' });
-    }
-
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'your-secret-key');
-    res.json({ token, user: { id: user._id, email: user.email, role: user.role } });
+    res.json({ 
+      token, 
+      user: { 
+        id: user._id, 
+        email: user.email, 
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName
+      } 
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
