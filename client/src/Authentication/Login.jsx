@@ -23,9 +23,33 @@ const Login = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // No backend: do nothing for now
+    setError("");
+    setLoading(true);
+    
+    try {
+      const response = await auth.login({
+        email: form.emailOrPhone,
+        password: form.password
+      });
+      
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      
+      // Redirect based on role
+      const role = response.data.user.role;
+      if (role === 'admin') navigate('/admin/dashboard');
+      else if (role === 'supplier') navigate('/supplier/dashboard');
+      else navigate('/client/dashboard');
+    } catch (err) {
+      setError(err.response?.data?.message || "Login failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

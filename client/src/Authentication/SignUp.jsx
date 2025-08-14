@@ -44,9 +44,46 @@ const SignUp = () => {
     setForm({ ...form, [name]: type === "checkbox" ? checked : value });
   };
 
-  const handleSubmit = (e) => {
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showOTPModal, setShowOTPModal] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle sign up logic here
+    if (form.password !== form.confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+    
+    setError("");
+    setLoading(true);
+    
+    try {
+      await auth.register(form);
+      setShowOTPModal(true);
+    } catch (err) {
+      setError(err.response?.data?.message || "Registration failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOTP = async (otp) => {
+    try {
+      const response = await auth.verifyOTP({
+        email: form.email,
+        otp
+      });
+      
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      
+      // Redirect based on role
+      if (form.role === 'supplier') navigate('/supplier/dashboard');
+      else navigate('/client/dashboard');
+    } catch (err) {
+      setError(err.response?.data?.message || "OTP verification failed. Please try again.");
+    }
   };
 
   return (
