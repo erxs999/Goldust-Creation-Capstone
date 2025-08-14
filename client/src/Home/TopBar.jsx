@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import "./topbar.css";
 
 
-const CART_LOCAL_KEY = 'gd_event_cart';
+const API_BASE = 'http://localhost:5051/api';
 
 const TopBar = () => {
   const [expanded, setExpanded] = useState(true);
@@ -23,14 +23,20 @@ const TopBar = () => {
   }, []);
 
   useEffect(() => {
-    // Update cart count on mount and when storage changes
-    function updateCartCount() {
-      const cart = JSON.parse(localStorage.getItem(CART_LOCAL_KEY)) || [];
-      setCartCount(cart.length);
+    // Fetch cart count from backend on mount and every 5 seconds
+    let intervalId;
+    async function updateCartCount() {
+      try {
+        const res = await fetch(`${API_BASE}/cart`);
+        const data = await res.json();
+        setCartCount(Array.isArray(data) ? data.length : 0);
+      } catch {
+        setCartCount(0);
+      }
     }
     updateCartCount();
-    window.addEventListener('storage', updateCartCount);
-    return () => window.removeEventListener('storage', updateCartCount);
+    intervalId = setInterval(updateCartCount, 5000);
+    return () => clearInterval(intervalId);
   }, []);
 
   return (

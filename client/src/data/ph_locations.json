@@ -1,0 +1,34 @@
+[
+	{
+		"name": "Nueva Vizcaya",
+		"code": "PH-NUV",
+		"cities": [
+			{
+				"name": "Bambang",
+				"code": "CITY-BAMBANG",
+				"barangays": ["Abian", "Aliaga", "Banggot"]
+			},
+			{
+				"name": "Bayombong",
+				"code": "CITY-BAYOMBONG",
+				"barangays": ["Ambaguio", "Baretbet", "Buenavista"]
+			}
+		]
+	},
+	{
+		"name": "Cebu",
+		"code": "PH-CEB",
+		"cities": [
+			{
+				"name": "Cebu City",
+				"code": "CITY-CEBU",
+				"barangays": ["Apas", "Banilad", "Basak"]
+			},
+			{
+				"name": "Mandaue",
+				"code": "CITY-MANDAUE",
+				"barangays": ["Alang-Alang", "Bakilid", "Banilad"]
+			}
+		]
+	}
+]

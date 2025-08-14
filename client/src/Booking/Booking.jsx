@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+// PSGC API endpoints
+const PSGC_API = 'https://psgc.gitlab.io/api';
 import { useNavigate } from "react-router-dom";
 import "./booking.css";
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -13,6 +15,8 @@ import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import TopBar from '../Home/TopBar';
+import IconButton from '@mui/material/IconButton';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const Booking = () => {
   const [date, setDate] = useState(null);
@@ -27,12 +31,65 @@ const Booking = () => {
     products: [], // will hold selected products/services
     guestCount: '',
     totalPrice: '',
+    province: '',
+    city: '',
+    barangay: '',
   });
 
-  // On mount, load selected products/services from localStorage
+  const [provinces, setProvinces] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [barangays, setBarangays] = useState([]);
+  const [loading, setLoading] = useState({ provinces: false, cities: false, barangays: false });
+  // Load provinces on mount
+  useEffect(() => {
+    setLoading(l => ({ ...l, provinces: true }));
+    fetch(`${PSGC_API}/provinces/`)
+      .then(res => res.json())
+      .then(data => setProvinces(data))
+      .finally(() => setLoading(l => ({ ...l, provinces: false })));
+  }, []);
+
+  // Load cities/municipalities when province changes
+  useEffect(() => {
+    if (form.province) {
+      setLoading(l => ({ ...l, cities: true }));
+      setCities([]);
+      setBarangays([]);
+      setForm(f => ({ ...f, city: '', barangay: '' }));
+      fetch(`${PSGC_API}/provinces/${form.province}/cities-municipalities/`)
+        .then(res => res.json())
+        .then(data => setCities(data))
+        .finally(() => setLoading(l => ({ ...l, cities: false })));
+    } else {
+      setCities([]);
+      setBarangays([]);
+    }
+  }, [form.province]);
+
+  // Load barangays when city changes
+  useEffect(() => {
+    if (form.city) {
+      setLoading(l => ({ ...l, barangays: true }));
+      setBarangays([]);
+      setForm(f => ({ ...f, barangay: '' }));
+      fetch(`${PSGC_API}/cities-municipalities/${form.city}/barangays/`)
+        .then(res => res.json())
+        .then(data => setBarangays(data))
+        .finally(() => setLoading(l => ({ ...l, barangays: false })));
+    } else {
+      setBarangays([]);
+    }
+  }, [form.city]);
+
+  // On mount, load selected products/services from backend cart
   React.useEffect(() => {
-    const selected = JSON.parse(localStorage.getItem('gd_booking_selected_products')) || [];
-    setForm(f => ({ ...f, products: selected }));
+    fetch('http://localhost:5051/api/cart')
+      .then(res => res.json())
+      .then(data => {
+        const products = Array.isArray(data) ? data.map(item => item.product) : [];
+        setForm(f => ({ ...f, products }));
+      })
+      .catch(() => setForm(f => ({ ...f, products: [] })));
   }, []);
   const navigate = useNavigate();
 
@@ -76,13 +133,52 @@ const Booking = () => {
           </div>
           <div className="booking-form-box" style={{ flex: 1, minWidth: 0, maxWidth: 'none', width: '50%', display: 'flex', flexDirection: 'column', padding: '24px 32px', boxSizing: 'border-box' }}>
             <div className="booking-field" style={{ marginBottom: 20 }}>
-              <TextField
-                fullWidth
-                label="Event Location"
-                placeholder="Enter your event location"
-                variant="outlined"
-                size="small"
-              />
+              <FormControl fullWidth size="small" style={{ marginBottom: 12 }}>
+                <InputLabel id="province-label">Province</InputLabel>
+                <Select
+                  labelId="province-label"
+                  value={form.province}
+                  label="Province"
+                  onChange={e => setForm(f => ({ ...f, province: e.target.value }))}
+                  MenuProps={{ disablePortal: false, style: { zIndex: 2000 } }}
+                  disabled={loading.provinces}
+                >
+                  <MenuItem value="">Select Province</MenuItem>
+                  {provinces.map(p => (
+                    <MenuItem key={p.code} value={p.code}>{p.name}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl fullWidth size="small" style={{ marginBottom: 12 }} disabled={!form.province || loading.cities}>
+                <InputLabel id="city-label">City/Municipality</InputLabel>
+                <Select
+                  labelId="city-label"
+                  value={form.city}
+                  label="City/Municipality"
+                  onChange={e => setForm(f => ({ ...f, city: e.target.value }))}
+                  MenuProps={{ disablePortal: false, style: { zIndex: 2000 } }}
+                >
+                  <MenuItem value="">Select City/Municipality</MenuItem>
+                  {cities.map((c, idx) => (
+                    <MenuItem key={c.code} value={c.code}>{c.name}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl fullWidth size="small" disabled={!form.city || loading.barangays}>
+                <InputLabel id="barangay-label">Barangay</InputLabel>
+                <Select
+                  labelId="barangay-label"
+                  value={form.barangay}
+                  label="Barangay"
+                  onChange={e => setForm(f => ({ ...f, barangay: e.target.value }))}
+                  MenuProps={{ disablePortal: false, style: { zIndex: 2000 } }}
+                >
+                  <MenuItem value="">Select Barangay</MenuItem>
+                  {barangays.map((b, idx) => (
+                    <MenuItem key={b.code} value={b.code}>{b.name}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </div>
             <div className="booking-field" style={{ marginBottom: 20 }}>
               <FormControl fullWidth size="small">
@@ -90,20 +186,32 @@ const Booking = () => {
                 <Select
                   labelId="event-type-label"
                   label="Event Type"
-                  defaultValue=""
+                  value={form.eventType}
+                  onChange={e => setForm(f => ({ ...f, eventType: e.target.value }))}
                 >
                   <MenuItem value="">Choose your Event Type</MenuItem>
                   <MenuItem value="Wedding">Wedding</MenuItem>
                   <MenuItem value="Birthday">Birthday</MenuItem>
-                  <MenuItem value="Corporate">Corporate</MenuItem>
+                  <MenuItem value="Corporate">Debut</MenuItem>
                   <MenuItem value="Other">Other</MenuItem>
                 </Select>
               </FormControl>
+              <TextField
+                fullWidth
+                type="number"
+                label="Guest Count"
+                variant="outlined"
+                size="small"
+                value={form.guestCount}
+                onChange={e => setForm(f => ({ ...f, guestCount: e.target.value }))}
+                inputProps={{ min: 1 }}
+                style={{ marginTop: 12 }}
+              />
             </div>
             <div className="booking-field" style={{ marginBottom: 0 }}>
               <FormControl component="fieldset" fullWidth>
                 <label style={{ fontWeight: 500, color: '#222', marginBottom: 8, display: 'block', fontSize: '1rem', textAlign: 'left' }}>
-                  Booking from outside the Philippines?
+                  Are you booking from outside the Philippines?
                 </label>
                 <RadioGroup
                   row
@@ -120,30 +228,58 @@ const Booking = () => {
           </div>
         </div>
         <div className="booking-services-box" style={{ maxWidth: 900, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '0 auto' }}>
-          <h3 style={{ fontWeight: 700 }}>Services and Products Availed</h3>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 0 }}>
+            <h3 style={{ fontWeight: 700, margin: 0 }}>Services and Products Availed</h3>
+            {form.products && form.products.length > 0 && (
+              <IconButton
+                aria-label="Delete all products/services"
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to delete all products/services from this list?')) {
+                    setForm(f => ({ ...f, products: [] }));
+                  }
+                }}
+                style={{ color: '#e53935', marginRight: 4, outline: 'none', boxShadow: 'none' }}
+                title="Delete all products/services"
+                disableFocusRipple
+                disableRipple
+              >
+                <DeleteIcon />
+                <span style={{ fontWeight: 700, fontSize: 16, marginLeft: 4, userSelect: 'none' }}>Delete All</span>
+                <style>{`
+                  .MuiIconButton-root:focus,
+                  .MuiIconButton-root:active {
+                    outline: none !important;
+                    box-shadow: none !important;
+                  }
+                `}</style>
+              </IconButton>
+            )}
+          </div>
           {/* Show selected products/services from cart */}
           {form.products && form.products.length > 0 ? (
-            <div style={{ width: '100%', marginBottom: 24, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-              {form.products.map((item, idx) => (
-                <div key={idx} style={{
-                  background: '#fafafa',
-                  border: '1px solid #eee',
-                  borderRadius: 6,
-                  padding: 12,
-                  marginBottom: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 16
-                }}>
-                  {item.image && (
-                    <img src={item.image} alt={item.title} style={{ width: 60, height: 48, objectFit: 'cover', borderRadius: 4 }} />
-                  )}
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 600 }}>{item.title}</div>
-                    {item.price && <div style={{ color: '#888', fontWeight: 500 }}>PHP {item.price}</div>}
+            <div style={{ width: '100%' }}>
+              <div style={{ marginBottom: 24, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                {form.products.map((item, idx) => (
+                  <div key={idx} style={{
+                    background: '#fafafa',
+                    border: '1px solid #eee',
+                    borderRadius: 6,
+                    padding: 12,
+                    marginBottom: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 16
+                  }}>
+                    {item.image && (
+                      <img src={item.image} alt={item.title} style={{ width: 60, height: 48, objectFit: 'cover', borderRadius: 4 }} />
+                    )}
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 600 }}>{item.title}</div>
+                      {item.price && <div style={{ color: '#888', fontWeight: 500 }}>PHP {item.price}</div>}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           ) : (
             <div style={{ color: '#888', marginBottom: 16 }}>No products/services selected yet.</div>
