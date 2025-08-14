@@ -14,8 +14,15 @@ const CART_LOCAL_KEY = 'gd_event_cart';
 export default function PnSDetails() {
   // Add to cart handler
   async function handleAddToCart(product) {
-    // Add product to cart in DB
+    // Prevent duplicate products in cart
     try {
+      const res = await fetch(`${API_BASE}/cart`);
+      const cart = await res.json();
+      const exists = Array.isArray(cart) && cart.some(item => item.product && item.product.title === product.title);
+      if (exists) {
+        alert('This product is already in your cart.');
+        return;
+      }
       await fetch(`${API_BASE}/cart`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

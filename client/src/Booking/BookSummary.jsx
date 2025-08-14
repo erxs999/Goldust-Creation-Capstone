@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import TopBar from '../Home/TopBar';
 import "./booking.css";
 
+
 const BookSummary = ({ booking }) => {
   const navigate = useNavigate();
-  // booking: { name, contact, email, eventType, eventLocation, eventVenue, specialRequest, gownsSuits, venueStyling, invitations, catering, flower, photo, cakes, tokens, makeup, guestCount, totalPrice }
   return (
     <div className="booking-root">
       <TopBar />
@@ -24,20 +24,39 @@ const BookSummary = ({ booking }) => {
               <div style={{ marginBottom: 12, color: '#111' }}>Event Venue : <span style={{ color: '#111' }}>{booking?.eventVenue || ""}</span></div>
             </div>
             <div style={{ flex: 1, minWidth: 320 }}>
-              <div style={{ marginBottom: 12, color: '#111' }}>Gowns and Suits : <span style={{ color: '#111' }}>{booking?.gownsSuits || ""}</span></div>
-              <div style={{ marginBottom: 12, color: '#111' }}>Venue Styling : <span style={{ color: '#111' }}>{booking?.venueStyling || ""}</span></div>
-              <div style={{ marginBottom: 12, color: '#111' }}>Invitations : <span style={{ color: '#111' }}>{booking?.invitations || ""}</span></div>
-              <div style={{ marginBottom: 12, color: '#111' }}>Catering Sevice : <span style={{ color: '#111' }}>{booking?.catering || ""}</span></div>
-              <div style={{ marginBottom: 12, color: '#111' }}>Flower Entourage : <span style={{ color: '#111' }}>{booking?.flower || ""}</span></div>
-              <div style={{ marginBottom: 12, color: '#111' }}>Photo and Video : <span style={{ color: '#111' }}>{booking?.photo || ""}</span></div>
-            </div>
-            <div style={{ flex: 1, minWidth: 320 }}>
-              <div style={{ marginBottom: 12, color: '#111' }}>Cakes : <span style={{ color: '#111' }}>{booking?.cakes || ""}</span></div>
-              <div style={{ marginBottom: 12, color: '#111' }}>Tokens : <span style={{ color: '#111' }}>{booking?.tokens || ""}</span></div>
-              <div style={{ marginBottom: 12, color: '#111' }}>Make up and Hairstyle : <span style={{ color: '#111' }}>{booking?.makeup || ""}</span></div>
               <div style={{ marginBottom: 12, color: '#111' }}>Guest Count : <span style={{ color: '#111' }}>{booking?.guestCount || ""}</span></div>
               <div style={{ marginBottom: 12, color: '#111' }}>Total Price: <span style={{ color: '#111' }}>{booking?.totalPrice || ""}</span></div>
             </div>
+          </div>
+          {/* Services and Products Availed */}
+          <div style={{ marginTop: 32, marginBottom: 0 }}>
+            <div style={{ marginBottom: 12, color: '#111', fontWeight: 500, fontSize: 18 }}>Services and Products Availed:</div>
+            {booking?.products && booking.products.length > 0 ? (
+              <div style={{ marginBottom: 24, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                {booking.products.map((item, idx) => (
+                  <div key={idx} style={{
+                    background: '#fafafa',
+                    border: '1px solid #eee',
+                    borderRadius: 6,
+                    padding: 12,
+                    marginBottom: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 16
+                  }}>
+                    {item.image && (
+                      <img src={item.image} alt={item.title} style={{ width: 60, height: 48, objectFit: 'cover', borderRadius: 4 }} />
+                    )}
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 600 }}>{item.title}</div>
+                      {item.price && <div style={{ color: '#888', fontWeight: 500 }}>PHP {item.price}</div>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ color: '#888', marginBottom: 16 }}>No products/services selected.</div>
+            )}
           </div>
           {/* Special Request full width */}
           <div style={{ marginTop: 24, marginBottom: 0 }}>
