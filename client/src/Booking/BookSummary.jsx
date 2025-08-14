@@ -1,21 +1,23 @@
+
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import TopBar from '../Home/TopBar';
 import "./booking.css";
 
-
-const BookSummary = ({ booking }) => {
+const BookSummary = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const booking = location.state?.booking || {};
   return (
     <div className="booking-root">
       <TopBar />
       <div className="booking-header">
         <h2>BOOKING SUMMARY</h2>
       </div>
-      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 0" }}>
+      <div className="booking-summary-container">
         <div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 32 }}>
-            <div style={{ flex: 1, minWidth: 320 }}>
+          <div className="booking-summary-row">
+            <div className="booking-summary-col">
               <div style={{ marginBottom: 12, color: '#111' }}>Name : <span style={{ color: '#111' }}>{booking?.name || ""}</span></div>
               <div style={{ marginBottom: 12, color: '#111' }}>Contact Number : <span style={{ color: '#111' }}>{booking?.contact || ""}</span></div>
               <div style={{ marginBottom: 12, color: '#111' }}>Email Address : <span style={{ color: '#111' }}>{booking?.email || ""}</span></div>
@@ -23,7 +25,7 @@ const BookSummary = ({ booking }) => {
               <div style={{ marginBottom: 12, color: '#111' }}>Event Location : <span style={{ color: '#111' }}>{booking?.eventLocation || ""}</span></div>
               <div style={{ marginBottom: 12, color: '#111' }}>Event Venue : <span style={{ color: '#111' }}>{booking?.eventVenue || ""}</span></div>
             </div>
-            <div style={{ flex: 1, minWidth: 320 }}>
+            <div className="booking-summary-col">
               <div style={{ marginBottom: 12, color: '#111' }}>Guest Count : <span style={{ color: '#111' }}>{booking?.guestCount || ""}</span></div>
               <div style={{ marginBottom: 12, color: '#111' }}>Total Price: <span style={{ color: '#111' }}>{booking?.totalPrice || ""}</span></div>
             </div>
@@ -68,24 +70,24 @@ const BookSummary = ({ booking }) => {
               readOnly
             />
           </div>
-        </div>
-        <div style={{ display: "flex", justifyContent: "center", gap: 24, marginTop: 40 }}>
-          <button
-            type="button"
-            className="booking-btn booking-btn-orange"
-            style={{ minWidth: 100, background: '#ff9800', color: '#fff', border: 'none' }}
-            onClick={() => navigate('/booking')}
-          >
-            Back
-          </button>
-          <button
-            type="button"
-            className="booking-btn booking-btn-next booking-btn-orange"
-            style={{ minWidth: 100, background: '#ff9800', color: '#fff', border: 'none' }}
-            onClick={() => navigate('/book-appointment')}
-          >
-            Confirm
-          </button>
+          <div className="booking-summary-btn-row">
+            <button
+              type="button"
+              className="booking-btn booking-btn-orange"
+              style={{ minWidth: 100, background: '#ff9800', color: '#fff', border: 'none' }}
+              onClick={() => navigate('/booking')}
+            >
+              Back
+            </button>
+            <button
+              type="button"
+              className="booking-btn booking-btn-next booking-btn-orange"
+              style={{ minWidth: 100, background: '#ff9800', color: '#fff', border: 'none' }}
+              onClick={() => navigate('/book-appointment')}
+            >
+              Confirm
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -1,3 +1,106 @@
+.booking-summary-container {
+  max-width: 900px;
+  min-width: 320px;
+  margin: 0 auto;
+  padding: 32px 32px 0 32px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px 0 rgba(0,0,0,0.04);
+}
+.booking-summary-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  justify-content: space-between;
+}
+.booking-summary-col {
+  flex: 1;
+  min-width: 320px;
+}
+.booking-summary-btn-row {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 40px;
+}
+@media (max-width: 1000px) {
+  .booking-summary-container {
+    max-width: 98vw;
+    padding: 24px 8px 0 8px;
+  }
+  .booking-summary-row {
+    gap: 16px;
+  }
+}
+@media (max-width: 700px) {
+  .booking-summary-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .booking-summary-col {
+    min-width: 0;
+  }
+  .booking-summary-container {
+    padding: 8px 2vw 0 2vw;
+  }
+  .booking-summary-btn-row {
+    gap: 12px;
+    margin-top: 24px;
+  }
+}
+/* Unified responsive styles for BookSummary.jsx */
+.booking-summary-container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 0 1.5rem;
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 2px 16px 0 rgba(0,0,0,0.04);
+  box-sizing: border-box;
+}
+.booking-summary-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+.booking-summary-col {
+  flex: 1 1 0;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.booking-summary-btn-row {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 2.5rem;
+  margin-bottom: 2.5rem;
+  box-sizing: border-box;
+}
+@media (max-width: 1000px) {
+  .booking-summary-container {
+    max-width: 98vw;
+    padding: 1.5rem 0.5rem 0 0.5rem;
+  }
+  .booking-summary-row {
+    gap: 1rem;
+  }
+}
+@media (max-width: 700px) {
+  .booking-summary-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .booking-summary-container {
+    padding: 0.5rem 2vw 0 2vw;
+  }
+  .booking-summary-btn-row {
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+}
 /* Force left alignment for all MUI TextField and Select inputs */
 .MuiInputBase-input,
 .MuiSelect-select,
@@ -64,6 +167,7 @@ div.MuiSelect-select {
   background: #fff;
   min-height: 100vh;
   padding: 0;
+  box-sizing: border-box;
 }
 .booking-header {
   text-align: center;
