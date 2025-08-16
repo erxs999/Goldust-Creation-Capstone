@@ -39,17 +39,38 @@ import BookingDescription from './BookingDescription';
 import './booking.css';
 
 export default function AdminBooking() {
-  // Temporary bookings data with status
-  const [bookings, setBookings] = useState([
-    { id: 1, title: 'John Doe - Wedding', date: '2025-08-10', desc: 'Wedding booking for John Doe at Manila Hotel. 100 guests. Needs catering and photo/video.', status: 'pending' },
-    { id: 2, title: 'Jane Smith - Birthday', date: '2025-08-12', desc: 'Birthday event for Jane Smith. 50 guests. Venue: Clubhouse. Cake and decorations required.', status: 'approved' },
-    { id: 3, title: 'Acme Corp - Corporate', date: '2025-08-15', desc: 'Corporate event for Acme Corp. 200 guests. Needs AV setup and catering.', status: 'pending' },
-    { id: 4, title: 'Mary Ann - Debut', date: '2025-08-20', desc: 'Debut for Mary Ann. 80 guests. Needs lights and sound.', status: 'approved' },
-  ]);
+  // Bookings state from database
+  const [bookings, setBookings] = useState([]);
+
+  // Fetch bookings from backend on mount
+  React.useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const [pendingRes, approvedRes, finishedRes] = await Promise.all([
+          fetch('http://localhost:5051/api/bookings/pending'),
+          fetch('http://localhost:5051/api/bookings/approved'),
+          fetch('http://localhost:5051/api/bookings/finished'),
+        ]);
+        const [pending, approved, finished] = await Promise.all([
+          pendingRes.json(),
+          approvedRes.json(),
+          finishedRes.json(),
+        ]);
+        // Add status to each booking
+        const pendingWithStatus = pending.map(b => ({ ...b, status: 'pending' }));
+        const approvedWithStatus = approved.map(b => ({ ...b, status: 'approved' }));
+        const finishedWithStatus = finished.map(b => ({ ...b, status: 'finished' }));
+        setBookings([...pendingWithStatus, ...approvedWithStatus, ...finishedWithStatus]);
+      } catch (err) {
+        setBookings([]);
+      }
+    };
+    fetchBookings();
+  }, []);
   // Delete booking handler
   const handleDeleteBooking = (id) => {
-    setBookings(prev => prev.filter(b => b.id !== id));
-    if (selectedBooking && selectedBooking.id === id) setSelectedBooking(null);
+    setBookings(prev => prev.filter(b => b._id !== id));
+    if (selectedBooking && selectedBooking._id === id) setSelectedBooking(null);
   };
 
   // Approve modal state
@@ -59,7 +80,7 @@ export default function AdminBooking() {
   const handleApprove = (date, desc) => {
     // Move booking to approved, optionally store date/desc
     setBookings(prev => prev.map(b =>
-      b.id === approveModal.booking.id ? { ...b, status: 'approved', approvedDate: date, approvedDesc: desc } : b
+      b._id === approveModal.booking._id ? { ...b, status: 'approved', approvedDate: date, approvedDesc: desc } : b
     ));
     closeApproveModal();
   };
@@ -78,10 +99,16 @@ export default function AdminBooking() {
   // Filter bookings by status
   let filteredPending = bookings.filter(b => b.status === 'pending');
   let filteredApproved = bookings.filter(b => b.status === 'approved');
+  let filteredFinished = bookings.filter(b => b.status === 'finished');
   if (filter === 'pending') {
     filteredApproved = [];
+    filteredFinished = [];
   } else if (filter === 'approved') {
     filteredPending = [];
+    filteredFinished = [];
+  } else if (filter === 'finished') {
+    filteredPending = [];
+    filteredApproved = [];
   }
   // Further filter by search
   const searchLower = search.trim().toLowerCase();
@@ -91,6 +118,10 @@ export default function AdminBooking() {
       b.desc.toLowerCase().includes(searchLower)
     );
     filteredApproved = filteredApproved.filter(b =>
+      b.title.toLowerCase().includes(searchLower) ||
+      b.desc.toLowerCase().includes(searchLower)
+    );
+    filteredFinished = filteredFinished.filter(b =>
       b.title.toLowerCase().includes(searchLower) ||
       b.desc.toLowerCase().includes(searchLower)
     );
@@ -151,6 +182,7 @@ export default function AdminBooking() {
                 <option value="all" style={{ background: '#fff', color: '#222' }}>All</option>
                 <option value="pending" style={{ background: '#fff', color: '#222' }}>Pending Only</option>
                 <option value="approved" style={{ background: '#fff', color: '#222' }}>Approved Only</option>
+                <option value="finished" style={{ background: '#fff', color: '#222' }}>Finished Only</option>
               </select>
             </div>
           </div>
@@ -161,7 +193,7 @@ export default function AdminBooking() {
               <ul style={{ listStyle: 'none', padding: 0, marginTop: 0 }}>
                 {filteredPending.map(booking => (
                   <li
-                    key={booking.id}
+                    key={booking._id}
                     className="booking-card"
                     style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}
                   >
@@ -169,8 +201,8 @@ export default function AdminBooking() {
                       style={{ flex: 1, cursor: 'pointer' }}
                       onClick={() => handleOpenModal(booking)}
                     >
-                      <div style={{ fontWeight: 500, fontSize: 18 }}>{booking.title}</div>
-                      <div style={{ fontSize: 14, marginTop: 4 }}>Date: {booking.date}</div>
+                      <div style={{ fontWeight: 500, fontSize: 18 }}>{booking.eventType || booking.title}</div>
+                      <div style={{ fontSize: 14, marginTop: 4 }}>Date: {booking.date ? (typeof booking.date === 'string' ? booking.date : new Date(booking.date).toLocaleDateString()) : ''}</div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <button
@@ -193,7 +225,7 @@ export default function AdminBooking() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => handleDeleteBooking(booking.id)}
+                        onClick={() => handleDeleteBooking(booking._id)}
                         style={{
                           background: 'transparent',
                           border: 'none',
@@ -240,7 +272,7 @@ export default function AdminBooking() {
               <ul style={{ listStyle: 'none', padding: 0, marginTop: 0 }}>
                 {filteredApproved.map(booking => (
                   <li
-                    key={booking.id}
+                    key={booking._id}
                     className="booking-card"
                     style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}
                   >
@@ -248,12 +280,12 @@ export default function AdminBooking() {
                       style={{ flex: 1, cursor: 'pointer' }}
                       onClick={() => handleOpenModal(booking)}
                     >
-                      <div style={{ fontWeight: 500, fontSize: 18 }}>{booking.title}</div>
-                      <div style={{ fontSize: 14, marginTop: 4 }}>Date: {booking.date}</div>
+                      <div style={{ fontWeight: 500, fontSize: 18 }}>{booking.eventType || booking.title}</div>
+                      <div style={{ fontSize: 14, marginTop: 4 }}>Date: {booking.date ? (typeof booking.date === 'string' ? booking.date : new Date(booking.date).toLocaleDateString()) : ''}</div>
                     </div>
                     <button
                       type="button"
-                      onClick={() => handleDeleteBooking(booking.id)}
+                      onClick={() => handleDeleteBooking(booking._id)}
                       style={{
                         background: 'transparent',
                         border: 'none',
@@ -285,8 +317,31 @@ export default function AdminBooking() {
               </ul>
             </div>
           )}
-          {/* No bookings message if both are empty */}
-          {filteredPending.length === 0 && filteredApproved.length === 0 && (
+          {/* Finished Bookings Section */}
+          {filteredFinished.length > 0 && (
+            <div style={{ marginBottom: 36 }}>
+              <h3 style={{ fontWeight: 700, fontSize: 22, marginBottom: 16 }}>Finished Bookings</h3>
+              <ul style={{ listStyle: 'none', padding: 0, marginTop: 0 }}>
+                {filteredFinished.map(booking => (
+                  <li
+                    key={booking._id}
+                    className="booking-card"
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}
+                  >
+                    <div
+                      style={{ flex: 1, cursor: 'pointer' }}
+                      onClick={() => handleOpenModal(booking)}
+                    >
+                      <div style={{ fontWeight: 500, fontSize: 18 }}>{booking.eventType || booking.title}</div>
+                      <div style={{ fontSize: 14, marginTop: 4 }}>Date: {booking.date ? (typeof booking.date === 'string' ? booking.date : new Date(booking.date).toLocaleDateString()) : ''}</div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {/* No bookings message if all are empty */}
+          {filteredPending.length === 0 && filteredApproved.length === 0 && filteredFinished.length === 0 && (
             <div style={{ color: '#888', marginBottom: 16 }}>No bookings to show.</div>
           )}
           <BookingDescription

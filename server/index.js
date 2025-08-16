@@ -7,12 +7,20 @@ const PORT = 5051;
 
 app.use(cors());
 
-// Replace with your MongoDB connection string
-const MONGO_URI = 'mongodb://127.0.0.1:27017/ProductsAndServices';
 
+// Main DB for ProductsAndServices
+const MONGO_URI = 'mongodb://127.0.0.1:27017/ProductsAndServices';
 mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('MongoDB connected!'))
-  .catch(err => console.error('MongoDB connection error:', err));
+  .then(() => console.log('MongoDB ProductsAndServices connected!'))
+  .catch(err => console.error('MongoDB ProductsAndServices connection error:', err));
+
+// Booking DB connection
+const bookingConnection = mongoose.createConnection('mongodb://127.0.0.1:27017/booking', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+bookingConnection.on('connected', () => console.log('MongoDB booking connected!'));
+bookingConnection.on('error', err => console.error('MongoDB booking connection error:', err));
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
@@ -43,6 +51,18 @@ const cartItemSchema = new mongoose.Schema({
 });
 const CartItem = mongoose.model('CartItem', cartItemSchema);
 
+// BOOKING SCHEMAS/MODELS (using bookingConnection)
+const bookingBaseSchema = new mongoose.Schema({
+  userId: String,
+  service: String,
+  date: Date,
+  details: Object,
+  createdAt: { type: Date, default: Date.now }
+});
+const PendingBooking = bookingConnection.model('PendingBooking', bookingBaseSchema);
+const ApprovedBooking = bookingConnection.model('ApprovedBooking', bookingBaseSchema);
+const FinishedBooking = bookingConnection.model('FinishedBooking', bookingBaseSchema);
+
 // Get all cart items
 app.get('/api/cart', async (req, res) => {
   const items = await CartItem.find();
@@ -59,6 +79,52 @@ app.post('/api/cart', async (req, res) => {
 // Delete from cart
 app.delete('/api/cart/:id', async (req, res) => {
   await CartItem.findByIdAndDelete(req.params.id);
+  res.json({ success: true });
+});
+
+// BOOKING ROUTES
+// Pending Bookings
+app.get('/api/bookings/pending', async (req, res) => {
+  const bookings = await PendingBooking.find();
+  res.json(bookings);
+});
+app.post('/api/bookings/pending', async (req, res) => {
+  const booking = new PendingBooking(req.body);
+  await booking.save();
+  res.status(201).json(booking);
+});
+app.delete('/api/bookings/pending/:id', async (req, res) => {
+  await PendingBooking.findByIdAndDelete(req.params.id);
+  res.json({ success: true });
+});
+
+// Approved Bookings
+app.get('/api/bookings/approved', async (req, res) => {
+  const bookings = await ApprovedBooking.find();
+  res.json(bookings);
+});
+app.post('/api/bookings/approved', async (req, res) => {
+  const booking = new ApprovedBooking(req.body);
+  await booking.save();
+  res.status(201).json(booking);
+});
+app.delete('/api/bookings/approved/:id', async (req, res) => {
+  await ApprovedBooking.findByIdAndDelete(req.params.id);
+  res.json({ success: true });
+});
+
+// Finished Bookings
+app.get('/api/bookings/finished', async (req, res) => {
+  const bookings = await FinishedBooking.find();
+  res.json(bookings);
+});
+app.post('/api/bookings/finished', async (req, res) => {
+  const booking = new FinishedBooking(req.body);
+  await booking.save();
+  res.status(201).json(booking);
+});
+app.delete('/api/bookings/finished/:id', async (req, res) => {
+  await FinishedBooking.findByIdAndDelete(req.params.id);
   res.json({ success: true });
 });
 

@@ -22,7 +22,8 @@ const BookSummary = () => {
               <div style={{ marginBottom: 12, color: '#111' }}>Contact Number : <span style={{ color: '#111' }}>{booking?.contact || ""}</span></div>
               <div style={{ marginBottom: 12, color: '#111' }}>Email Address : <span style={{ color: '#111' }}>{booking?.email || ""}</span></div>
               <div style={{ marginBottom: 12, color: '#111' }}>Event Type : <span style={{ color: '#111' }}>{booking?.eventType || ""}</span></div>
-              <div style={{ marginBottom: 12, color: '#111' }}>Event Location : <span style={{ color: '#111' }}>{booking?.eventLocation || ""}</span></div>
+              <div style={{ marginBottom: 12, color: '#111' }}>Event Date : <span style={{ color: '#111' }}>{booking?.date ? (typeof booking.date === 'string' ? booking.date : booking.date?.$d ? new Date(booking.date.$d).toLocaleDateString() : booking.date.toString()) : ""}</span></div>
+              {/* Event Location removed as per request */}
               <div style={{ marginBottom: 12, color: '#111' }}>Event Venue : <span style={{ color: '#111' }}>{booking?.eventVenue || ""}</span></div>
             </div>
             <div className="booking-summary-col">
@@ -83,7 +84,19 @@ const BookSummary = () => {
               type="button"
               className="booking-btn booking-btn-next booking-btn-orange"
               style={{ minWidth: 100, background: '#ff9800', color: '#fff', border: 'none' }}
-              onClick={() => navigate('/book-appointment')}
+              onClick={async () => {
+                // Send booking to pending bookings
+                try {
+                  await fetch('http://localhost:5051/api/bookings/pending', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(booking)
+                  });
+                  navigate('/book-appointment');
+                } catch (err) {
+                  alert('Failed to submit booking. Please try again.');
+                }
+              }}
             >
               Confirm
             </button>

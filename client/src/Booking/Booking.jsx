@@ -6,6 +6,7 @@ import "./booking.css";
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { StaticDatePicker } from '@mui/x-date-pickers';
+import dayjs from 'dayjs';
 import TextField from '@mui/material/TextField';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
@@ -19,7 +20,6 @@ import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 const Booking = () => {
-  const [date, setDate] = useState(null);
   const [form, setForm] = useState({
     name: '',
     contact: '',
@@ -34,6 +34,8 @@ const Booking = () => {
     province: '',
     city: '',
     barangay: '',
+    date: null,
+    outsidePH: '',
   });
 
   const [provinces, setProvinces] = useState([]);
@@ -95,8 +97,48 @@ const Booking = () => {
 
   // TODO: Wire up form state to inputs if needed
 
+
+
+  // Compute total price from products
+  const computeTotalPrice = () => {
+    if (!form.products || !Array.isArray(form.products)) return 0;
+    return form.products.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
+  };
+
+  // Get event venue as a string from selected location
+  const getEventVenue = () => {
+    // Find names from codes
+    const provinceName = provinces.find(p => p.code === form.province)?.name || '';
+    const cityName = cities.find(c => c.code === form.city)?.name || '';
+    const barangayName = barangays.find(b => b.code === form.barangay)?.name || '';
+    // Only show non-empty parts
+    return [barangayName, cityName, provinceName].filter(Boolean).join(', ');
+  };
+
+  // Validation: required fields
+  const isFormValid = () => {
+    return (
+      form.date &&
+      form.province &&
+      form.city &&
+      form.barangay &&
+      form.eventType &&
+      form.guestCount
+    );
+  };
+
   const handleNext = () => {
-    navigate('/booking-summary', { state: { booking: form } });
+    if (!isFormValid()) {
+      // Optionally show a message here
+      return;
+    }
+    // Add computed totalPrice and eventVenue to booking object
+    const booking = {
+      ...form,
+      totalPrice: computeTotalPrice(),
+      eventVenue: getEventVenue(),
+    };
+    navigate('/booking-summary', { state: { booking } });
   };
 
   return (
@@ -107,13 +149,14 @@ const Booking = () => {
       </div>
       <div className="booking-center-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '70vh', width: '100%' }}>
         <div className="booking-main-row" style={{ display: 'flex', gap: 0, maxWidth: 1050, width: '100%', justifyContent: 'center', marginBottom: 32 }}>
-          <div className="booking-calendar-box" style={{ flex: 1, minWidth: 0, maxWidth: 'none', width: '50%' }}>
+          <div className="booking-calendar-box" style={{ flex: 1, minWidth: 0, maxWidth: 'none', width: '50%', display: 'flex', flexDirection: 'column', justifyContent: 'stretch', height: 370 }}>
             <h3 style={{ color: '#111', fontWeight: 700 }}>Choose your event date</h3>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <StaticDatePicker
                 displayStaticWrapperAs="desktop"
-                value={date}
-                onChange={(newValue) => setDate(newValue)}
+                value={form.date}
+                onChange={(newValue) => setForm(f => ({ ...f, date: newValue }))}
+                minDate={dayjs().startOf('day')}
                 slotProps={{
                   textField: { fullWidth: true, size: 'small' },
                   calendarHeader: { sx: { '& .MuiPickersCalendarHeader-label': { color: '#111' }, '& .MuiPickersArrowSwitcher-button': { color: '#111' } } },
@@ -132,6 +175,8 @@ const Booking = () => {
             </LocalizationProvider>
           </div>
           <div className="booking-form-box" style={{ flex: 1, minWidth: 0, maxWidth: 'none', width: '50%', display: 'flex', flexDirection: 'column', padding: '24px 32px', boxSizing: 'border-box' }}>
+            {/* Event Venue label above location picker */}
+            <div style={{ fontWeight: 600, fontSize: 17, marginBottom: 8, marginTop: 8, color: '#222' }}>Event Venue</div>
             <div className="booking-field" style={{ marginBottom: 20 }}>
               <FormControl fullWidth size="small" style={{ marginBottom: 12 }}>
                 <InputLabel id="province-label">Province</InputLabel>
@@ -180,6 +225,9 @@ const Booking = () => {
                 </Select>
               </FormControl>
             </div>
+            {/* Add space and label above event type */}
+            <div style={{ height: 18 }} />
+            <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 6, color: '#222' }}>Event Type</div>
             <div className="booking-field" style={{ marginBottom: 20 }}>
               <FormControl fullWidth size="small">
                 <InputLabel id="event-type-label">Event Type</InputLabel>
@@ -192,10 +240,12 @@ const Booking = () => {
                   <MenuItem value="">Choose your Event Type</MenuItem>
                   <MenuItem value="Wedding">Wedding</MenuItem>
                   <MenuItem value="Birthday">Birthday</MenuItem>
-                  <MenuItem value="Corporate">Debut</MenuItem>
+                  <MenuItem value="Debut">Debut</MenuItem>
+                  <MenuItem value="Corporate">Corporate</MenuItem>
                   <MenuItem value="Other">Other</MenuItem>
                 </Select>
               </FormControl>
+              <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 6, marginTop: 12, color: '#222' }}>Guest Count</div>
               <TextField
                 fullWidth
                 type="number"
@@ -205,7 +255,6 @@ const Booking = () => {
                 value={form.guestCount}
                 onChange={e => setForm(f => ({ ...f, guestCount: e.target.value }))}
                 inputProps={{ min: 1 }}
-                style={{ marginTop: 12 }}
               />
             </div>
             <div className="booking-field" style={{ marginBottom: 0 }}>
@@ -217,6 +266,8 @@ const Booking = () => {
                   row
                   aria-label="Booking from outside the Philippines?"
                   name="outsidePH"
+                  value={form.outsidePH}
+                  onChange={e => setForm(f => ({ ...f, outsidePH: e.target.value }))}
                   style={{ justifyContent: 'flex-start' }}
                 >
                   <FormControlLabel value="yes" control={<Radio color="primary" />} label="Yes" />
@@ -294,6 +345,8 @@ const Booking = () => {
               placeholder="Type any special requests here (special service, collaboration to other service provider, host and etc."
               variant="outlined"
               size="small"
+              value={form.specialRequest}
+              onChange={e => setForm(f => ({ ...f, specialRequest: e.target.value }))}
             />
           </div>
         </div>
@@ -303,16 +356,17 @@ const Booking = () => {
         <button
           style={{
             padding: '12px 32px',
-            background: '#ffb300',
+            background: isFormValid() ? '#ffb300' : '#ccc',
             color: '#fff',
             border: 'none',
             borderRadius: 6,
             fontWeight: 700,
             fontSize: 16,
-            cursor: 'pointer',
+            cursor: isFormValid() ? 'pointer' : 'not-allowed',
             minWidth: 180
           }}
           onClick={handleNext}
+          disabled={!isFormValid()}
         >
           Confirm
         </button>
