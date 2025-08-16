@@ -87,10 +87,17 @@ const BookSummary = () => {
               onClick={async () => {
                 // Send booking to pending bookings
                 try {
+                  // Convert date to ISO string if needed
+                  const bookingToSend = {
+                    ...booking,
+                    date: booking.date?.$d
+                      ? new Date(booking.date.$d).toISOString()
+                      : (typeof booking.date === 'string' ? booking.date : new Date(booking.date).toISOString())
+                  };
                   await fetch('http://localhost:5051/api/bookings/pending', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(booking)
+                    body: JSON.stringify(bookingToSend)
                   });
                   navigate('/book-appointment');
                 } catch (err) {

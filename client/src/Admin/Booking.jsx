@@ -1,12 +1,14 @@
 
 import React, { useState } from 'react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 // Simple modal for approve action
 function ApproveModal({ open, onClose, onApprove, booking }) {
-  const [date, setDate] = useState('');
+  const [date, setDate] = useState(null);
   const [desc, setDesc] = useState('');
   React.useEffect(() => {
     if (open) {
-      setDate('');
+      setDate(null); // Always blank for admin to pick
       setDesc('');
     }
   }, [open]);
@@ -20,7 +22,102 @@ function ApproveModal({ open, onClose, onApprove, booking }) {
         <h3 style={{ marginTop: 0, marginBottom: 18 }}>Approve Booking</h3>
         <div style={{ marginBottom: 18 }}>
           <label style={{ fontWeight: 500, display: 'block', marginBottom: 6 }}>Appointment Date</label>
-          <input type="date" value={date} onChange={e => setDate(e.target.value)} style={{ padding: 8, borderRadius: 6, border: '1px solid #ccc', width: '100%', background: '#fff', color: '#222' }} />
+          <div style={{ position: 'relative', width: '100%' }}>
+            <DatePicker
+              selected={date}
+              onChange={d => setDate(d)}
+              placeholderText="Pick a date"
+              dateFormat="yyyy-MM-dd"
+              className="custom-datepicker-input"
+              calendarClassName="custom-datepicker-calendar"
+              popperPlacement="bottom"
+              showPopperArrow={false}
+              style={{ width: '100%' }}
+            />
+            <span
+              onClick={() => document.querySelector('.custom-datepicker-input')?.focus()}
+              style={{
+                position: 'absolute',
+                right: 10,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                height: 24,
+                width: 24,
+                color: '#888'
+              }}
+              tabIndex={0}
+              title="Pick a date"
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </span>
+          </div>
+          <style>{`
+            .custom-datepicker-input {
+              padding: 8px 38px 8px 8px;
+              border-radius: 6px;
+              border: 1px solid #ccc;
+              width: 100%;
+              background: #fff;
+              color: #222;
+              font-size: 16px;
+              box-sizing: border-box;
+            }
+            .custom-datepicker-calendar {
+              font-size: 15px;
+              min-width: 240px;
+              max-width: 260px;
+              width: 100%;
+              border-radius: 12px;
+              box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+              padding: 8px 0 12px 0;
+              font-weight: 200;
+              color: #222;
+            }
+            .custom-datepicker-calendar .react-datepicker__header {
+              background: #fff;
+              border-bottom: none;
+              padding-top: 10px;
+              font-weight: 200;
+              color: #222;
+            }
+            .custom-datepicker-calendar .react-datepicker__current-month {
+              font-size: 1.1em;
+              font-weight: 200;
+              color: #222;
+            }
+            .custom-datepicker-calendar .react-datepicker__day--selected {
+              background: #ff9800;
+              color: #fff;
+              border-radius: 50%;
+              font-weight: 400;
+            }
+            .custom-datepicker-calendar .react-datepicker__day--keyboard-selected {
+              background: #ffe0b2;
+              color: #222;
+              font-weight: 400;
+            }
+            .custom-datepicker-calendar .react-datepicker__day {
+              border-radius: 50%;
+              width: 2.1em;
+              height: 2.1em;
+              line-height: 2.1em;
+              margin: 0.1em;
+              font-weight: 200;
+              color: #222;
+            }
+            /* Remove outline from next/prev month buttons */
+            .custom-datepicker-calendar .react-datepicker__navigation {
+              outline: none !important;
+              box-shadow: none !important;
+            }
+            /* Hide days from previous/next months */
+            .custom-datepicker-calendar .react-datepicker__day--outside-month {
+              visibility: hidden;
+            }
+          `}</style>
         </div>
         <div style={{ marginBottom: 18 }}>
           <label style={{ fontWeight: 500, display: 'block', marginBottom: 6 }}>Description</label>
@@ -77,11 +174,32 @@ export default function AdminBooking() {
   const [approveModal, setApproveModal] = useState({ open: false, booking: null });
   const openApproveModal = (booking) => setApproveModal({ open: true, booking });
   const closeApproveModal = () => setApproveModal({ open: false, booking: null });
-  const handleApprove = (date, desc) => {
-    // Move booking to approved, optionally store date/desc
-    setBookings(prev => prev.map(b =>
-      b._id === approveModal.booking._id ? { ...b, status: 'approved', approvedDate: date, approvedDesc: desc } : b
-    ));
+  const handleApprove = async (date, desc) => {
+    // Move booking to approved in backend
+    const booking = approveModal.booking;
+    try {
+      // 1. Add to approved bookings in backend
+      await fetch('http://localhost:5051/api/bookings/approved', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...booking,
+          status: 'approved',
+          approvedDate: date,
+          approvedDesc: desc
+        })
+      });
+      // 2. Remove from pending bookings in backend
+      await fetch(`http://localhost:5051/api/bookings/pending/${booking._id}`, {
+        method: 'DELETE'
+      });
+      // 3. Update frontend state
+      setBookings(prev => prev.map(b =>
+        b._id === booking._id ? { ...b, status: 'approved', approvedDate: date, approvedDesc: desc } : b
+      ));
+    } catch (err) {
+      alert('Failed to approve booking. Please try again.');
+    }
     closeApproveModal();
   };
   const [selectedBooking, setSelectedBooking] = useState(null);
@@ -126,6 +244,28 @@ export default function AdminBooking() {
       b.desc.toLowerCase().includes(searchLower)
     );
   }
+
+  // Handler to mark an approved booking as finished
+  const handleDoneBooking = async (booking) => {
+    try {
+      // 1. Add to finished bookings in backend
+      await fetch('http://localhost:5051/api/bookings/finished', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...booking, status: 'finished' })
+      });
+      // 2. Remove from approved bookings in backend
+      await fetch(`http://localhost:5051/api/bookings/approved/${booking._id}`, {
+        method: 'DELETE'
+      });
+      // 3. Update frontend state
+      setBookings(prev => prev.map(b =>
+        b._id === booking._id ? { ...b, status: 'finished' } : b
+      ));
+    } catch (err) {
+      alert('Failed to mark as finished. Please try again.');
+    }
+  };
 
   return (
     <div className="admin-dashboard-layout">
@@ -283,35 +423,55 @@ export default function AdminBooking() {
                       <div style={{ fontWeight: 500, fontSize: 18 }}>{booking.eventType || booking.title}</div>
                       <div style={{ fontSize: 14, marginTop: 4 }}>Date: {booking.date ? (typeof booking.date === 'string' ? booking.date : new Date(booking.date).toLocaleDateString()) : ''}</div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteBooking(booking._id)}
-                      style={{
-                        background: 'transparent',
-                        border: 'none',
-                        borderRadius: 6,
-                        padding: 6,
-                        marginLeft: 8,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        boxShadow: 'none',
-                        transition: 'background 0.2s',
-                      }}
-                      title="Delete booking"
-                      aria-label="Delete booking"
-                      onMouseOver={e => e.currentTarget.style.background = '#ffeaea'}
-                      onMouseOut={e => e.currentTarget.style.background = 'transparent'}
-                    >
-                      <svg width="22" height="22" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="5.5" y="8.5" width="1.5" height="6" rx="0.75" fill="#ff4d4f"/>
-                        <rect x="9.25" y="8.5" width="1.5" height="6" rx="0.75" fill="#ff4d4f"/>
-                        <rect x="13" y="8.5" width="1.5" height="6" rx="0.75" fill="#ff4d4f"/>
-                        <path d="M4 6.5H16M8.5 3.5H11.5C12.0523 3.5 12.5 3.94772 12.5 4.5V5.5H7.5V4.5C7.5 3.94772 7.94772 3.5 8.5 3.5Z" stroke="#ff4d4f" strokeWidth="1.2" strokeLinecap="round"/>
-                        <rect x="3.5" y="6.5" width="13" height="10" rx="2" stroke="#ff4d4f" strokeWidth="1.2"/>
-                      </svg>
-                    </button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <button
+                        type="button"
+                        onClick={() => handleDoneBooking(booking)}
+                        style={{
+                          background: '#2196f3',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: 6,
+                          padding: '6px 16px',
+                          fontWeight: 600,
+                          fontSize: 15,
+                          cursor: 'pointer',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                        }}
+                        title="Mark as finished"
+                      >
+                        Done
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteBooking(booking._id)}
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          borderRadius: 6,
+                          padding: 6,
+                          marginLeft: 8,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          boxShadow: 'none',
+                          transition: 'background 0.2s',
+                        }}
+                        title="Delete booking"
+                        aria-label="Delete booking"
+                        onMouseOver={e => e.currentTarget.style.background = '#ffeaea'}
+                        onMouseOut={e => e.currentTarget.style.background = 'transparent'}
+                      >
+                        <svg width="22" height="22" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <rect x="5.5" y="8.5" width="1.5" height="6" rx="0.75" fill="#ff4d4f"/>
+                          <rect x="9.25" y="8.5" width="1.5" height="6" rx="0.75" fill="#ff4d4f"/>
+                          <rect x="13" y="8.5" width="1.5" height="6" rx="0.75" fill="#ff4d4f"/>
+                          <path d="M4 6.5H16M8.5 3.5H11.5C12.0523 3.5 12.5 3.94772 12.5 4.5V5.5H7.5V4.5C7.5 3.94772 7.94772 3.5 8.5 3.5Z" stroke="#ff4d4f" strokeWidth="1.2" strokeLinecap="round"/>
+                          <rect x="3.5" y="6.5" width="13" height="10" rx="2" stroke="#ff4d4f" strokeWidth="1.2"/>
+                        </svg>
+                      </button>
+                    </div>
                   </li>
                 ))}
               </ul>
