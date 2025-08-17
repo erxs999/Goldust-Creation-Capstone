@@ -89,10 +89,18 @@ const BookSummary = () => {
                 try {
                   // Convert date to ISO string if needed
                   const bookingToSend = {
-                    ...booking,
+                    name: booking.name || '',
+                    contact: booking.contact || '',
+                    email: booking.email || '',
+                    eventType: booking.eventType || '',
                     date: booking.date?.$d
                       ? new Date(booking.date.$d).toISOString()
-                      : (typeof booking.date === 'string' ? booking.date : new Date(booking.date).toISOString())
+                      : (typeof booking.date === 'string' ? booking.date : new Date(booking.date).toISOString()),
+                    eventVenue: booking.eventVenue || '',
+                    guestCount: booking.guestCount || 0,
+                    totalPrice: booking.totalPrice || 0,
+                    products: booking.products || [],
+                    specialRequest: booking.specialRequest || '',
                   };
                   await fetch('http://localhost:5051/api/bookings/pending', {
                     method: 'POST',

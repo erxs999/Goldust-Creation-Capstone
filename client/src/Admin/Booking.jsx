@@ -335,7 +335,7 @@ export default function AdminBooking() {
                   <li
                     key={booking._id}
                     className="booking-card"
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, minHeight: 64, padding: 10 }}
                   >
                     <div
                       style={{ flex: 1, cursor: 'pointer' }}
@@ -344,7 +344,7 @@ export default function AdminBooking() {
                       <div style={{ fontWeight: 500, fontSize: 18 }}>{booking.eventType || booking.title}</div>
                       <div style={{ fontSize: 14, marginTop: 4 }}>Date: {booking.date ? (typeof booking.date === 'string' ? booking.date : new Date(booking.date).toLocaleDateString()) : ''}</div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                       <button
                         type="button"
                         onClick={() => openApproveModal(booking)}
@@ -353,11 +353,13 @@ export default function AdminBooking() {
                           color: '#fff',
                           border: 'none',
                           borderRadius: 6,
-                          padding: '6px 16px',
+                          padding: '8px 24px',
                           fontWeight: 600,
-                          fontSize: 15,
+                          fontSize: 17,
                           cursor: 'pointer',
-                          boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                          minWidth: 100,
+                          height: 44
                         }}
                         title="Approve booking"
                       >
@@ -370,7 +372,7 @@ export default function AdminBooking() {
                           background: 'transparent',
                           border: 'none',
                           borderRadius: 6,
-                          padding: 6,
+                          padding: 8,
                           marginLeft: 0,
                           cursor: 'pointer',
                           display: 'flex',
@@ -378,13 +380,15 @@ export default function AdminBooking() {
                           justifyContent: 'center',
                           boxShadow: 'none',
                           transition: 'background 0.2s',
+                          height: 44,
+                          width: 44
                         }}
                         title="Delete booking"
                         aria-label="Delete booking"
                         onMouseOver={e => e.currentTarget.style.background = '#ffeaea'}
                         onMouseOut={e => e.currentTarget.style.background = 'transparent'}
                       >
-                        <svg width="28" height="28" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg width="32" height="32" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <rect x="5.5" y="8.5" width="1.5" height="6" rx="0.75" fill="#ff4d4f"/>
                           <rect x="9.25" y="8.5" width="1.5" height="6" rx="0.75" fill="#ff4d4f"/>
                           <rect x="13" y="8.5" width="1.5" height="6" rx="0.75" fill="#ff4d4f"/>
@@ -414,7 +418,7 @@ export default function AdminBooking() {
                   <li
                     key={booking._id}
                     className="booking-card"
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, minHeight: 64, padding: 10 }}
                   >
                     <div
                       style={{ flex: 1, cursor: 'pointer' }}
@@ -423,7 +427,7 @@ export default function AdminBooking() {
                       <div style={{ fontWeight: 500, fontSize: 18 }}>{booking.eventType || booking.title}</div>
                       <div style={{ fontSize: 14, marginTop: 4 }}>Date: {booking.date ? (typeof booking.date === 'string' ? booking.date : new Date(booking.date).toLocaleDateString()) : ''}</div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                       <button
                         type="button"
                         onClick={() => handleDoneBooking(booking)}
@@ -432,11 +436,13 @@ export default function AdminBooking() {
                           color: '#fff',
                           border: 'none',
                           borderRadius: 6,
-                          padding: '6px 16px',
+                          padding: '8px 24px',
                           fontWeight: 600,
-                          fontSize: 15,
+                          fontSize: 17,
                           cursor: 'pointer',
-                          boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                          minWidth: 100,
+                          height: 44
                         }}
                         title="Mark as finished"
                       >
@@ -449,21 +455,23 @@ export default function AdminBooking() {
                           background: 'transparent',
                           border: 'none',
                           borderRadius: 6,
-                          padding: 6,
-                          marginLeft: 8,
+                          padding: 8,
+                          marginLeft: 0,
                           cursor: 'pointer',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           boxShadow: 'none',
                           transition: 'background 0.2s',
+                          height: 44,
+                          width: 44
                         }}
                         title="Delete booking"
                         aria-label="Delete booking"
                         onMouseOver={e => e.currentTarget.style.background = '#ffeaea'}
                         onMouseOut={e => e.currentTarget.style.background = 'transparent'}
                       >
-                        <svg width="22" height="22" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg width="32" height="32" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <rect x="5.5" y="8.5" width="1.5" height="6" rx="0.75" fill="#ff4d4f"/>
                           <rect x="9.25" y="8.5" width="1.5" height="6" rx="0.75" fill="#ff4d4f"/>
                           <rect x="13" y="8.5" width="1.5" height="6" rx="0.75" fill="#ff4d4f"/>
@@ -486,7 +494,7 @@ export default function AdminBooking() {
                   <li
                     key={booking._id}
                     className="booking-card"
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, minHeight: 64, padding: 10 }}
                   >
                     <div
                       style={{ flex: 1, cursor: 'pointer' }}

@@ -58,8 +58,23 @@ const CartItem = mongoose.model('CartItem', cartItemSchema);
 // BOOKING SCHEMAS/MODELS (using bookingConnection)
 const bookingBaseSchema = new mongoose.Schema({
   userId: String,
-  service: String,
+  name: String,
+  contact: String,
+  email: String,
+  eventType: String,
   date: Date,
+  eventVenue: String,
+  guestCount: Number,
+  totalPrice: Number,
+  products: [
+    {
+      image: String,
+      title: String,
+      price: Number
+    }
+  ],
+  specialRequest: String,
+  service: String,
   details: Object,
   createdAt: { type: Date, default: Date.now }
 });
