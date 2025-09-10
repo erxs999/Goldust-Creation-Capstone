@@ -19,7 +19,26 @@ export default function Calendars() {
       <Sidebar />
       <main className="admin-dashboard-main">
         <div className="admin-calendars-root">
-          <h2 style={{ color: '#111', marginBottom: 0 }}>Calendars</h2>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 0 }}>
+            <h2 style={{ color: '#111', marginBottom: 0 }}>Calendars</h2>
+            <button
+              style={{
+                background: 'linear-gradient(90deg, #e6b800 0%, #ffbe2e 100%)',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '7px',
+                fontWeight: 700,
+                fontSize: '1rem',
+                padding: '0.45rem 1.2rem',
+                cursor: 'pointer',
+                boxShadow: '0 2px 8px 0 rgba(230, 184, 0, 0.10)',
+                marginLeft: 16
+              }}
+              onClick={() => alert('Button clicked!')}
+            >
+              Add Event
+            </button>
+          </div>
           <div
             style={{
               height: 560,
