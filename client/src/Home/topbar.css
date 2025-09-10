@@ -5,7 +5,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
 .topbar {
   width: 100%;  
-  background: linear-gradient(120deg, #f8b8d2 0%, #bb9708 25%, #ffb347 70%, #f5609e 100%);
+  background: linear-gradient(120deg, #e1ff00 0%, #ffe47a 25%, #ffb347 70%, #b4cb00 100%);
   background-size: 250% 250%;
   /* animation only when scrolled */
   backdrop-filter: blur(16px) saturate(160%);

@@ -1,6 +1,8 @@
 
+
 import React, { useEffect, useState } from "react";
 import "./topbar.css";
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 
 
 const API_BASE = 'http://localhost:5051/api';
@@ -43,35 +45,32 @@ const TopBar = () => {
     <header className={`topbar${expanded ? " topbar-expanded" : ""}`}>
       <div className="topbar-logo">GOLDUST CREATION</div>
 
-      <nav className="topbar-center">
+      <nav className="topbar-center" style={{ display: 'flex', alignItems: 'center', gap: 48 }}>
         <a href="/" className="topbar-link">Home</a>
         <a href="/?scroll=services" className="topbar-link">Services</a>
         <a href="/booking" className="topbar-link">Book Now</a>
         <a href="/policy" className="topbar-link">Policy</a>
       </nav>
 
-      <div className="topbar-right">
-        <span style={{ position: 'relative', display: 'inline-block', marginLeft: 16 }}>
-          <a href="/event-cart" className="topbar-link">Event Cart</a>
+      <div className="topbar-right" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
+        <a href="/event-cart" className="topbar-link" style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
+          <ShoppingCartIcon style={{ fontSize: 22 }} />
           {cartCount > 0 && (
             <span style={{
               position: 'absolute',
               top: -10,
-              right: -10,
+              right: -6,
               color: 'white',
-              fontSize: 15,
-              fontWeight: 700,
-              background: 'none',
+              background: 'transparent',
+              fontSize: 18,
+              fontWeight: 500,
+              zIndex: 1,
               padding: 0,
-              borderRadius: 0,
-              minWidth: 'unset',
-              height: 'unset',
               boxShadow: 'none',
-              display: 'block',
             }}>{cartCount}</span>
           )}
-        </span>
-        <a href="/signup" className="topbar-link" style={{ marginLeft: 36 }}>Sign up</a>
+        </a>
+        <a href="/signup" className="topbar-link">Sign up</a>
       </div>
     </header>
   );

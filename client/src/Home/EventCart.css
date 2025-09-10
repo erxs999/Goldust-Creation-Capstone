@@ -1,0 +1,196 @@
+/* EventCart.css - Responsive and zoom-friendly styles for Event Cart page */
+
+.event-cart-root {
+  padding: 2vw 4vw; /* Equal left and right margin */
+  max-width: 92vw;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+.event-cart-title {
+  margin-bottom: 2vw;
+  font-size: clamp(1.3rem, 2.5vw, 2.2rem);
+  font-weight: 700;
+}
+
+
+.event-cart-main {
+  display: flex;
+  gap: 0.3vw; /* Even less gap between items and summary */
+  align-items: flex-start;
+  margin-right: 460px; /* Slightly less margin for a closer summary card */
+}
+
+.event-cart-items {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 1vw;
+}
+
+.event-cart-item {
+  background: #fff;
+  box-shadow: 0 1px 8px 0 rgba(0,0,0,0.16); /* Darker shadow */
+  border-radius: 0.5em;
+  padding: 1vw 1.2vw; /* Less vertical padding for smaller height */
+  display: flex;
+  align-items: center;
+  gap: 1.5vw;
+  position: relative;
+  min-width: 0;
+}
+
+.event-cart-item img {
+  width: 7vw;
+  min-width: 70px;
+  max-width: 120px;
+  height: 6vw;
+  min-height: 60px;
+  max-height: 100px;
+  object-fit: cover;
+  border-radius: 0.4em;
+}
+
+.event-cart-item-title {
+  font-weight: 700;
+  font-size: clamp(1rem, 1.2vw, 1.2rem);
+}
+
+.event-cart-item-price {
+  color: #888;
+  font-weight: 600;
+  font-size: clamp(0.9rem, 1vw, 1.1rem);
+}
+
+.event-cart-summary {
+  position: fixed;
+  top: 210px;
+  right: 4vw; /* Align with page margin */
+  background: #fff;
+  box-shadow: 0 1px 8px 0 rgba(0,0,0,0.16);
+  border-radius: 0.7em;
+  padding: 2.5vw 2vw 2.5vw 2vw;
+  min-width: 340px;
+  max-width: 520px;
+  width: 480px;
+  min-height: 420px;
+  box-sizing: border-box;
+  z-index: 10;
+  transition: width 0.2s, min-width 0.2s, max-width 0.2s, min-height 0.2s, padding 0.2s;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.event-cart-summary-title {
+  font-weight: 700;
+  font-size: clamp(1.1rem, 1.5vw, 1.4rem);
+  margin-bottom: 1.2vw;
+}
+
+.event-cart-summary-list {
+  margin-bottom: 1.2vw;
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: 8px; /* for scrollbar space */
+}
+
+.event-cart-summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.7vw;
+  font-size: clamp(0.95rem, 1vw, 1.1rem);
+}
+
+.event-cart-summary-total {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: clamp(1rem, 1.2vw, 1.2rem);
+  margin-bottom: 1.5vw;
+  border-top: 1px solid #eee;
+  padding-top: 1vw;
+}
+
+.event-cart-summary-total span:last-child {
+  color: orange;
+}
+
+.event-cart-book-btn {
+  width: 100%;
+  background: orange;
+  color: #fff;
+  border: none;
+  border-radius: 0.4em;
+  padding: 0.55em 0; /* Smaller height */
+  font-weight: 700;
+  font-size: clamp(1rem, 1.2vw, 1.2rem);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.event-cart-book-btn:hover {
+  background: #ff9800;
+}
+
+@media (max-width: 1300px) {
+  .event-cart-summary {
+    right: 2vw;
+    min-width: 260px;
+    max-width: 400px;
+    width: 340px;
+    min-height: 340px;
+    padding: 2vw 1.2vw 2vw 1.2vw;
+  }
+  .event-cart-main {
+    margin-right: 0;
+  }
+  .event-cart-root {
+    padding-left: 2vw;
+    padding-right: 2vw;
+    max-width: 98vw;
+  }
+}
+
+@media (max-width: 900px) {
+  .event-cart-summary {
+    position: static;
+    top: unset;
+    right: unset;
+    width: 100%;
+    min-width: unset;
+    max-width: unset;
+    min-height: unset;
+    margin-top: 2vw;
+    padding: 3vw 2vw;
+  }
+}
+
+@media (max-width: 600px) {
+  .event-cart-root {
+    padding: 2vw 1vw;
+  }
+  .event-cart-main {
+    margin-right: 0;
+  }
+  .event-cart-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2vw;
+    padding: 2vw 1vw; /* Less vertical padding for smaller height */
+  }
+  .event-cart-item img {
+    width: 100%;
+    min-width: 0;
+    max-width: 100vw;
+    height: 24vw;
+    min-height: 60px;
+    max-height: 140px;
+  }
+  .event-cart-summary {
+    padding: 3vw 2vw;
+  }
+  .event-cart-title {
+    font-size: 1.1rem;
+  }
+}

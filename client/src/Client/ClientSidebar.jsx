@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './client-sidebar.css';
 import HomeIcon from '@mui/icons-material/Home';
 import PersonIcon from '@mui/icons-material/Person';
@@ -18,14 +18,20 @@ const navLinks = [
 ];
 
 const ClientSidebar = () => {
+  const [expanded, setExpanded] = useState(true);
   return (
-    <div className="client-sidebar">
-      <h2>Profile Management</h2>
+    <div className={`client-sidebar${expanded ? '' : ' shrunk'}`}>
+      <div className="client-sidebar-header">
+        <h2 style={{margin: 0, padding: 0}}>{expanded ? 'Profile Management' : ''}</h2>
+        <button className="sidebar-toggle-btn" onClick={() => setExpanded((e) => !e)}>
+          {expanded ? '<' : '>'}
+        </button>
+      </div>
       <ul>
         {navLinks.map((link) => (
           <li key={link.label}>
             <span className="icon">{link.icon}</span>
-            <Link to={link.to} style={{ textDecoration: 'none', color: 'inherit' }}>{link.label}</Link>
+            {expanded && <Link to={link.to} style={{ textDecoration: 'none', color: 'inherit' }}>{link.label}</Link>}
           </li>
         ))}
       </ul>

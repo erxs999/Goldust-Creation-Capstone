@@ -1,3 +1,7 @@
+.supplier-sidebar .sidebar-toggle-btn:focus {
+  outline: none;
+  box-shadow: none;
+}
 
 .supplier-sidebar {
   font-family: 'Poppins', 'Segoe UI', sans-serif;
@@ -21,6 +25,51 @@
   flex-direction: column;
   gap: 24px;
   z-index: 10;
+  transition: width 0.2s, padding 0.2s;
+}
+
+.supplier-sidebar.shrunk {
+  width: 64px;
+  padding-left: 10px;
+  padding-right: 10px;
+  align-items: center;
+}
+
+.supplier-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 48px;
+  padding: 8px 0 0 0;
+}
+.supplier-sidebar-header h2 {
+  margin: 0;
+  padding: 0;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #fff;
+}
+.supplier-sidebar.shrunk h2,
+.supplier-sidebar.shrunk li a {
+  display: none;
+}
+
+.supplier-sidebar .sidebar-toggle-btn {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 1.2rem;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  align-self: flex-end;
+  transition: background 0.2s;
+}
+.supplier-sidebar .sidebar-toggle-btn:hover {
+  background: transparent;
 }
 
 @keyframes gold-pink-gradient-move {
