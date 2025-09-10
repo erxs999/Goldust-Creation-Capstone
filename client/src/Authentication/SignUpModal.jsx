@@ -9,13 +9,13 @@ const options = [
     key: 'customer',
     label: 'Customer',
     icon: <PersonIcon className="signup-modal-icon" />,
-    desc: 'Shop, order, and enjoy our services as a valued customer.'
+    desc: 'Browse, book and enjoy our services as a valued customer.'
   },
   {
     key: 'supplier',
     label: 'Supplier',
     icon: <StorefrontIcon className="signup-modal-icon" />,
-    desc: 'Sell your products and manage your business as a supplier.'
+    desc: "Sign up for Goldust Creation's suppliers ."
   }
 ];
 
