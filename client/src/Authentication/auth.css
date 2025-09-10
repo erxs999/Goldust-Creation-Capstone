@@ -118,7 +118,7 @@ body, .auth-container, .auth-form, .MuiTypography-root, .MuiInputBase-root, .Mui
 
 /* Auth Inputs */
 .auth-input {
-  margin-bottom: 0.5rem !important;
+  margin-bottom: 0.18rem !important;
 }
 .auth-input-span {
   grid-column: 1 / -1 !important;
@@ -128,8 +128,8 @@ body, .auth-container, .auth-form, .MuiTypography-root, .MuiInputBase-root, .Mui
 .auth-signup-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: 0.38rem;
+  margin-bottom: 0.5rem;
 }
 @media (max-width: 600px) {
   .auth-signup-grid {
@@ -288,8 +288,9 @@ body, .auth-container, .auth-form, .MuiTypography-root, .MuiInputBase-root, .Mui
 .MuiInputBase-root {
   background: #f8f8f8;
   border-radius: 7px;
-  font-size: 0.97rem;
-  padding: 0rem 6rem; /* shorter height */
+  font-size: 0.89rem;
+  padding: 0.15rem 0.6rem;
+  min-height: 26px;
 }
 
 .MuiInputBase-root.Mui-focused .MuiOutlinedInput-notchedOutline {

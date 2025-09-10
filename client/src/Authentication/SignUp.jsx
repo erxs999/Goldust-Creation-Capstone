@@ -31,6 +31,7 @@ const SignUp = () => {
     password: "",
     confirmPassword: "",
     role: "user",
+    companyName: "",
     agree: false,
   });
   const [type, setType] = useState(accountType);
@@ -38,12 +39,16 @@ const SignUp = () => {
 
   useEffect(() => {
     setType(accountType);
-    setForm((prev) => ({ ...prev, role: accountType }));
+    if (accountType === "supplier") {
+      setForm((prev) => ({ ...prev, role: undefined, companyName: "" }));
+    } else {
+      setForm((prev) => ({ ...prev, role: accountType, companyName: undefined }));
+    }
   }, [accountType]);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setForm({ ...form, [name]: type === "checkbox" ? checked : value });
+    const { name, value, type: inputType, checked } = e.target;
+    setForm({ ...form, [name]: inputType === "checkbox" ? checked : value });
   };
 
   const [error, setError] = useState("");
@@ -66,20 +71,26 @@ const SignUp = () => {
     setLoading(true);
 
     try {
+      const payload = {
+        firstName: form.firstName,
+        lastName: form.lastName,
+        middleName: form.middleName,
+        email: form.email,
+        phone: form.phone,
+        password: form.password,
+      };
+      if (type === "supplier") {
+        payload.companyName = form.companyName;
+        payload.role = "supplier";
+      } else {
+        payload.role = form.role;
+      }
       const response = await fetch('http://localhost:5051/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          firstName: form.firstName,
-          lastName: form.lastName,
-          middleName: form.middleName,
-          email: form.email,
-          phone: form.phone,
-          password: form.password,
-          role: form.role
-        }),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
@@ -111,7 +122,7 @@ const SignUp = () => {
         <Box className="auth-form-panel">
           <Paper elevation={0} className="auth-form">
             <Typography variant="h5" align="left" gutterBottom className="auth-title">
-              Get Started
+              {type === 'supplier' ? 'Supplier Sign Up' : 'Customer Sign Up'}
             </Typography>
             <form onSubmit={handleSubmit}>
               <Box className="auth-signup-grid">
@@ -155,18 +166,32 @@ const SignUp = () => {
                   required
                   className="auth-input"
                 />
-                <FormControl fullWidth margin="dense" className="auth-input">
-                  <InputLabel>Role</InputLabel>
-                  <Select
-                    name="role"
-                    value={form.role}
+                {type === 'supplier' ? (
+                  <TextField
+                    label="Company Name"
+                    name="companyName"
+                    value={form.companyName}
                     onChange={handleChange}
-                    label="Role"
-                  >
-                    <MenuItem value="user">User</MenuItem>
-                    <MenuItem value="admin">Admin</MenuItem>
-                  </Select>
-                </FormControl>
+                    fullWidth
+                    margin="dense"
+                    required
+                    className="auth-input"
+                  />
+                ) : null}
+                {type === 'admin' ? (
+                  <FormControl fullWidth margin="dense" className="auth-input">
+                    <InputLabel>Role</InputLabel>
+                    <Select
+                      name="role"
+                      value={form.role}
+                      onChange={handleChange}
+                      label="Role"
+                    >
+                      <MenuItem value="user">User</MenuItem>
+                      <MenuItem value="admin">Admin</MenuItem>
+                    </Select>
+                  </FormControl>
+                ) : null}
                 <TextField
                   label="Email address"
                   name="email"
