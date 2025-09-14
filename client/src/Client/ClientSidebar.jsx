@@ -6,7 +6,7 @@ import MessageIcon from '@mui/icons-material/Message';
 import InfoIcon from '@mui/icons-material/Info';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const navLinks = [
   { label: 'Home', icon: <HomeIcon />, to: '/client/home' },
@@ -19,21 +19,35 @@ const navLinks = [
 
 const ClientSidebar = () => {
   const [expanded, setExpanded] = useState(true);
+  const location = useLocation();
   return (
     <div className={`client-sidebar${expanded ? '' : ' shrunk'}`}>
       <div className="client-sidebar-header">
-        <h2 style={{margin: 0, padding: 0}}>{expanded ? 'Profile Management' : ''}</h2>
+        <h2 style={{margin: 0, padding: 0}}>{expanded ? 'Profile' : ''}</h2>
         <button className="sidebar-toggle-btn" onClick={() => setExpanded((e) => !e)}>
           {expanded ? '<' : '>'}
         </button>
       </div>
       <ul>
-        {navLinks.map((link) => (
-          <li key={link.label}>
-            <span className="icon">{link.icon}</span>
-            {expanded && <Link to={link.to} style={{ textDecoration: 'none', color: 'inherit' }}>{link.label}</Link>}
-          </li>
-        ))}
+        {navLinks.map((link, idx) => {
+          const isActive = location.pathname === link.to;
+          // Insert a divider after Notification (before Log out)
+          if (link.label === 'Log out') {
+            return [
+              <li key="divider" className="sidebar-divider"><hr className="sidebar-hr" /></li>,
+              <li key={link.label} className={isActive ? 'active' : ''}>
+                <span className="icon">{link.icon}</span>
+                {expanded && <Link to={link.to} style={{ textDecoration: 'none', color: 'inherit' }}>{link.label}</Link>}
+              </li>
+            ];
+          }
+          return (
+            <li key={link.label} className={isActive ? 'active' : ''}>
+              <span className="icon">{link.icon}</span>
+              {expanded && <Link to={link.to} style={{ textDecoration: 'none', color: 'inherit' }}>{link.label}</Link>}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

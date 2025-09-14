@@ -1,3 +1,28 @@
+.sidebar-divider,
+.sidebar-hr,
+.sidebar-divider:hover,
+.sidebar-divider:focus {
+  background: transparent !important;
+  border: none;
+  box-shadow: none !important;
+  cursor: default !important;
+}
+
+
+.sidebar-divider {
+  padding: 0;
+  margin: 0 0 4px 0;
+  list-style: none;
+}
+
+.sidebar-hr {
+  border: none;
+  border-top: 2px solid #9c9c9c;
+  margin: 6px 0 6px 0;
+  width: 100%;
+  align-self: center;
+  background: transparent;
+}
 .client-sidebar .sidebar-toggle-btn:focus {
   outline: none;
   box-shadow: none;
@@ -5,13 +30,13 @@
 
 .client-sidebar {
   font-family: 'Poppins', 'Segoe UI', sans-serif;
-  background: linear-gradient(135deg, #e2b23a 0%, #e86d9e 100%);
+  background: #ffffff;
   background-size: 200% 200%;
   animation: gold-pink-gradient-move 8s ease-in-out infinite;
   backdrop-filter: blur(16px) saturate(160%);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
   border-radius: 12px;
-  box-shadow: 0 0 0 2px #eee;
+  box-shadow: 0 0 0 2px #dedede;
   padding: 32px 24px;
   width: 260px;
   height: calc(95vh - 32px * 2);
@@ -48,7 +73,7 @@
   padding: 0;
   font-size: 1.3rem;
   font-weight: 800;
-  color: #fff;
+  color: #ffffff;
 }
 .client-sidebar.shrunk h2,
 .client-sidebar.shrunk li a {
@@ -58,7 +83,7 @@
 .client-sidebar .sidebar-toggle-btn {
   background: transparent;
   border: none;
-  color: #fff;
+  color: #242424;
   font-size: 1.2rem;
   border-radius: 6px;
   width: 32px;
@@ -68,26 +93,12 @@
   align-self: flex-end;
   transition: background 0.2s;
 }
-.client-sidebar .sidebar-toggle-btn:hover {
-  background: transparent;
-}
 
-@keyframes gold-pink-gradient-move {
-  0% {
-    background-position: 0% 100%;
-  }
-  50% {
-    background-position: 100% 0%;
-  }
-  100% {
-    background-position: 0% 100%;
-  }
-}
 
 .client-sidebar h2 {
   font-size: 1.3rem;
   font-weight: 800;
-  color: #fff;
+  color: #000000;
   margin-bottom: 18px;
   /* border-bottom removed */
   padding-bottom: 8px;
@@ -103,53 +114,53 @@
 }
 
 
+
 .client-sidebar li {
   display: flex;
   align-items: center;
   gap: 6px;
   font-size: 1.08rem;
-  color: #000000;
+  color: #565656;
   cursor: pointer;
-  transition: color 0.2s;
-  padding: 5px 0;
+  transition: color 0.2s, background 0.2s;
+  padding: 5px 10px;
   min-height: 32px;
+  border-radius: 10px;
 }
-
-.client-sidebar li a {
-  color: #000000 !important;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-
 
 .client-sidebar li:hover,
-.client-sidebar li:hover a {
-
-  color: #ffffff !important;
-  border-radius: 6px;
-  transition: background 0.2s, color 0.2s;
+.client-sidebar li:focus-within {
+  background: #ffe998;
+  color: #565656;
 }
 
-/* Active/clicked effect for sidebar links */
 .client-sidebar li.active,
-.client-sidebar li:active,
-.client-sidebar li.active a,
-.client-sidebar li:active a {
- 
-  color: #ffffff !important;
-  border-radius: 6px;
-  transition: background 0.2s, color 0.2s;
+.client-sidebar li.selected {
+  background: #ffdf6b;
+  color: #565656;
 }
+
 
 .client-sidebar li a {
-  color: #000000 !important;
+  text-decoration: none;
+  transition: color 0.2s;
+  width: 100%;
+  display: block;
+  padding: 5px 0;
+}
+
+
+
+
+
+.client-sidebar li a {
+  color: #565656   !important;
   text-decoration: none;
   transition: color 0.2s;
   font-weight: 300;
 }
 
-
+  
 /* Remove previous hover color overrides to allow background highlight to show */
 
 .client-sidebar .icon {
