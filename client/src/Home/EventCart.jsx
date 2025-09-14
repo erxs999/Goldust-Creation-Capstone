@@ -45,13 +45,13 @@ const EventCart = () => {
       <TopBar />
       <div className="event-cart-root">
         <h2 className="event-cart-title">Event Cart</h2>
-        {cart.length === 0 ? (
-          <p>Your selected events and services will appear here.</p>
-        ) : (
-          <div className="event-cart-main">
-            {/* Left: Cart Items */}
-            <div className="event-cart-items">
-              {cart.map((item, idx) => (
+        <div className="event-cart-main">
+          {/* Left: Cart Items */}
+          <div className="event-cart-items">
+            {cart.length === 0 ? (
+              <p>Your selected events and services will appear here.</p>
+            ) : (
+              cart.map((item, idx) => (
                 <div key={idx} className="event-cart-item">
                   {item.product && item.product.image && (
                     <img src={item.product.image} alt={item.product.title} />
@@ -64,35 +64,42 @@ const EventCart = () => {
                     <DeleteIcon />
                   </IconButton>
                 </div>
-              ))}
-            </div>
-            {/* Right: Summary */}
-            <div className="event-cart-summary">
-              <div className="event-cart-summary-title">Summary</div>
-              <div className="event-cart-summary-list">
-                {cart.map((item, idx) => (
+              ))
+            )}
+          </div>
+          {/* Right: Summary */}
+          <div className="event-cart-summary">
+            <div className="event-cart-summary-title">Summary</div>
+            <div className="event-cart-summary-list">
+              {cart.length === 0 ? (
+                <div className="event-cart-summary-row" style={{ color: '#888' }}>
+                  <span>No items in cart.</span>
+                </div>
+              ) : (
+                cart.map((item, idx) => (
                   <div key={idx} className="event-cart-summary-row">
                     <span>{item.product ? item.product.title : ''}</span>
                     <span style={{ fontWeight: 600 }}>PHP {item.product && item.product.price ? item.product.price : 0}</span>
                   </div>
-                ))}
-              </div>
-              <div className="event-cart-summary-total">
-                <span>Total</span>
-                <span>PHP {cart.reduce((sum, item) => sum + (parseFloat(item.product && item.product.price) || 0), 0)}</span>
-              </div>
-              <button
-                className="event-cart-book-btn"
-                onClick={() => {
-                  localStorage.setItem('gd_booking_selected_products', JSON.stringify(cart.map(item => item.product)));
-                  window.location.href = '/booking';
-                }}
-              >
-                Book Now
-              </button>
+                ))
+              )}
             </div>
+            <div className="event-cart-summary-total">
+              <span>Total</span>
+              <span>PHP {cart.reduce((sum, item) => sum + (parseFloat(item.product && item.product.price) || 0), 0)}</span>
+            </div>
+            <button
+              className="event-cart-book-btn"
+              disabled={cart.length === 0}
+              onClick={() => {
+                localStorage.setItem('gd_booking_selected_products', JSON.stringify(cart.map(item => item.product)));
+                window.location.href = '/booking';
+              }}
+            >
+              Book Now
+            </button>
           </div>
-        )}
+        </div>
       </div>
     </>
   );
