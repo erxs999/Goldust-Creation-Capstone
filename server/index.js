@@ -1,13 +1,46 @@
-
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+// ...existing code...
+
+// ...existing code...
+
+// Authentication DB connection (for supplier and customer)
+// Authentication DB connection (for supplier and customer)
+const authConnection = mongoose.createConnection('mongodb://127.0.0.1:27017/authentication', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+authConnection.on('connected', () => console.log('MongoDB authentication connected!'));
+authConnection.on('error', err => console.error('MongoDB authentication connection error:', err));
+
+// Supplier schema/model
+const supplierSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  companyName: String,
+  contact: String,
+  createdAt: { type: Date, default: Date.now }
+});
+const Supplier = authConnection.model('Supplier', supplierSchema);
+
+// Customer schema/model
+const customerSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  firstName: String,
+  lastName: String,
+  contact: String,
+  createdAt: { type: Date, default: Date.now }
+});
+const Customer = authConnection.model('Customer', customerSchema);
+
+// const bcrypt = require('bcryptjs');
+// const jwt = require('jsonwebtoken');
 const app = express();
 const PORT = 5051;
-const User = require('./models/User');
-const auth = require('./middleware/auth');
+// const User = require('./models/User');
+// const auth = require('./middleware/auth');
 
 app.use(cors());
 
@@ -196,177 +229,49 @@ app.delete('/api/products/:id', async (req, res) => {
   res.json({ success: true });
 });
 
-// Authentication Routes
-app.post('/api/auth/register', async (req, res) => {
+
+
+// AUTH ROUTES
+
+// Register Supplier
+app.post('/api/auth/register-supplier', async (req, res) => {
   try {
-    const { email, password, firstName, lastName, middleName, phone, role } = req.body;
-
-    // Check if user exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
+    const { email, password, companyName, contact } = req.body;
+    if (!email || !password || !companyName) {
+      return res.status(400).json({ error: 'Missing required fields' });
     }
-
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    // Create new user
-    const user = new User({
-      email,
-      password: hashedPassword,
-      firstName,
-      lastName,
-      middleName,
-      phone,
-      role: role || 'user'
-    });
-
-    await user.save();
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'your-secret-key');
-    
-    res.status(201).json({ 
-      message: 'Registration successful',
-      token,
-      user: {
-        id: user._id,
-        email: user.email,
-        role: user.role,
-        firstName: user.firstName,
-        lastName: user.lastName
-      }
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+    // Check if supplier already exists
+    const existing = await Supplier.findOne({ email });
+    if (existing) {
+      return res.status(409).json({ error: 'Supplier already exists' });
+    }
+    // Create new supplier
+    const supplier = new Supplier({ email, password, companyName, contact });
+    await supplier.save();
+    res.status(201).json({ message: 'Supplier registered successfully', user: supplier });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
-app.post('/api/auth/verify-otp', async (req, res) => {
+// Register Customer
+app.post('/api/auth/register-customer', async (req, res) => {
   try {
-    const { email, otp } = req.body;
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+    const { email, password, firstName, lastName, contact } = req.body;
+    if (!email || !password || !firstName || !lastName) {
+      return res.status(400).json({ error: 'Missing required fields' });
     }
-
-    if (!user.otp || !user.otp.code || new Date() > user.otp.expires) {
-      return res.status(400).json({ message: 'OTP expired' });
+    // Check if customer already exists
+    const existing = await Customer.findOne({ email });
+    if (existing) {
+      return res.status(409).json({ error: 'Customer already exists' });
     }
-
-    if (user.otp.code !== otp) {
-      return res.status(400).json({ message: 'Invalid OTP' });
-    }
-
-    user.isVerified = true;
-    user.otp = undefined;
-    await user.save();
-
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'your-secret-key');
-    res.json({ token, user: { id: user._id, email: user.email, role: user.role } });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-app.post('/api/auth/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
-    }
-
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'your-secret-key');
-    res.json({ 
-      token, 
-      user: { 
-        id: user._id, 
-        email: user.email, 
-        role: user.role,
-        firstName: user.firstName,
-        lastName: user.lastName
-      } 
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-app.post('/api/auth/forgot-password', async (req, res) => {
-  try {
-    const { email } = req.body;
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    const resetToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'your-secret-key', { expiresIn: '1h' });
-    
-    user.resetPasswordToken = resetToken;
-    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
-    await user.save();
-
-    await sendPasswordResetEmail(email, resetToken);
-    res.json({ message: 'Password reset email sent' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-app.post('/api/auth/reset-password', async (req, res) => {
-  try {
-    const { token, password } = req.body;
-    const user = await User.findOne({
-      resetPasswordToken: token,
-      resetPasswordExpires: { $gt: Date.now() }
-    });
-
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid or expired reset token' });
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(password, salt);
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpires = undefined;
-    await user.save();
-
-    res.json({ message: 'Password reset successful' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-app.post('/api/auth/resend-otp', async (req, res) => {
-  try {
-    const { email } = req.body;
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-
-    user.otp = {
-      code: otp,
-      expires: otpExpires
-    };
-    await user.save();
-    await sendOTP(email, otp);
-
-    res.json({ message: 'New OTP sent successfully' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+    // Create new customer
+    const customer = new Customer({ email, password, firstName, lastName, contact });
+    await customer.save();
+    res.status(201).json({ message: 'Customer registered successfully', user: customer });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
   }
 });
 

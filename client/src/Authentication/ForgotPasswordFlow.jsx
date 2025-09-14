@@ -5,33 +5,12 @@ import "./auth.css";
 
 function ForgotPasswordStep({ onNext }) {
   const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  const handleSubmit = async () => {
-    setError("");
-    setLoading(true);
-    try {
-      await auth.forgotPassword(email);
-      onNext();
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to send reset email. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="auth-card">
       <Typography variant="h5" sx={{ mb: 3, fontWeight: 600 }}>
         Forgot your Password?
       </Typography>
       <Typography sx={{ mb: 2 }}>Enter your email to recover your password</Typography>
-      {error && (
-        <Typography color="error" sx={{ mb: 2 }}>
-          {error}
-        </Typography>
-      )}
       <TextField
         placeholder="Enter your email"
         value={email}
@@ -43,11 +22,10 @@ function ForgotPasswordStep({ onNext }) {
       <Button
         variant="contained"
         fullWidth
-        disabled={loading}
         sx={{ background: "#F7C04A", color: "#111", fontWeight: 600, borderRadius: 2, boxShadow: "none", '&:hover': { background: '#e6b13d' } }}
-        onClick={handleSubmit}
+        onClick={() => onNext(email)}
       >
-        {loading ? "Sending..." : "Submit"}
+        Submit
       </Button>
     </div>
   );
@@ -55,46 +33,12 @@ function ForgotPasswordStep({ onNext }) {
 
 function VerifyCodeStep({ onNext }) {
   const [code, setCode] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  
-  const handleVerify = async () => {
-    setError("");
-    setLoading(true);
-    try {
-      await auth.verifyOTP({
-        email: localStorage.getItem('resetEmail'),
-        otp: code
-      });
-      onNext();
-    } catch (err) {
-      setError(err.response?.data?.message || "Invalid code. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleResend = async () => {
-    setError("");
-    try {
-      await auth.resendOTP(localStorage.getItem('resetEmail'));
-      alert("New code sent successfully!");
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to resend code. Please try again.");
-    }
-  };
-
   return (
     <div className="auth-card">
       <Typography variant="h5" sx={{ mb: 3, fontWeight: 600 }}>
         Verify Code
       </Typography>
       <Typography sx={{ mb: 2 }}>Enter code</Typography>
-      {error && (
-        <Typography color="error" sx={{ mb: 2 }}>
-          {error}
-        </Typography>
-      )}
       <TextField
         placeholder="Enter code"
         value={code}
@@ -104,16 +48,15 @@ function VerifyCodeStep({ onNext }) {
         sx={{ mb: 1 }}
       />
       <Typography sx={{ fontSize: 13, mb: 3 }}>
-        Didn't receive code? <span style={{ color: '#111', fontWeight: 500, cursor: 'pointer' }} onClick={handleResend}>Resend</span>
+        Didn't receive code? <span style={{ color: '#111', fontWeight: 500, cursor: 'pointer' }} onClick={() => {}}>Resend</span>
       </Typography>
       <Button
         variant="contained"
         fullWidth
-        disabled={loading}
         sx={{ background: "#F7C04A", color: "#111", fontWeight: 600, borderRadius: 2, boxShadow: "none", '&:hover': { background: '#e6b13d' } }}
-        onClick={handleVerify}
+        onClick={onNext}
       >
-        {loading ? "Verifying..." : "Verify"}
+        Verify
       </Button>
     </div>
   );
@@ -122,34 +65,7 @@ function VerifyCodeStep({ onNext }) {
 function ResetPasswordStep() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const navigate = useNavigate();
-
-  const handleReset = async () => {
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
-    setError("");
-    setLoading(true);
-    try {
-      await auth.resetPassword({
-        token: localStorage.getItem('resetToken'),
-        password
-      });
-      localStorage.removeItem('resetEmail');
-      localStorage.removeItem('resetToken');
-      alert("Password reset successful!");
-      navigate('/login');
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to reset password. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="auth-card">
       <Typography variant="h5" sx={{ mb: 3, fontWeight: 600 }}>
@@ -183,11 +99,17 @@ function ResetPasswordStep() {
       <Button
         variant="contained"
         fullWidth
-        disabled={loading}
         sx={{ background: "#F7C04A", color: "#111", fontWeight: 600, borderRadius: 2, boxShadow: "none", '&:hover': { background: '#e6b13d' } }}
-        onClick={handleReset}
+        onClick={() => {
+          if (password !== confirmPassword) {
+            setError("Passwords do not match");
+            return;
+          }
+          setError("");
+          alert("Password reset successful! (UI only)");
+        }}
       >
-        {loading ? "Resetting..." : "Set Password"}
+        Set Password
       </Button>
     </div>
   );

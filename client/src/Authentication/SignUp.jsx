@@ -79,13 +79,14 @@ const SignUp = () => {
         phone: form.phone,
         password: form.password,
       };
+      let endpoint = '';
       if (type === "supplier") {
         payload.companyName = form.companyName;
-        payload.role = "supplier";
+        endpoint = 'http://localhost:5051/api/auth/register-supplier';
       } else {
-        payload.role = form.role;
+        endpoint = 'http://localhost:5051/api/auth/register-customer';
       }
-      const response = await fetch('http://localhost:5051/api/auth/register', {
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -94,18 +95,10 @@ const SignUp = () => {
       });
 
       const data = await response.json();
-      
       if (response.ok) {
-        // Store the token and user info
-        localStorage.setItem('token', data.token);
+        // Store the user info (no token for now)
         localStorage.setItem('user', JSON.stringify(data.user));
-        
-        // Redirect based on role
-        if (data.user.role === 'admin') {
-          navigate('/admin/dashboard');
-        } else {
-          navigate('/dashboard');
-        }
+        navigate('/'); // Redirect to home page after signup
       } else {
         setError(data.message || 'Registration failed');
       }
