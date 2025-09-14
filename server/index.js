@@ -37,7 +37,11 @@ const supplierSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   companyName: String,
-  contact: String,
+  firstName: String,
+  lastName: String,
+  middleName: String,
+  phone: String,
+  contact: String, // keep for backward compatibility
   createdAt: { type: Date, default: Date.now }
 });
 const Supplier = authConnection.model('Supplier', supplierSchema);
@@ -48,7 +52,9 @@ const customerSchema = new mongoose.Schema({
   password: { type: String, required: true },
   firstName: String,
   lastName: String,
-  contact: String,
+  middleName: String,
+  phone: String,
+  contact: String, // keep for backward compatibility
   createdAt: { type: Date, default: Date.now }
 });
 const Customer = authConnection.model('Customer', customerSchema);
@@ -137,6 +143,7 @@ const Product = mongoose.model('Product', productSchema);
 // CART schema/model/routes (must be after mongoose init)
 const cartItemSchema = new mongoose.Schema({
   product: Object, // store product snapshot
+  userEmail: { type: String, required: true }, // associate with user
   createdAt: { type: Date, default: Date.now }
 });
 const CartItem = mongoose.model('CartItem', cartItemSchema);
@@ -169,20 +176,30 @@ const ApprovedBooking = bookingConnection.model('ApprovedBooking', bookingBaseSc
 const FinishedBooking = bookingConnection.model('FinishedBooking', bookingBaseSchema);
 
 // Get all cart items
+// Get cart items for a specific user (by email, from query param)
 app.get('/api/cart', async (req, res) => {
-  const items = await CartItem.find();
+  const userEmail = req.query.userEmail;
+  if (!userEmail) return res.status(400).json({ error: 'Missing userEmail' });
+  const items = await CartItem.find({ userEmail });
   res.json(items);
 });
 
 // Add to cart
 app.post('/api/cart', async (req, res) => {
-  const item = new CartItem({ product: req.body });
+  const { product, userEmail } = req.body;
+  if (!userEmail || !product) return res.status(400).json({ error: 'Missing userEmail or product' });
+  const item = new CartItem({ product, userEmail });
   await item.save();
   res.status(201).json(item);
 });
 
 // Delete from cart
+// Only allow deletion if userEmail matches (user must send userEmail as query param)
 app.delete('/api/cart/:id', async (req, res) => {
+  const userEmail = req.query.userEmail;
+  if (!userEmail) return res.status(400).json({ error: 'Missing userEmail' });
+  const item = await CartItem.findOne({ _id: req.params.id, userEmail });
+  if (!item) return res.status(404).json({ error: 'Cart item not found for this user' });
   await CartItem.findByIdAndDelete(req.params.id);
   res.json({ success: true });
 });
@@ -288,10 +305,20 @@ app.delete('/api/products/:id', async (req, res) => {
 
 
 // Register Supplier
+// Get all suppliers
+app.get('/api/suppliers', async (req, res) => {
+  try {
+    const suppliers = await Supplier.find();
+    res.json(suppliers);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 app.post('/api/auth/register-supplier', async (req, res) => {
   try {
-    const { email, password, companyName, contact } = req.body;
-    if (!email || !password || !companyName) {
+    const { email, password, companyName, firstName, lastName, middleName, phone } = req.body;
+    if (!email || !password || !companyName || !firstName || !lastName) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
     // Check if supplier already exists
@@ -300,7 +327,7 @@ app.post('/api/auth/register-supplier', async (req, res) => {
       return res.status(409).json({ error: 'Supplier already exists' });
     }
     // Create new supplier
-    const supplier = new Supplier({ email, password, companyName, contact });
+    const supplier = new Supplier({ email, password, companyName, firstName, lastName, middleName, phone, contact: phone });
     await supplier.save();
     res.status(201).json({ message: 'Supplier registered successfully', user: supplier });
   } catch (err) {
@@ -311,7 +338,7 @@ app.post('/api/auth/register-supplier', async (req, res) => {
 // Register Customer
 app.post('/api/auth/register-customer', async (req, res) => {
   try {
-    const { email, password, firstName, lastName, contact } = req.body;
+    const { email, password, firstName, lastName, middleName, phone } = req.body;
     if (!email || !password || !firstName || !lastName) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
@@ -321,9 +348,20 @@ app.post('/api/auth/register-customer', async (req, res) => {
       return res.status(409).json({ error: 'Customer already exists' });
     }
     // Create new customer
-    const customer = new Customer({ email, password, firstName, lastName, contact });
+    const customer = new Customer({ email, password, firstName, lastName, middleName, phone, contact: phone });
     await customer.save();
     res.status(201).json({ message: 'Customer registered successfully', user: customer });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
+// Get all customers
+app.get('/api/customers', async (req, res) => {
+  try {
+    const customers = await Customer.find();
+    res.json(customers);
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
   }

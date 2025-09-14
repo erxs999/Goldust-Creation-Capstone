@@ -14,9 +14,18 @@ const CART_LOCAL_KEY = 'gd_event_cart';
 export default function PnSDetails() {
   // Add to cart handler
   async function handleAddToCart(product) {
-    // Prevent duplicate products in cart
+    // Prevent duplicate products in cart for this user
+    let userEmail = null;
     try {
-      const res = await fetch(`${API_BASE}/cart`);
+      const user = JSON.parse(localStorage.getItem('user'));
+      userEmail = user && user.email;
+    } catch {}
+    if (!userEmail) {
+      alert('You must be logged in to add to cart.');
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/cart?userEmail=${encodeURIComponent(userEmail)}`);
       const cart = await res.json();
       const exists = Array.isArray(cart) && cart.some(item => item.product && item.product.title === product.title);
       if (exists) {
@@ -26,7 +35,7 @@ export default function PnSDetails() {
       await fetch(`${API_BASE}/cart`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(product)
+        body: JSON.stringify({ product, userEmail })
       });
       // Optionally show a success message
     } catch (err) {

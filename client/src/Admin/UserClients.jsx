@@ -1,16 +1,16 @@
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import './userclients.css';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import api from '../services/api';
 
 export default function UserClients() {
-  // Temporary customers data
-  const customers = [
-    { id: 1, name: 'John Doe', email: 'john.doe@email.com', phone: '09171234567', address: 'Manila' },
-    { id: 2, name: 'Jane Smith', email: 'jane.smith@email.com', phone: '09181234567', address: 'Quezon City' },
-    { id: 3, name: 'Anna Santos', email: 'anna.santos@email.com', phone: '09191234567', address: 'Makati' },
-  ];
+  const [customers, setCustomers] = useState([]);
+  useEffect(() => {
+    api.get('/customers')
+      .then(res => setCustomers(res.data))
+      .catch(() => setCustomers([]));
+  }, []);
   return (
     <div className="admin-dashboard-layout">
       <Sidebar />
@@ -21,19 +21,23 @@ export default function UserClients() {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell>Phone</TableCell>
-                  <TableCell>Address</TableCell>
+                  <TableCell>First Name</TableCell>
+                  <TableCell>Last Name</TableCell>
+                  <TableCell>Middle Name</TableCell>
+                  <TableCell>Phone Number</TableCell>
+                  <TableCell>Email Address</TableCell>
+                  <TableCell>Password</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {customers.map((customer) => (
-                  <TableRow key={customer.id}>
-                    <TableCell>{customer.name}</TableCell>
+                  <TableRow key={customer._id}>
+                    <TableCell>{customer.firstName}</TableCell>
+                    <TableCell>{customer.lastName}</TableCell>
+                    <TableCell>{customer.middleName || ''}</TableCell>
+                    <TableCell>{customer.contact || customer.phone || ''}</TableCell>
                     <TableCell>{customer.email}</TableCell>
-                    <TableCell>{customer.phone}</TableCell>
-                    <TableCell>{customer.address}</TableCell>
+                    <TableCell>******</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

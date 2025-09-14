@@ -10,7 +10,16 @@ const EventCart = () => {
   const [cart, setCart] = useState([]);
 
   useEffect(() => {
-    fetch(`${API_BASE}/cart`)
+    let userEmail = null;
+    try {
+      const user = JSON.parse(localStorage.getItem('user'));
+      userEmail = user && user.email;
+    } catch {}
+    if (!userEmail) {
+      setCart([]);
+      return;
+    }
+    fetch(`${API_BASE}/cart?userEmail=${encodeURIComponent(userEmail)}`)
       .then(res => res.json())
       .then(data => setCart(Array.isArray(data) ? data : []))
       .catch(() => setCart([]));
@@ -19,8 +28,14 @@ const EventCart = () => {
   const handleDelete = async (idxToDelete) => {
     const item = cart[idxToDelete];
     if (!item || !item._id) return;
+    let userEmail = null;
     try {
-      await fetch(`${API_BASE}/cart/${item._id}`, { method: 'DELETE' });
+      const user = JSON.parse(localStorage.getItem('user'));
+      userEmail = user && user.email;
+    } catch {}
+    if (!userEmail) return;
+    try {
+      await fetch(`${API_BASE}/cart/${item._id}?userEmail=${encodeURIComponent(userEmail)}`, { method: 'DELETE' });
       setCart(cart.filter((_, idx) => idx !== idxToDelete));
     } catch {}
   };

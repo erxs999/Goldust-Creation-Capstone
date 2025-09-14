@@ -25,11 +25,20 @@ const TopBar = () => {
   }, []);
 
   useEffect(() => {
-    // Fetch cart count from backend on mount and every 5 seconds
+    // Fetch cart count for the logged-in user
     let intervalId;
     async function updateCartCount() {
+      let userEmail = null;
       try {
-        const res = await fetch(`${API_BASE}/cart`);
+        const user = JSON.parse(localStorage.getItem('user'));
+        userEmail = user && user.email;
+      } catch {}
+      if (!userEmail) {
+        setCartCount(0);
+        return;
+      }
+      try {
+        const res = await fetch(`${API_BASE}/cart?userEmail=${encodeURIComponent(userEmail)}`);
         const data = await res.json();
         setCartCount(Array.isArray(data) ? data.length : 0);
       } catch {
@@ -40,6 +49,14 @@ const TopBar = () => {
     intervalId = setInterval(updateCartCount, 5000);
     return () => clearInterval(intervalId);
   }, []);
+
+  // Get user from localStorage (outside of useEffect)
+  let user = null;
+  try {
+    user = JSON.parse(localStorage.getItem('user'));
+  } catch {}
+  // Only show name for customer role
+  const isCustomer = user && user.firstName && user.lastName && (!user.role || user.role === 'customer' || user.role === 'user');
 
   return (
     <header className={`topbar${expanded ? " topbar-expanded" : ""}`}>
@@ -70,10 +87,14 @@ const TopBar = () => {
             }}>{cartCount}</span>
           )}
         </a>
-        <a href="/signup" className="topbar-link">Sign up</a>
+        {isCustomer ? (
+          <span className="topbar-link">{user.firstName} {user.lastName}</span>
+        ) : (
+          <a href="/signup" className="topbar-link">Sign up</a>
+        )}
       </div>
     </header>
   );
-};
+}
 
 export default TopBar;
