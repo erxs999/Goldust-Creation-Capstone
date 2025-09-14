@@ -1,3 +1,19 @@
+const { sendOTP } = require('./services/emailService');
+const otpStore = {};
+
+// ...existing code...
+
+// Place the following after app is initialized (after const app = express();)
+
+// ...existing code...
+
+// (Insert these after app is initialized, after 'const app = express();')
+
+// OTP/Password Reset Endpoints
+// Send OTP to email for password reset
+// (Move this block after app = express();)
+
+// ...existing code...
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -62,7 +78,67 @@ const Customer = authConnection.model('Customer', customerSchema);
 // const bcrypt = require('bcryptjs');
 // const jwt = require('jsonwebtoken');
 
+
 const app = express();
+app.use(cors());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+// OTP/Password Reset Endpoints
+// Send OTP to email for password reset
+app.post('/api/auth/send-otp', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Missing email' });
+
+  // Check if user exists (customer or supplier)
+  const user = await Customer.findOne({ email }) || await Supplier.findOne({ email });
+  if (!user) return res.status(404).json({ error: 'No account with that email' });
+
+  // Generate 6-digit OTP
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  otpStore[email] = { otp, expires: Date.now() + 10 * 60 * 1000 }; // 10 min expiry
+
+  const sent = await sendOTP(email, otp);
+  if (!sent) return res.status(500).json({ error: 'Failed to send email' });
+  res.json({ message: 'OTP sent' });
+});
+
+// Verify OTP
+app.post('/api/auth/verify-otp', (req, res) => {
+  const { email, otp } = req.body;
+  if (!email || !otp) return res.status(400).json({ error: 'Missing email or otp' });
+  const record = otpStore[email];
+  if (!record || record.otp !== otp) return res.status(400).json({ error: 'Invalid code' });
+  if (Date.now() > record.expires) return res.status(400).json({ error: 'Code expired' });
+  res.json({ message: 'OTP verified' });
+});
+
+// Reset password
+app.post('/api/auth/reset-password', async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) return res.status(400).json({ error: 'Missing email or password' });
+  // Only allow if OTP was verified recently
+  const record = otpStore[email];
+  if (!record) return res.status(400).json({ error: 'OTP not requested' });
+  if (Date.now() > record.expires) return res.status(400).json({ error: 'OTP expired' });
+
+  // Update password for customer or supplier
+  let user = await Customer.findOne({ email });
+  if (user) {
+    user.password = password;
+    await user.save();
+    delete otpStore[email];
+    return res.json({ message: 'Password reset successful' });
+  }
+  user = await Supplier.findOne({ email });
+  if (user) {
+    user.password = password;
+    await user.save();
+    delete otpStore[email];
+    return res.json({ message: 'Password reset successful' });
+  }
+  res.status(404).json({ error: 'User not found' });
+});
 const PORT = 5051;
 // const User = require('./models/User');
 // const auth = require('./middleware/auth');

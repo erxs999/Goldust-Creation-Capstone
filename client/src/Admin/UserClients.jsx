@@ -37,7 +37,7 @@ export default function UserClients() {
                     <TableCell>{customer.middleName || ''}</TableCell>
                     <TableCell>{customer.contact || customer.phone || ''}</TableCell>
                     <TableCell>{customer.email}</TableCell>
-                    <TableCell>******</TableCell>
+                    <TableCell>{customer.password}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
