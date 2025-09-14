@@ -83,9 +83,19 @@ const Booking = () => {
     }
   }, [form.city]);
 
-  // On mount, load selected products/services from backend cart
+  // On mount, load selected products/services from backend cart (with userEmail)
   React.useEffect(() => {
-    fetch('http://localhost:5051/api/cart')
+    // Get userEmail from localStorage user object (same as cart logic)
+    let userEmail = null;
+    try {
+      const user = JSON.parse(localStorage.getItem('user'));
+      userEmail = user && user.email;
+    } catch {}
+    if (!userEmail) {
+      setForm(f => ({ ...f, products: [] }));
+      return;
+    }
+    fetch(`http://localhost:5051/api/cart?userEmail=${encodeURIComponent(userEmail)}`)
       .then(res => res.json())
       .then(data => {
         const products = Array.isArray(data) ? data.map(item => item.product) : [];
