@@ -6,6 +6,24 @@ const cors = require('cors');
 // ...existing code...
 
 // Authentication DB connection (for supplier and customer)
+// ...existing code...
+
+// Place login routes AFTER app is initialized
+
+// ...existing code...
+
+// (Insert these after app is initialized, after 'const app = express();')
+
+// Login Supplier
+// ...existing code...
+
+// Login Customer
+// ...existing code...
+// ...existing code...
+
+// ...existing code...
+
+// Authentication DB connection (for supplier and customer)
 // Authentication DB connection (for supplier and customer)
 const authConnection = mongoose.createConnection('mongodb://127.0.0.1:27017/authentication', {
   useNewUrlParser: true,
@@ -37,13 +55,49 @@ const Customer = authConnection.model('Customer', customerSchema);
 
 // const bcrypt = require('bcryptjs');
 // const jwt = require('jsonwebtoken');
+
 const app = express();
 const PORT = 5051;
 // const User = require('./models/User');
 // const auth = require('./middleware/auth');
 
 app.use(cors());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+// Login Supplier
+app.post('/api/auth/login-supplier', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Missing email or password' });
+    }
+    const supplier = await Supplier.findOne({ email });
+    if (!supplier || supplier.password !== password) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    res.json({ message: 'Login successful', user: supplier });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Login Customer
+app.post('/api/auth/login-customer', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Missing email or password' });
+    }
+    const customer = await Customer.findOne({ email });
+    if (!customer || customer.password !== password) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    res.json({ message: 'Login successful', user: customer });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
 // Main DB for ProductsAndServices
 const MONGO_URI = 'mongodb://127.0.0.1:27017/ProductsAndServices';
@@ -59,8 +113,7 @@ const bookingConnection = mongoose.createConnection('mongodb://127.0.0.1:27017/b
 bookingConnection.on('connected', () => console.log('MongoDB booking connected!'));
 bookingConnection.on('error', err => console.error('MongoDB booking connection error:', err));
 
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
 
 // Category schema and model
 const categorySchema = new mongoose.Schema({
@@ -232,6 +285,7 @@ app.delete('/api/products/:id', async (req, res) => {
 
 
 // AUTH ROUTES
+
 
 // Register Supplier
 app.post('/api/auth/register-supplier', async (req, res) => {

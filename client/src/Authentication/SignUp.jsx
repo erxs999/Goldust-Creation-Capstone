@@ -56,20 +56,16 @@ const SignUp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     if (form.password !== form.confirmPassword) {
       setError("Passwords don't match!");
       return;
     }
-
     if (!form.agree) {
       setError("Please agree to the terms and policy");
       return;
     }
-
     setError("");
     setLoading(true);
-
     try {
       const payload = {
         firstName: form.firstName,
@@ -93,12 +89,11 @@ const SignUp = () => {
         },
         body: JSON.stringify(payload),
       });
-
       const data = await response.json();
       if (response.ok) {
-        // Store the user info (no token for now)
-        localStorage.setItem('user', JSON.stringify(data.user));
-        navigate('/'); // Redirect to home page after signup
+        // Show popup notification
+        window.alert('Sign up successful! Please log in.');
+        navigate('/login'); // Redirect to login page after signup
       } else {
         setError(data.message || 'Registration failed');
       }

@@ -30,23 +30,33 @@ const Login = () => {
     e.preventDefault();
     setError("");
     setLoading(true);
-    
+
     try {
-      const response = await auth.login({
-        email: form.emailOrPhone,
-        password: form.password
+      // Try logging in as supplier first
+      let response = await fetch('http://localhost:5051/api/auth/login-supplier', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: form.emailOrPhone, password: form.password })
       });
-      
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      
-      // Redirect based on role
-      const role = response.data.user.role;
-      if (role === 'admin') navigate('/admin/dashboard');
-      else if (role === 'supplier') navigate('/supplier/dashboard');
-      else navigate('/client/dashboard');
+      let data = await response.json();
+      if (!response.ok) {
+        // If not supplier, try customer
+        response = await fetch('http://localhost:5051/api/auth/login-customer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: form.emailOrPhone, password: form.password })
+        });
+        data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || 'Login failed. Please try again.');
+        }
+      }
+      // Save user info
+      localStorage.setItem('user', JSON.stringify(data.user));
+      // Redirect to home page for both supplier and customer
+      navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed. Please try again.");
+      setError(err.message || "Login failed. Please try again.");
     } finally {
       setLoading(false);
     }
