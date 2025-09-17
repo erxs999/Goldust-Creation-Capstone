@@ -1,3 +1,60 @@
+/* Modern Policy Styles */
+.policy-modern-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 80vh;
+  background: #ffffff;
+  padding: 40px 0;
+}
+
+.policy-card {
+ 
+  border-radius: 16px;
+
+  max-width: 800px;
+  width: 100%;
+  padding: 40px 32px;
+  margin: 0 16px;
+}
+
+.policy-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: #222;
+  letter-spacing: 1px;
+}
+
+.policy-intro {
+  font-size: 1.15rem;
+  color: #444;
+  margin-bottom: 24px;
+}
+
+.policy-list {
+  list-style: none;
+  margin-bottom: 24px;
+  padding-left: 0;
+}
+
+.policy-list li {
+  font-size: 1.05rem;
+  color: #333;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.policy-list-title {
+  font-weight: 600;
+  color: #ffc107;
+}
+
+.policy-footer {
+  font-size: 1rem;
+  color: #555;
+  margin-top: 16px;
+}
 /* Minimal dot navigation for hero background */
 .home-hero-dots {
   position: absolute;

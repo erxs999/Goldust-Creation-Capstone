@@ -165,9 +165,25 @@ export default function AdminBooking() {
     fetchBookings();
   }, []);
   // Delete booking handler
-  const handleDeleteBooking = (id) => {
-    setBookings(prev => prev.filter(b => b._id !== id));
-    if (selectedBooking && selectedBooking._id === id) setSelectedBooking(null);
+  const handleDeleteBooking = async (id) => {
+    // Find booking to get its status
+    const booking = bookings.find(b => b._id === id);
+    let endpoint = '';
+    if (!booking) return;
+    if (booking.status === 'pending') {
+      endpoint = `http://localhost:5051/api/bookings/pending/${id}`;
+    } else if (booking.status === 'approved') {
+      endpoint = `http://localhost:5051/api/bookings/approved/${id}`;
+    } else if (booking.status === 'finished') {
+      endpoint = `http://localhost:5051/api/bookings/finished/${id}`;
+    }
+    try {
+      await fetch(endpoint, { method: 'DELETE' });
+      setBookings(prev => prev.filter(b => b._id !== id));
+      if (selectedBooking && selectedBooking._id === id) setSelectedBooking(null);
+    } catch (err) {
+      alert('Failed to delete booking. Please try again.');
+    }
   };
 
   // Approve modal state
@@ -342,7 +358,8 @@ export default function AdminBooking() {
                       onClick={() => handleOpenModal(booking)}
                     >
                       <div style={{ fontWeight: 500, fontSize: 18 }}>{booking.eventType || booking.title}</div>
-                      <div style={{ fontSize: 14, marginTop: 4 }}>Date: {booking.date ? (typeof booking.date === 'string' ? booking.date : new Date(booking.date).toLocaleDateString()) : ''}</div>
+                      <div style={{ fontSize: 15, marginTop: 2, color: '#444' }}>Booker: {booking.name || 'N/A'}</div>
+                      <div style={{ fontSize: 14, marginTop: 4 }}>Date: {booking.date ? (typeof booking.date === 'string' ? new Date(booking.date).toLocaleDateString() : new Date(booking.date).toLocaleDateString()) : ''}</div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                       <button
@@ -425,7 +442,8 @@ export default function AdminBooking() {
                       onClick={() => handleOpenModal(booking)}
                     >
                       <div style={{ fontWeight: 500, fontSize: 18 }}>{booking.eventType || booking.title}</div>
-                      <div style={{ fontSize: 14, marginTop: 4 }}>Date: {booking.date ? (typeof booking.date === 'string' ? booking.date : new Date(booking.date).toLocaleDateString()) : ''}</div>
+                      <div style={{ fontSize: 15, marginTop: 2, color: '#444' }}>Booker: {booking.name || 'N/A'}</div>
+                      <div style={{ fontSize: 14, marginTop: 4 }}>Date: {booking.date ? (typeof booking.date === 'string' ? new Date(booking.date).toLocaleDateString() : new Date(booking.date).toLocaleDateString()) : ''}</div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                       <button
@@ -501,7 +519,8 @@ export default function AdminBooking() {
                       onClick={() => handleOpenModal(booking)}
                     >
                       <div style={{ fontWeight: 500, fontSize: 18 }}>{booking.eventType || booking.title}</div>
-                      <div style={{ fontSize: 14, marginTop: 4 }}>Date: {booking.date ? (typeof booking.date === 'string' ? booking.date : new Date(booking.date).toLocaleDateString()) : ''}</div>
+                      <div style={{ fontSize: 15, marginTop: 2, color: '#444' }}>Booker: {booking.name || 'N/A'}</div>
+                      <div style={{ fontSize: 14, marginTop: 4 }}>Date: {booking.date ? (typeof booking.date === 'string' ? new Date(booking.date).toLocaleDateString() : new Date(booking.date).toLocaleDateString()) : ''}</div>
                     </div>
                   </li>
                 ))}

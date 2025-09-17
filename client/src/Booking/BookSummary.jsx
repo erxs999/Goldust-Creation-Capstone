@@ -8,6 +8,28 @@ const BookSummary = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const booking = location.state?.booking || {};
+  // Get user details from localStorage (adjust key if needed)
+  let user = {};
+  try {
+    user = JSON.parse(localStorage.getItem('user')) || {};
+  } catch (e) {
+    user = {};
+  }
+  // Use booking data if present, else fallback to user data
+  // Build full name from user details if available
+  let fullName = '';
+  if (user?.firstName) {
+    fullName = user.firstName;
+    if (user.middleName) fullName += ' ' + user.middleName;
+    if (user.lastName) fullName += ' ' + user.lastName;
+  } else if (user?.fullName) {
+    fullName = user.fullName;
+  } else if (user?.name) {
+    fullName = user.name;
+  }
+  const displayName = booking?.name || fullName || '';
+  const displayContact = booking?.contact || user?.contact || user?.phone || '';
+  const displayEmail = booking?.email || user?.email || '';
   return (
     <div className="booking-root">
       <TopBar />
@@ -18,9 +40,9 @@ const BookSummary = () => {
         <div>
           <div className="booking-summary-row">
             <div className="booking-summary-col">
-              <div style={{ marginBottom: 12, color: '#111' }}>Name : <span style={{ color: '#111' }}>{booking?.name || ""}</span></div>
-              <div style={{ marginBottom: 12, color: '#111' }}>Contact Number : <span style={{ color: '#111' }}>{booking?.contact || ""}</span></div>
-              <div style={{ marginBottom: 12, color: '#111' }}>Email Address : <span style={{ color: '#111' }}>{booking?.email || ""}</span></div>
+              <div style={{ marginBottom: 12, color: '#111' }}>Name : <span style={{ color: '#111' }}>{displayName}</span></div>
+              <div style={{ marginBottom: 12, color: '#111' }}>Contact Number : <span style={{ color: '#111' }}>{displayContact}</span></div>
+              <div style={{ marginBottom: 12, color: '#111' }}>Email Address : <span style={{ color: '#111' }}>{displayEmail}</span></div>
               <div style={{ marginBottom: 12, color: '#111' }}>Event Type : <span style={{ color: '#111' }}>{booking?.eventType || ""}</span></div>
               <div style={{ marginBottom: 12, color: '#111' }}>Event Date : <span style={{ color: '#111' }}>{booking?.date ? (typeof booking.date === 'string' ? booking.date : booking.date?.$d ? new Date(booking.date.$d).toLocaleDateString() : booking.date.toString()) : ""}</span></div>
               {/* Event Location removed as per request */}
@@ -88,10 +110,21 @@ const BookSummary = () => {
                 // Send booking to pending bookings
                 try {
                   // Convert date to ISO string if needed
+                  // Use user details if booking fields are missing
+                  let fullName = '';
+                  if (user?.firstName) {
+                    fullName = user.firstName;
+                    if (user.middleName) fullName += ' ' + user.middleName;
+                    if (user.lastName) fullName += ' ' + user.lastName;
+                  } else if (user?.fullName) {
+                    fullName = user.fullName;
+                  } else if (user?.name) {
+                    fullName = user.name;
+                  }
                   const bookingToSend = {
-                    name: booking.name || '',
-                    contact: booking.contact || '',
-                    email: booking.email || '',
+                    name: booking.name || fullName || '',
+                    contact: booking.contact || user?.contact || user?.phone || '',
+                    email: booking.email || user?.email || '',
                     eventType: booking.eventType || '',
                     date: booking.date?.$d
                       ? new Date(booking.date.$d).toISOString()

@@ -353,6 +353,15 @@ app.delete('/api/categories/:id', async (req, res) => {
 });
 
 // PRODUCT ROUTES
+// Delete all products by category title
+app.delete('/api/products/category/:categoryTitle', async (req, res) => {
+  try {
+    const result = await Product.deleteMany({ categoryTitle: req.params.categoryTitle });
+    res.json({ success: true, deletedCount: result.deletedCount });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 // Get all products for a category
 app.get('/api/products/:categoryTitle', async (req, res) => {
   const products = await Product.find({ categoryTitle: req.params.categoryTitle });
