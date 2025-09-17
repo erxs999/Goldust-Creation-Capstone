@@ -26,7 +26,7 @@ export default function BookingDescription({ open, onClose, booking }) {
       fullWidth={false}
       className="booking-description-modal"
     >
-      <DialogTitle sx={{ m: 0, p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <DialogTitle sx={{ m: 0, p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontWeight: 800, fontSize: 28, letterSpacing: 1 }}>
         Booking Details
         <IconButton
           aria-label="close"
@@ -37,43 +37,47 @@ export default function BookingDescription({ open, onClose, booking }) {
         </IconButton>
       </DialogTitle>
       <DialogContent>
-        <div style={{ padding: 8 }}>
-          <div style={{ display: 'flex', gap: 48, marginBottom: 24 }}>
-            <div style={{ minWidth: 320 }}>
-              <Typography variant="body1" gutterBottom><b>Name:</b> {booking?.name || ''}</Typography>
-              <Typography variant="body1" gutterBottom><b>Contact Number:</b> {booking?.contact || ''}</Typography>
-              <Typography variant="body1" gutterBottom><b>Email Address:</b> {booking?.email || ''}</Typography>
-              <Typography variant="body1" gutterBottom><b>Event Type:</b> {booking?.eventType || ''}</Typography>
-              <Typography variant="body1" gutterBottom><b>Event Date:</b> {formatDate(booking?.date)}</Typography>
-              <Typography variant="body1" gutterBottom><b>Event Venue:</b> {booking?.eventVenue || ''}</Typography>
+        <div style={{ padding: 24, background: '#f8f9fa', borderRadius: 16 }}>
+          {/* Booker & Event Info */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 48, marginBottom: 32, background: '#fff', borderRadius: 12, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', padding: 24 }}>
+            <div style={{ minWidth: 320, flex: 2 }}>
+              <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 10, color: '#222' }}>Booker Information</div>
+              <div style={{ marginBottom: 8 }}><span style={{ fontWeight: 600, color: '#444' }}>Name:</span> {booking?.name || ''}</div>
+              <div style={{ marginBottom: 8 }}><span style={{ fontWeight: 600, color: '#444' }}>Contact Number:</span> {booking?.contact || ''}</div>
+              <div style={{ marginBottom: 8 }}><span style={{ fontWeight: 600, color: '#444' }}>Email Address:</span> {booking?.email || ''}</div>
             </div>
-            <div style={{ minWidth: 220 }}>
-              <Typography variant="body1" gutterBottom><b>Guest Count:</b> {booking?.guestCount || ''}</Typography>
-              <Typography variant="body1" gutterBottom><b>Total Price:</b> {booking?.totalPrice || ''}</Typography>
+            <div style={{ minWidth: 320, flex: 3 }}>
+              <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 10, color: '#222' }}>Event Information</div>
+              <div style={{ marginBottom: 8 }}><span style={{ fontWeight: 600, color: '#444' }}>Event Type:</span> {booking?.eventType || ''}</div>
+              <div style={{ marginBottom: 8 }}><span style={{ fontWeight: 600, color: '#444' }}>Event Date:</span> {formatDate(booking?.date)}</div>
+              <div style={{ marginBottom: 8 }}><span style={{ fontWeight: 600, color: '#444' }}>Event Venue:</span> {booking?.eventVenue || ''}</div>
+              <div style={{ marginBottom: 8 }}><span style={{ fontWeight: 600, color: '#444' }}>Guest Count:</span> {booking?.guestCount || ''}</div>
+              <div style={{ marginBottom: 8 }}><span style={{ fontWeight: 600, color: '#444' }}>Total Price:</span> <span style={{ color: '#2196f3', fontWeight: 700 }}>PHP {booking?.totalPrice || ''}</span></div>
             </div>
           </div>
           {/* Services and Products Availed */}
-          <div style={{ marginBottom: 24 }}>
-            <Typography variant="subtitle1" style={{ fontWeight: 500, fontSize: 18, marginBottom: 8 }}>Services and Products Availed:</Typography>
+          <div style={{ marginBottom: 32 }}>
+            <div style={{ fontWeight: 700, fontSize: 20, marginBottom: 12, color: '#222' }}>Services and Products Availed</div>
             {booking?.products && booking.products.length > 0 ? (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
                 {booking.products.map((item, idx) => (
                   <div key={idx} style={{
-                    background: '#fafafa',
+                    background: '#fff',
                     border: '1px solid #eee',
-                    borderRadius: 6,
-                    padding: 12,
+                    borderRadius: 8,
+                    padding: 16,
                     marginBottom: 0,
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 16
+                    gap: 18,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
                   }}>
                     {item.image && (
-                      <img src={item.image} alt={item.title} style={{ width: 60, height: 48, objectFit: 'cover', borderRadius: 4 }} />
+                      <img src={item.image} alt={item.title} style={{ width: 70, height: 54, objectFit: 'cover', borderRadius: 6, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }} />
                     )}
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 600 }}>{item.title}</div>
-                      {item.price && <div style={{ color: '#888', fontWeight: 500 }}>PHP {item.price}</div>}
+                      <div style={{ fontWeight: 700, fontSize: 17 }}>{item.title}</div>
+                      {item.price && <div style={{ color: '#888', fontWeight: 600, fontSize: 15 }}>PHP {item.price}</div>}
                     </div>
                   </div>
                 ))}
@@ -83,11 +87,11 @@ export default function BookingDescription({ open, onClose, booking }) {
             )}
           </div>
           {/* Special Request */}
-          <div style={{ marginBottom: 24 }}>
-            <Typography variant="subtitle1" style={{ fontWeight: 500 }}>Special Request:</Typography>
+          <div style={{ marginBottom: 12 }}>
+            <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 8, color: '#222' }}>Special Request</div>
             <textarea
               className="booking-special-request"
-              style={{ width: '100%', minHeight: 100, fontFamily: 'inherit', fontSize: '1rem', padding: 12, borderRadius: 8, border: '2px solid #222', resize: 'vertical', background: '#fff', color: '#111' }}
+              style={{ width: '100%', minHeight: 100, fontFamily: 'inherit', fontSize: '1rem', padding: 14, borderRadius: 10, border: '2px solid #2196f3', resize: 'vertical', background: '#f9f9fc', color: '#222', boxShadow: '0 2px 8px rgba(33,150,243,0.04)' }}
               value={booking?.specialRequest || ''}
               readOnly
             />
