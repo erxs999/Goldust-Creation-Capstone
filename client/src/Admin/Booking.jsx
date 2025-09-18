@@ -14,15 +14,12 @@ function ApproveModal({ open, onClose, onApprove, booking }) {
   }, [open]);
   if (!open) return null;
   return (
-    <div style={{
-      position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.18)', zIndex: 1000,
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-    }}>
-      <div style={{ background: '#fff', borderRadius: 12, padding: 32, minWidth: 320, maxWidth: 400, boxShadow: '0 4px 32px rgba(0,0,0,0.18)' }}>
-        <h3 style={{ marginTop: 0, marginBottom: 18 }}>Approve Booking</h3>
-        <div style={{ marginBottom: 18 }}>
-          <label style={{ fontWeight: 500, display: 'block', marginBottom: 6 }}>Appointment Date</label>
-          <div style={{ position: 'relative', width: '100%' }}>
+    <div className="approve-modal-overlay">
+      <div className="approve-modal-content">
+        <h3 className="approve-modal-title">Approve Booking</h3>
+        <div className="approve-modal-section">
+          <label className="approve-modal-label">Appointment Date</label>
+          <div className="approve-modal-datepicker-wrapper">
             <DatePicker
               selected={date}
               onChange={d => setDate(d)}
@@ -32,100 +29,24 @@ function ApproveModal({ open, onClose, onApprove, booking }) {
               calendarClassName="custom-datepicker-calendar"
               popperPlacement="bottom"
               showPopperArrow={false}
-              style={{ width: '100%' }}
             />
             <span
               onClick={() => document.querySelector('.custom-datepicker-input')?.focus()}
-              style={{
-                position: 'absolute',
-                right: 10,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                height: 24,
-                width: 24,
-                color: '#888'
-              }}
+              className="approve-modal-datepicker-icon"
               tabIndex={0}
               title="Pick a date"
             >
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             </span>
           </div>
-          <style>{`
-            .custom-datepicker-input {
-              padding: 8px 38px 8px 8px;
-              border-radius: 6px;
-              border: 1px solid #ccc;
-              width: 100%;
-              background: #fff;
-              color: #222;
-              font-size: 16px;
-              box-sizing: border-box;
-            }
-            .custom-datepicker-calendar {
-              font-size: 15px;
-              min-width: 240px;
-              max-width: 260px;
-              width: 100%;
-              border-radius: 12px;
-              box-shadow: 0 4px 24px rgba(0,0,0,0.12);
-              padding: 8px 0 12px 0;
-              font-weight: 200;
-              color: #222;
-            }
-            .custom-datepicker-calendar .react-datepicker__header {
-              background: #fff;
-              border-bottom: none;
-              padding-top: 10px;
-              font-weight: 200;
-              color: #222;
-            }
-            .custom-datepicker-calendar .react-datepicker__current-month {
-              font-size: 1.1em;
-              font-weight: 200;
-              color: #222;
-            }
-            .custom-datepicker-calendar .react-datepicker__day--selected {
-              background: #ff9800;
-              color: #fff;
-              border-radius: 50%;
-              font-weight: 400;
-            }
-            .custom-datepicker-calendar .react-datepicker__day--keyboard-selected {
-              background: #ffe0b2;
-              color: #222;
-              font-weight: 400;
-            }
-            .custom-datepicker-calendar .react-datepicker__day {
-              border-radius: 50%;
-              width: 2.1em;
-              height: 2.1em;
-              line-height: 2.1em;
-              margin: 0.1em;
-              font-weight: 200;
-              color: #222;
-            }
-            /* Remove outline from next/prev month buttons */
-            .custom-datepicker-calendar .react-datepicker__navigation {
-              outline: none !important;
-              box-shadow: none !important;
-            }
-            /* Hide days from previous/next months */
-            .custom-datepicker-calendar .react-datepicker__day--outside-month {
-              visibility: hidden;
-            }
-          `}</style>
         </div>
-        <div style={{ marginBottom: 18 }}>
-          <label style={{ fontWeight: 500, display: 'block', marginBottom: 6 }}>Description</label>
-          <textarea value={desc} onChange={e => setDesc(e.target.value)} style={{ padding: 8, borderRadius: 6, border: '1px solid #ccc', width: '100%', minHeight: 80, resize: 'vertical', background: '#fff', color: '#222' }} />
+        <div className="approve-modal-section">
+          <label className="approve-modal-label">Description</label>
+          <textarea value={desc} onChange={e => setDesc(e.target.value)} className="approve-modal-textarea" />
         </div>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
-          <button type="button" onClick={onClose} style={{ padding: '8px 18px', borderRadius: 6, border: 'none', background: '#eee', color: '#222', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
-          <button type="button" onClick={() => onApprove(date, desc)} style={{ padding: '8px 18px', borderRadius: 6, border: 'none', background: '#4caf50', color: '#fff', fontWeight: 600, cursor: 'pointer' }} disabled={!date}>Approve</button>
+        <div className="approve-modal-actions">
+          <button type="button" onClick={onClose} className="approve-modal-cancel">Cancel</button>
+          <button type="button" onClick={() => onApprove(date, desc)} className="approve-modal-approve" disabled={!date}>Approve</button>
         </div>
       </div>
     </div>
@@ -244,21 +165,17 @@ export default function AdminBooking() {
     filteredPending = [];
     filteredApproved = [];
   }
-  // Further filter by search
+  // Further filter by search (booking type or booker name)
   const searchLower = search.trim().toLowerCase();
   if (searchLower) {
-    filteredPending = filteredPending.filter(b =>
-      b.title.toLowerCase().includes(searchLower) ||
-      b.desc.toLowerCase().includes(searchLower)
-    );
-    filteredApproved = filteredApproved.filter(b =>
-      b.title.toLowerCase().includes(searchLower) ||
-      b.desc.toLowerCase().includes(searchLower)
-    );
-    filteredFinished = filteredFinished.filter(b =>
-      b.title.toLowerCase().includes(searchLower) ||
-      b.desc.toLowerCase().includes(searchLower)
-    );
+    const matchesBooking = b => {
+      const type = (b.eventType || b.title || '').toLowerCase();
+      const name = (b.name || '').toLowerCase();
+      return type.includes(searchLower) || name.includes(searchLower);
+    };
+    filteredPending = filteredPending.filter(matchesBooking);
+    filteredApproved = filteredApproved.filter(matchesBooking);
+    filteredFinished = filteredFinished.filter(matchesBooking);
   }
 
   // Handler to mark an approved booking as finished
@@ -289,56 +206,27 @@ export default function AdminBooking() {
       <main className="admin-dashboard-main">
         <div className="admin-booking-root">
           {/* Header Row: Title, Search, and Filter */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            width: '100%',
-            margin: '0 0 32px 0',
-            flexWrap: 'wrap',
-            gap: 16
-          }}>
-            <h2 style={{ margin: 0, fontWeight: 800, fontSize: 32 }}>Admin Booking</h2>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div className="admin-booking-header-row">
+            <h2 className="admin-booking-title">Admin Booking</h2>
+            <div className="admin-booking-header-controls">
               <input
                 type="text"
                 placeholder="Search bookings..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                style={{
-                  padding: '6px 14px',
-                  borderRadius: 6,
-                  border: '1px solid #ccc',
-                  fontSize: 16,
-                  background: '#fff',
-                  color: '#222',
-                  minWidth: 200,
-                  marginRight: 8,
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-                }}
+                className="admin-booking-search"
               />
-              <label htmlFor="booking-filter" style={{ fontWeight: 500, marginRight: 8 }}>Show:</label>
+              <label htmlFor="booking-filter" className="admin-booking-filter-label">Show:</label>
               <select
                 id="booking-filter"
                 value={filter}
                 onChange={e => setFilter(e.target.value)}
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: 6,
-                  border: '1px solid #ccc',
-                  fontSize: 16,
-                  background: '#fff',
-                  color: '#222',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                  appearance: 'none',
-                  minWidth: 160,
-                  cursor: 'pointer'
-                }}
+                className="admin-booking-filter-select"
               >
-                <option value="all" style={{ background: '#fff', color: '#222' }}>All</option>
-                <option value="pending" style={{ background: '#fff', color: '#222' }}>Pending Only</option>
-                <option value="approved" style={{ background: '#fff', color: '#222' }}>Approved Only</option>
-                <option value="finished" style={{ background: '#fff', color: '#222' }}>Finished Only</option>
+                <option value="all">All</option>
+                <option value="pending">Pending Only</option>
+                <option value="approved">Approved Only</option>
+                <option value="finished">Finished Only</option>
               </select>
             </div>
           </div>
@@ -350,34 +238,18 @@ export default function AdminBooking() {
                 {filteredPending.map(booking => (
                   <li
                     key={booking._id}
-                    className="booking-card"
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, minHeight: 64, padding: 10 }}
+                    className="booking-card booking-card-flex"
                   >
-                    <div
-                      style={{ flex: 1, cursor: 'pointer' }}
-                      onClick={() => handleOpenModal(booking)}
-                    >
-                      <div style={{ fontWeight: 500, fontSize: 18 }}>{booking.eventType || booking.title}</div>
-                      <div style={{ fontSize: 15, marginTop: 2, color: '#444' }}>Booker: {booking.name || 'N/A'}</div>
-                      <div style={{ fontSize: 14, marginTop: 4 }}>Date: {booking.date ? (typeof booking.date === 'string' ? new Date(booking.date).toLocaleDateString() : new Date(booking.date).toLocaleDateString()) : ''}</div>
+                    <div className="booking-card-info" onClick={() => handleOpenModal(booking)}>
+                      <div className="booking-card-title">{booking.eventType || booking.title}</div>
+                      <div className="booking-card-booker">Booker: {booking.name || 'N/A'}</div>
+                      <div className="booking-card-date">Date: {booking.date ? (typeof booking.date === 'string' ? new Date(booking.date).toLocaleDateString() : new Date(booking.date).toLocaleDateString()) : ''}</div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div className="booking-card-actions">
                       <button
                         type="button"
                         onClick={() => openApproveModal(booking)}
-                        style={{
-                          background: '#4caf50',
-                          color: '#fff',
-                          border: 'none',
-                          borderRadius: 6,
-                          padding: '8px 24px',
-                          fontWeight: 600,
-                          fontSize: 17,
-                          cursor: 'pointer',
-                          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                          minWidth: 100,
-                          height: 44
-                        }}
+                        className="booking-card-approve"
                         title="Approve booking"
                       >
                         Approve
@@ -385,25 +257,9 @@ export default function AdminBooking() {
                       <button
                         type="button"
                         onClick={() => handleDeleteBooking(booking._id)}
-                        style={{
-                          background: 'transparent',
-                          border: 'none',
-                          borderRadius: 6,
-                          padding: 8,
-                          marginLeft: 0,
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          boxShadow: 'none',
-                          transition: 'background 0.2s',
-                          height: 44,
-                          width: 44
-                        }}
+                        className="booking-card-delete"
                         title="Delete booking"
                         aria-label="Delete booking"
-                        onMouseOver={e => e.currentTarget.style.background = '#ffeaea'}
-                        onMouseOut={e => e.currentTarget.style.background = 'transparent'}
                       >
                         <svg width="32" height="32" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <rect x="5.5" y="8.5" width="1.5" height="6" rx="0.75" fill="#ff4d4f"/>
@@ -434,34 +290,18 @@ export default function AdminBooking() {
                 {filteredApproved.map(booking => (
                   <li
                     key={booking._id}
-                    className="booking-card"
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, minHeight: 64, padding: 10 }}
+                    className="booking-card booking-card-flex"
                   >
-                    <div
-                      style={{ flex: 1, cursor: 'pointer' }}
-                      onClick={() => handleOpenModal(booking)}
-                    >
-                      <div style={{ fontWeight: 500, fontSize: 18 }}>{booking.eventType || booking.title}</div>
-                      <div style={{ fontSize: 15, marginTop: 2, color: '#444' }}>Booker: {booking.name || 'N/A'}</div>
-                      <div style={{ fontSize: 14, marginTop: 4 }}>Date: {booking.date ? (typeof booking.date === 'string' ? new Date(booking.date).toLocaleDateString() : new Date(booking.date).toLocaleDateString()) : ''}</div>
+                    <div className="booking-card-info" onClick={() => handleOpenModal(booking)}>
+                      <div className="booking-card-title">{booking.eventType || booking.title}</div>
+                      <div className="booking-card-booker">Booker: {booking.name || 'N/A'}</div>
+                      <div className="booking-card-date">Date: {booking.date ? (typeof booking.date === 'string' ? new Date(booking.date).toLocaleDateString() : new Date(booking.date).toLocaleDateString()) : ''}</div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div className="booking-card-actions">
                       <button
                         type="button"
                         onClick={() => handleDoneBooking(booking)}
-                        style={{
-                          background: '#2196f3',
-                          color: '#fff',
-                          border: 'none',
-                          borderRadius: 6,
-                          padding: '8px 24px',
-                          fontWeight: 600,
-                          fontSize: 17,
-                          cursor: 'pointer',
-                          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                          minWidth: 100,
-                          height: 44
-                        }}
+                        className="booking-card-done"
                         title="Mark as finished"
                       >
                         Done
@@ -469,25 +309,9 @@ export default function AdminBooking() {
                       <button
                         type="button"
                         onClick={() => handleDeleteBooking(booking._id)}
-                        style={{
-                          background: 'transparent',
-                          border: 'none',
-                          borderRadius: 6,
-                          padding: 8,
-                          marginLeft: 0,
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          boxShadow: 'none',
-                          transition: 'background 0.2s',
-                          height: 44,
-                          width: 44
-                        }}
+                        className="booking-card-delete"
                         title="Delete booking"
                         aria-label="Delete booking"
-                        onMouseOver={e => e.currentTarget.style.background = '#ffeaea'}
-                        onMouseOut={e => e.currentTarget.style.background = 'transparent'}
                       >
                         <svg width="32" height="32" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <rect x="5.5" y="8.5" width="1.5" height="6" rx="0.75" fill="#ff4d4f"/>
