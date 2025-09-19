@@ -1,21 +1,21 @@
-/* RSuite Calendar white background and black text override */
-.rs-calendar {
-  background: #fff !important;
-  color: #111 !important;
-  border-radius: 8px;
-}
-.rs-calendar-table-cell-content,
-.rs-calendar-table-cell-content:hover,
-.rs-calendar-table-cell-selected,
-.rs-calendar-table-cell-is-today {
-  background: #fff !important;
-  color: #111 !important;
-}
+/* RSuite Calendar fully light theme */
+.rs-calendar,
+.rs-calendar-panel,
+.rs-picker-menu,
+.rs-picker-datetime-panel,
+.rs-picker-date-panel,
 .rs-calendar-header,
 .rs-calendar-header-title,
 .rs-calendar-header-toolbar,
 .rs-calendar-month-dropdown,
-.rs-calendar-month-dropdown-cell-content {
+.rs-calendar-month-dropdown-cell-content,
+.rs-calendar-table,
+.rs-calendar-table-row,
+.rs-calendar-table-cell,
+.rs-calendar-table-cell-content,
+.rs-calendar-table-cell-content:hover,
+.rs-calendar-table-cell-selected,
+.rs-calendar-table-cell-is-today {
   background: #fff !important;
   color: #111 !important;
 }
