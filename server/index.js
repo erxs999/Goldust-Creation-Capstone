@@ -4,20 +4,16 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const { sendOTP } = require('./services/emailService');
 const otpStore = {};
-// ...existing code...
 
-// Place this after app is initialized
-
-// ...existing code...
 
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// SCHEDULE ROUTES
+
 const Schedule = require('./models/Schedule');
-// Get all schedules
+
 app.get('/api/schedules', async (req, res) => {
   try {
     const schedules = await Schedule.find();
@@ -27,7 +23,7 @@ app.get('/api/schedules', async (req, res) => {
   }
 });
 
-// Add a new schedule
+
 app.post('/api/schedules', async (req, res) => {
   try {
     const schedule = new Schedule(req.body);
@@ -38,8 +34,7 @@ app.post('/api/schedules', async (req, res) => {
   }
 });
 
-// Authentication DB connection (for supplier and customer)
-// Authentication DB connection (for supplier and customer)
+
 const authConnection = mongoose.createConnection('mongodb://127.0.0.1:27017/authentication', {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -47,7 +42,7 @@ const authConnection = mongoose.createConnection('mongodb://127.0.0.1:27017/auth
 authConnection.on('connected', () => console.log('MongoDB authentication connected!'));
 authConnection.on('error', err => console.error('MongoDB authentication connection error:', err));
 
-// Supplier schema/model
+
 const supplierSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
@@ -61,7 +56,7 @@ const supplierSchema = new mongoose.Schema({
 });
 const Supplier = authConnection.model('Supplier', supplierSchema);
 
-// Customer schema/model
+
 const customerSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
@@ -69,27 +64,21 @@ const customerSchema = new mongoose.Schema({
   lastName: String,
   middleName: String,
   phone: String,
-  contact: String, // keep for backward compatibility
+  contact: String,
   createdAt: { type: Date, default: Date.now }
 });
 const Customer = authConnection.model('Customer', customerSchema);
 
-// const bcrypt = require('bcryptjs');
-// const jwt = require('jsonwebtoken');
 
-
-
-// OTP/Password Reset Endpoints
-// Send OTP to email for password reset
 app.post('/api/auth/send-otp', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Missing email' });
 
-  // Check if user exists (customer or supplier)
+
   const user = await Customer.findOne({ email }) || await Supplier.findOne({ email });
   if (!user) return res.status(404).json({ error: 'No account with that email' });
 
-  // Generate 6-digit OTP
+  
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   otpStore[email] = { otp, expires: Date.now() + 10 * 60 * 1000 }; // 10 min expiry
 
@@ -98,7 +87,7 @@ app.post('/api/auth/send-otp', async (req, res) => {
   res.json({ message: 'OTP sent' });
 });
 
-// Verify OTP
+
 app.post('/api/auth/verify-otp', (req, res) => {
   const { email, otp } = req.body;
   if (!email || !otp) return res.status(400).json({ error: 'Missing email or otp' });
@@ -108,16 +97,16 @@ app.post('/api/auth/verify-otp', (req, res) => {
   res.json({ message: 'OTP verified' });
 });
 
-// Reset password
+
 app.post('/api/auth/reset-password', async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ error: 'Missing email or password' });
-  // Only allow if OTP was verified recently
+ 
   const record = otpStore[email];
   if (!record) return res.status(400).json({ error: 'OTP not requested' });
   if (Date.now() > record.expires) return res.status(400).json({ error: 'OTP expired' });
 
-  // Update password for customer or supplier
+
   let user = await Customer.findOne({ email });
   if (user) {
     user.password = password;
@@ -135,8 +124,7 @@ app.post('/api/auth/reset-password', async (req, res) => {
   res.status(404).json({ error: 'User not found' });
 });
 
-// BACKGROUND IMAGE ROUTES
-// Get all background images
+
 app.get('/api/background-images', async (req, res) => {
   try {
     const images = await BackgroundImage.find();
@@ -146,7 +134,7 @@ app.get('/api/background-images', async (req, res) => {
   }
 });
 
-// Add new background images (accepts array)
+
 app.post('/api/background-images', async (req, res) => {
   try {
     const { images } = req.body; // [{ url, name }]
@@ -160,7 +148,7 @@ app.post('/api/background-images', async (req, res) => {
   }
 });
 
-// Delete a background image by id
+
 app.delete('/api/background-images/:id', async (req, res) => {
   try {
     await BackgroundImage.findByIdAndDelete(req.params.id);
@@ -170,14 +158,13 @@ app.delete('/api/background-images/:id', async (req, res) => {
   }
 });
 const PORT = 5051;
-// const User = require('./models/User');
-// const auth = require('./middleware/auth');
+
 
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// Login Supplier
+
 app.post('/api/auth/login-supplier', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -194,7 +181,7 @@ app.post('/api/auth/login-supplier', async (req, res) => {
   }
 });
 
-// Login Customer
+
 app.post('/api/auth/login-customer', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -211,13 +198,13 @@ app.post('/api/auth/login-customer', async (req, res) => {
   }
 });
 
-// Main DB for ProductsAndServices
+
 const MONGO_URI = 'mongodb://127.0.0.1:27017/ProductsAndServices';
 mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('MongoDB ProductsAndServices connected!'))
   .catch(err => console.error('MongoDB ProductsAndServices connection error:', err));
 
-// Dedicated DB connection for background images
+
 const bgImageConnection = mongoose.createConnection('mongodb://127.0.0.1:27017/backgroundImages', {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -225,7 +212,7 @@ const bgImageConnection = mongoose.createConnection('mongodb://127.0.0.1:27017/b
 bgImageConnection.on('connected', () => console.log('MongoDB backgroundImages connected!'));
 bgImageConnection.on('error', err => console.error('MongoDB backgroundImages connection error:', err));
 
-// Booking DB connection
+
 const bookingConnection = mongoose.createConnection('mongodb://127.0.0.1:27017/booking', {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -235,7 +222,7 @@ bookingConnection.on('error', err => console.error('MongoDB booking connection e
 
 
 
-// Category schema and model
+
 const categorySchema = new mongoose.Schema({
   title: { type: String, required: true },
   image: String,
@@ -243,7 +230,7 @@ const categorySchema = new mongoose.Schema({
 });
 const Category = mongoose.model('Category', categorySchema);
 
-// Product schema and model
+
 const productSchema = new mongoose.Schema({
   image: String,
   title: { type: String, required: true },
@@ -253,23 +240,23 @@ const productSchema = new mongoose.Schema({
   categoryTitle: String, // reference to category title
 });
 const Product = mongoose.model('Product', productSchema);
-// Background Image schema and model
+
 const backgroundImageSchema = new mongoose.Schema({
-  url: { type: String, required: true }, // base64 or image URL
+  url: { type: String, required: true },
   name: { type: String },
   createdAt: { type: Date, default: Date.now }
 });
 const BackgroundImage = bgImageConnection.model('BackgroundImage', backgroundImageSchema);
 
-// CART schema/model/routes (must be after mongoose init)
+
 const cartItemSchema = new mongoose.Schema({
-  product: Object, // store product snapshot
-  userEmail: { type: String, required: true }, // associate with user
+  product: Object, 
+  userEmail: { type: String, required: true },
   createdAt: { type: Date, default: Date.now }
 });
 const CartItem = mongoose.model('CartItem', cartItemSchema);
 
-// BOOKING SCHEMAS/MODELS (using bookingConnection)
+
 const bookingBaseSchema = new mongoose.Schema({
   userId: String,
   name: String,
@@ -296,8 +283,7 @@ const PendingBooking = bookingConnection.model('PendingBooking', bookingBaseSche
 const ApprovedBooking = bookingConnection.model('ApprovedBooking', bookingBaseSchema);
 const FinishedBooking = bookingConnection.model('FinishedBooking', bookingBaseSchema);
 
-// Get all cart items
-// Get cart items for a specific user (by email, from query param)
+
 app.get('/api/cart', async (req, res) => {
   const userEmail = req.query.userEmail;
   if (!userEmail) return res.status(400).json({ error: 'Missing userEmail' });
@@ -305,7 +291,7 @@ app.get('/api/cart', async (req, res) => {
   res.json(items);
 });
 
-// Add to cart
+
 app.post('/api/cart', async (req, res) => {
   const { product, userEmail } = req.body;
   if (!userEmail || !product) return res.status(400).json({ error: 'Missing userEmail or product' });
@@ -314,8 +300,7 @@ app.post('/api/cart', async (req, res) => {
   res.status(201).json(item);
 });
 
-// Delete from cart
-// Only allow deletion if userEmail matches (user must send userEmail as query param)
+
 app.delete('/api/cart/:id', async (req, res) => {
   const userEmail = req.query.userEmail;
   if (!userEmail) return res.status(400).json({ error: 'Missing userEmail' });
@@ -325,8 +310,7 @@ app.delete('/api/cart/:id', async (req, res) => {
   res.json({ success: true });
 });
 
-// BOOKING ROUTES
-// Pending Bookings
+
 app.get('/api/bookings/pending', async (req, res) => {
   const bookings = await PendingBooking.find();
   res.json(bookings);
@@ -341,7 +325,7 @@ app.delete('/api/bookings/pending/:id', async (req, res) => {
   res.json({ success: true });
 });
 
-// Approved Bookings
+
 app.get('/api/bookings/approved', async (req, res) => {
   const bookings = await ApprovedBooking.find();
   res.json(bookings);
@@ -356,7 +340,7 @@ app.delete('/api/bookings/approved/:id', async (req, res) => {
   res.json({ success: true });
 });
 
-// Finished Bookings
+
 app.get('/api/bookings/finished', async (req, res) => {
   const bookings = await FinishedBooking.find();
   res.json(bookings);
@@ -371,34 +355,32 @@ app.delete('/api/bookings/finished/:id', async (req, res) => {
   res.json({ success: true });
 });
 
-// Example route
+
 app.get('/', (req, res) => res.send('Server running with MongoDB!'));
 
-// CATEGORY ROUTES
-// Get all categories
+
 app.get('/api/categories', async (req, res) => {
   const categories = await Category.find();
   res.json(categories);
 });
-// Add a category
+
 app.post('/api/categories', async (req, res) => {
   const cat = new Category(req.body);
   await cat.save();
   res.status(201).json(cat);
 });
-// Update a category
+
 app.put('/api/categories/:id', async (req, res) => {
   const cat = await Category.findByIdAndUpdate(req.params.id, req.body, { new: true });
   res.json(cat);
 });
-// Delete a category
+
 app.delete('/api/categories/:id', async (req, res) => {
   await Category.findByIdAndDelete(req.params.id);
   res.json({ success: true });
 });
 
-// PRODUCT ROUTES
-// Delete all products by category title
+
 app.delete('/api/products/category/:categoryTitle', async (req, res) => {
   try {
     const result = await Product.deleteMany({ categoryTitle: req.params.categoryTitle });
@@ -407,23 +389,23 @@ app.delete('/api/products/category/:categoryTitle', async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
-// Get all products for a category
+
 app.get('/api/products/:categoryTitle', async (req, res) => {
   const products = await Product.find({ categoryTitle: req.params.categoryTitle });
   res.json(products);
 });
-// Add a product
+
 app.post('/api/products', async (req, res) => {
   const prod = new Product(req.body);
   await prod.save();
   res.status(201).json(prod);
 });
-// Update a product
+
 app.put('/api/products/:id', async (req, res) => {
   const prod = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
   res.json(prod);
 });
-// Delete a product
+
 app.delete('/api/products/:id', async (req, res) => {
   await Product.findByIdAndDelete(req.params.id);
   res.json({ success: true });
@@ -431,11 +413,7 @@ app.delete('/api/products/:id', async (req, res) => {
 
 
 
-// AUTH ROUTES
 
-
-// Register Supplier
-// Get all suppliers
 app.get('/api/suppliers', async (req, res) => {
   try {
     const suppliers = await Supplier.find();
@@ -451,12 +429,12 @@ app.post('/api/auth/register-supplier', async (req, res) => {
     if (!email || !password || !companyName || !firstName || !lastName) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
-    // Check if supplier already exists
+ 
     const existing = await Supplier.findOne({ email });
     if (existing) {
       return res.status(409).json({ error: 'Supplier already exists' });
     }
-    // Create new supplier
+  
     const supplier = new Supplier({ email, password, companyName, firstName, lastName, middleName, phone, contact: phone });
     await supplier.save();
     res.status(201).json({ message: 'Supplier registered successfully', user: supplier });
@@ -465,19 +443,19 @@ app.post('/api/auth/register-supplier', async (req, res) => {
   }
 });
 
-// Register Customer
+
 app.post('/api/auth/register-customer', async (req, res) => {
   try {
     const { email, password, firstName, lastName, middleName, phone } = req.body;
     if (!email || !password || !firstName || !lastName) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
-    // Check if customer already exists
+  
     const existing = await Customer.findOne({ email });
     if (existing) {
       return res.status(409).json({ error: 'Customer already exists' });
     }
-    // Create new customer
+   
     const customer = new Customer({ email, password, firstName, lastName, middleName, phone, contact: phone });
     await customer.save();
     res.status(201).json({ message: 'Customer registered successfully', user: customer });
@@ -487,7 +465,7 @@ app.post('/api/auth/register-customer', async (req, res) => {
 });
 
 
-// Get all customers
+
 app.get('/api/customers', async (req, res) => {
   try {
     const customers = await Customer.find();

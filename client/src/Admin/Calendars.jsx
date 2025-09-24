@@ -10,7 +10,7 @@ import './calendars.css';
 import { Calendar as RsuiteCalendar } from 'rsuite';
 import 'rsuite/dist/rsuite.min.css';
 
-// Simple modal component
+
 function Modal({ open, onClose, children }) {
   if (!open) return null;
   return (
