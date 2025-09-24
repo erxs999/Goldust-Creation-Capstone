@@ -1,43 +1,42 @@
-const { sendOTP } = require('./services/emailService');
-const otpStore = {};
 
-// ...existing code...
-
-// Place the following after app is initialized (after const app = express();)
-
-// ...existing code...
-
-// (Insert these after app is initialized, after 'const app = express();')
-
-// OTP/Password Reset Endpoints
-// Send OTP to email for password reset
-// (Move this block after app = express();)
-
-// ...existing code...
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const { sendOTP } = require('./services/emailService');
+const otpStore = {};
 // ...existing code...
+
+// Place this after app is initialized
 
 // ...existing code...
 
-// Authentication DB connection (for supplier and customer)
-// ...existing code...
+const app = express();
+app.use(cors());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// Place login routes AFTER app is initialized
+// SCHEDULE ROUTES
+const Schedule = require('./models/Schedule');
+// Get all schedules
+app.get('/api/schedules', async (req, res) => {
+  try {
+    const schedules = await Schedule.find();
+    res.json(schedules);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch schedules' });
+  }
+});
 
-// ...existing code...
-
-// (Insert these after app is initialized, after 'const app = express();')
-
-// Login Supplier
-// ...existing code...
-
-// Login Customer
-// ...existing code...
-// ...existing code...
-
-// ...existing code...
+// Add a new schedule
+app.post('/api/schedules', async (req, res) => {
+  try {
+    const schedule = new Schedule(req.body);
+    await schedule.save();
+    res.status(201).json(schedule);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to add schedule' });
+  }
+});
 
 // Authentication DB connection (for supplier and customer)
 // Authentication DB connection (for supplier and customer)
@@ -79,10 +78,6 @@ const Customer = authConnection.model('Customer', customerSchema);
 // const jwt = require('jsonwebtoken');
 
 
-const app = express();
-app.use(cors());
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // OTP/Password Reset Endpoints
 // Send OTP to email for password reset

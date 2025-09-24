@@ -63,24 +63,42 @@ export default function Calendars() {
     description: ''
   });
 
-  // Load events from localStorage
+  // Load events from backend API
   useEffect(() => {
-    const stored = localStorage.getItem('calendarEvents');
-    if (stored) setEvents(JSON.parse(stored));
+    async function fetchEvents() {
+      try {
+        const res = await fetch('/api/schedules');
+        if (!res.ok) throw new Error('Failed to fetch schedules');
+        const data = await res.json();
+        setEvents(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error('Error fetching schedules:', err);
+      }
+    }
+    fetchEvents();
   }, []);
 
-  // Save events to localStorage when changed
-  useEffect(() => {
-    localStorage.setItem('calendarEvents', JSON.stringify(events));
-  }, [events]);
+  // Optionally, remove localStorage saving logic
 
-  // Add event handler
-  const handleAddEvent = (e) => {
+  // Add event handler (update to POST to backend)
+  const handleAddEvent = async (e) => {
     e.preventDefault();
-    const newEvent = { ...form, id: Date.now() };
-    setEvents([...events, newEvent]);
-    setModalOpen(false);
-    setForm({ title: '', type: 'Supplier', person: '', date: new Date().toISOString().slice(0, 10), location: '', description: '' });
+    const newEvent = { ...form };
+    try {
+      const res = await fetch('/api/schedules', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newEvent)
+      });
+      if (!res.ok) throw new Error('Failed to add event');
+      const savedEvent = await res.json();
+      setEvents(evts => [...evts, savedEvent]);
+      setModalOpen(false);
+      setForm({ title: '', type: 'Supplier', person: '', date: new Date().toISOString().slice(0, 10), location: '', description: '' });
+    } catch (err) {
+      console.error('Error adding event:', err);
+      // Optionally show error to user
+    }
   };
 
   // Get events for a specific date (compare as string)
