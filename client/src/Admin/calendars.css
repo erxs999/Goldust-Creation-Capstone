@@ -1,3 +1,89 @@
+/* Custom styles for react-datepicker popup */
+.custom-datepicker-popper .react-datepicker {
+  font-family: inherit;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.12);
+  border: 1px solid #eee;
+  background: #fff;
+  padding: 12px 16px 16px 16px;
+}
+.custom-datepicker-popper .react-datepicker__header {
+  background: #fff;
+  border-bottom: 1px solid #eee;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-radius: 12px 12px 0 0;
+}
+.custom-datepicker-popper .react-datepicker__current-month {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 8px;
+}
+.custom-datepicker-popper .react-datepicker__day-names {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 4px;
+}
+.custom-datepicker-popper .react-datepicker__day-name {
+  font-size: 0.95rem;
+  color: #888;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+.custom-datepicker-popper .react-datepicker__month {
+  margin: 0;
+}
+.custom-datepicker-popper .react-datepicker__week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+.custom-datepicker-popper .react-datepicker__day {
+  font-size: 1rem;
+  color: #222;
+  border-radius: 6px;
+  padding: 0.5em 0;
+  margin: 2px 0;
+  transition: background 0.2s, color 0.2s;
+}
+.custom-datepicker-popper .react-datepicker__day--selected {
+  background: #e6b800;
+  color: #fff;
+  font-weight: 700;
+}
+.custom-datepicker-popper .react-datepicker__day--today {
+  border: 1px solid #e6b800;
+}
+.custom-datepicker-popper .react-datepicker__day:hover {
+  background: #ffe082;
+  color: #111;
+}
+.custom-datepicker-popper .react-datepicker__navigation {
+  top: 18px;
+}
+.custom-datepicker-popper .react-datepicker__navigation-icon::before {
+  border-color: #222;
+}
+/* Hide native calendar icon for input[type=date] */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  display: none;
+}
+input[type="date"]::-moz-calendar-picker-indicator {
+  opacity: 0;
+  display: none;
+}
+input[type="date"]::-ms-clear {
+  opacity: 0;
+  display: none;
+}
+input[type="date"]::-ms-expand {
+  opacity: 0;
+  display: none;
+}
+input[type="date"] {
+  position: relative;
+}
 /* RSuite Calendar fully light theme */
 .rs-calendar,
 .rs-calendar-panel,
@@ -41,6 +127,27 @@
   color: #111 !important;
   border-color: #bbb !important;
 }
+/* Ensure RSuite Calendar popup (date picker) background is white */
+.rs-calendar,
+.rs-calendar-panel,
+.rs-picker-menu,
+.rs-picker-datetime-panel,
+.rs-picker-date-panel,
+.rs-calendar-header,
+.rs-calendar-header-title,
+.rs-calendar-header-toolbar,
+.rs-calendar-month-dropdown,
+.rs-calendar-month-dropdown-cell-content,
+.rs-calendar-table,
+.rs-calendar-table-row,
+.rs-calendar-table-cell,
+.rs-calendar-table-cell-content,
+.rs-calendar-table-cell-content:hover,
+.rs-calendar-table-cell-selected,
+.rs-calendar-table-cell-is-today {
+  background: #fff !important;
+  color: #111 !important;
+}
 
 .rbc-header {
   background: #f8f8f8 !important;
@@ -74,4 +181,11 @@
 .admin-calendars-root {
   font-family: 'Poppins', 'Segoe UI', sans-serif;
 
+}
+
+/* Force RSuite date picker popup background to white */
+.rs-picker-menu,
+.rs-picker-menu * {
+  background: #fff !important;
+  color: #111 !important;
 }

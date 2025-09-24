@@ -139,6 +139,41 @@ app.post('/api/auth/reset-password', async (req, res) => {
   }
   res.status(404).json({ error: 'User not found' });
 });
+
+// BACKGROUND IMAGE ROUTES
+// Get all background images
+app.get('/api/background-images', async (req, res) => {
+  try {
+    const images = await BackgroundImage.find();
+    res.json(images);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch images' });
+  }
+});
+
+// Add new background images (accepts array)
+app.post('/api/background-images', async (req, res) => {
+  try {
+    const { images } = req.body; // [{ url, name }]
+    if (!Array.isArray(images) || images.length === 0) {
+      return res.status(400).json({ error: 'No images provided' });
+    }
+    const docs = await BackgroundImage.insertMany(images);
+    res.status(201).json(docs);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to add images' });
+  }
+});
+
+// Delete a background image by id
+app.delete('/api/background-images/:id', async (req, res) => {
+  try {
+    await BackgroundImage.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete image' });
+  }
+});
 const PORT = 5051;
 // const User = require('./models/User');
 // const auth = require('./middleware/auth');
@@ -187,6 +222,14 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('MongoDB ProductsAndServices connected!'))
   .catch(err => console.error('MongoDB ProductsAndServices connection error:', err));
 
+// Dedicated DB connection for background images
+const bgImageConnection = mongoose.createConnection('mongodb://127.0.0.1:27017/backgroundImages', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+bgImageConnection.on('connected', () => console.log('MongoDB backgroundImages connected!'));
+bgImageConnection.on('error', err => console.error('MongoDB backgroundImages connection error:', err));
+
 // Booking DB connection
 const bookingConnection = mongoose.createConnection('mongodb://127.0.0.1:27017/booking', {
   useNewUrlParser: true,
@@ -215,6 +258,13 @@ const productSchema = new mongoose.Schema({
   categoryTitle: String, // reference to category title
 });
 const Product = mongoose.model('Product', productSchema);
+// Background Image schema and model
+const backgroundImageSchema = new mongoose.Schema({
+  url: { type: String, required: true }, // base64 or image URL
+  name: { type: String },
+  createdAt: { type: Date, default: Date.now }
+});
+const BackgroundImage = bgImageConnection.model('BackgroundImage', backgroundImageSchema);
 
 // CART schema/model/routes (must be after mongoose init)
 const cartItemSchema = new mongoose.Schema({

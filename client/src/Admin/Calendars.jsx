@@ -1,5 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs from 'dayjs';
 import Sidebar from './Sidebar';
 import './calendars.css';
 
@@ -183,32 +187,54 @@ export default function Calendars() {
           <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
             <h3 style={{ marginTop: 0 }}>Add Event / Meeting</h3>
             <form onSubmit={handleAddEvent} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <label>
+              <label style={{ width: '100%', marginBottom: 0 }}>
                 Title:
-                <input type="text" required value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} style={{ width: '100%', padding: 6, marginTop: 2, background: '#fff', color: '#111', border: '1px solid #ccc', borderRadius: 4 }} />
+                <input type="text" required value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} style={{ width: '100%', padding: 6, marginTop: 2, marginBottom: 2, background: '#fff', color: '#111', border: '1px solid #ccc', borderRadius: 4, boxSizing: 'border-box' }} />
               </label>
-              <label>
+              <label style={{ width: '100%', marginBottom: 0 }}>
                 Type:
-                <select value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))} style={{ width: '100%', padding: 6, marginTop: 2, background: '#fff', color: '#111', border: '1px solid #ccc', borderRadius: 4 }}>
+                <select
+                  value={form.type}
+                  onChange={e => setForm(f => ({ ...f, type: e.target.value }))}
+                  style={{ width: '100%', padding: 6, marginTop: 2, marginBottom: 2, background: '#fff', color: '#111', border: '1px solid #ccc', borderRadius: 4, boxSizing: 'border-box' }}
+                >
                   <option>Supplier</option>
                   <option>Customer</option>
                 </select>
               </label>
-              <label>
+              <label style={{ width: '100%', marginBottom: 0 }}>
                 {form.type} Name:
-                <input type="text" required value={form.person} onChange={e => setForm(f => ({ ...f, person: e.target.value }))} style={{ width: '100%', padding: 6, marginTop: 2, background: '#fff', color: '#111', border: '1px solid #ccc', borderRadius: 4 }} />
+                <input type="text" required value={form.person} onChange={e => setForm(f => ({ ...f, person: e.target.value }))} style={{ width: '100%', padding: 6, marginTop: 2, marginBottom: 2, background: '#fff', color: '#111', border: '1px solid #ccc', borderRadius: 4, boxSizing: 'border-box' }} />
               </label>
-              <label>
+              <label style={{ width: '100%', marginBottom: 0 }}>
                 Location:
-                <input type="text" required value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} style={{ width: '100%', padding: 6, marginTop: 2, background: '#fff', color: '#111', border: '1px solid #ccc', borderRadius: 4 }} />
+                <input type="text" required value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} style={{ width: '100%', padding: 6, marginTop: 2, marginBottom: 2, background: '#fff', color: '#111', border: '1px solid #ccc', borderRadius: 4, boxSizing: 'border-box' }} />
               </label>
-              <label>
+              <label style={{ width: '100%', marginBottom: 0 }}>
                 Date:
-                <input type="date" required value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} style={{ width: '100%', padding: 6, marginTop: 2, background: '#fff', color: '#111', border: '1px solid #ccc', borderRadius: 4 }} />
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    value={dayjs(form.date)}
+                    onChange={date => setForm(f => ({ ...f, date: date ? date.format('YYYY-MM-DD') : '' }))}
+                    format="MM/DD/YYYY"
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                        size: 'small',
+                        sx: {
+                          marginTop: '2px',
+                          marginBottom: '2px',
+                          background: '#fff',
+                          borderRadius: '4px',
+                        }
+                      }
+                    }}
+                  />
+                </LocalizationProvider>
               </label>
-              <label>
+              <label style={{ width: '100%', marginBottom: 0 }}>
                 Description:
-                <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} style={{ width: '100%', padding: 6, marginTop: 2, background: '#fff', color: '#111', border: '1px solid #ccc', borderRadius: 4 }} />
+                <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} style={{ width: '100%', padding: 6, marginTop: 2, marginBottom: 2, background: '#fff', color: '#111', border: '1px solid #ccc', borderRadius: 4, boxSizing: 'border-box' }} />
               </label>
               <button type="submit" style={{ background: 'linear-gradient(90deg, #e6b800 0%, #ffbe2e 100%)', color: '#fff', border: 'none', borderRadius: 7, fontWeight: 700, fontSize: '1rem', padding: '0.45rem 1.2rem', cursor: 'pointer', marginTop: 8 }}>Set Schedule</button>
             </form>

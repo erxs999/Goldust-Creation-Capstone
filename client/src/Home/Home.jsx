@@ -28,15 +28,17 @@ const Home = () => {
         if (el) el.scrollIntoView({ behavior: 'smooth' });
       }, 100);
     }
-    // Get background images from localStorage
-    try {
-      const imgs = JSON.parse(localStorage.getItem('gd_background_gallery')) || [];
-      setBgImages(imgs.map(img => img.url));
-      setBgIndex(0);
-    } catch {
-      setBgImages([]);
-      setBgIndex(0);
-    }
+    // Fetch background images from backend
+    fetch(`${API_BASE}/background-images`)
+      .then(res => res.json())
+      .then(imgs => {
+        setBgImages(imgs.map(img => img.url));
+        setBgIndex(0);
+      })
+      .catch(() => {
+        setBgImages([]);
+        setBgIndex(0);
+      });
   }, []);
 
   // Slideshow effect
