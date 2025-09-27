@@ -9,6 +9,8 @@ import './calendars.css';
 
 import { Calendar as RsuiteCalendar } from 'rsuite';
 import 'rsuite/dist/rsuite.min.css';
+import IconButton from '@mui/material/IconButton';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 
 function Modal({ open, onClose, children }) {
@@ -116,6 +118,20 @@ export default function Calendars() {
     }
     return events.filter(ev => ev.date === d);
   };
+
+    // Delete event handler
+    const handleDeleteEvent = async (eventId) => {
+      try {
+        const res = await fetch(`/api/schedules/${eventId}`, {
+          method: 'DELETE',
+        });
+        if (!res.ok) throw new Error('Failed to delete event');
+        setEvents(evts => evts.filter(ev => ev._id !== eventId));
+      } catch (err) {
+        console.error('Error deleting event:', err);
+        // Optionally show error to user
+      }
+    };
 
   // Custom render cell for calendar with double-click
   const renderCell = (date) => {
@@ -277,37 +293,44 @@ export default function Calendars() {
               }}
             >
               {viewEventsDate && getEventsForDate(viewEventsDate).length > 0 ? (
-                getEventsForDate(viewEventsDate).map(ev => (
-                  <div
-                    key={ev.id}
-                    style={{
-                      background: '#ffe082',
-                      color: '#111',
-                      borderRadius: 6,
-                      padding: '8px 12px',
-                      fontSize: 13,
-                      marginBottom: 0,
-                      boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
-                      fontWeight: 500,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 2,
-                      maxWidth: 340,
-                      cursor: 'pointer'
-                    }}
-                    onClick={() => {
-                      setSelectedEvent(ev);
-                      setEventDetailsModalOpen(true);
-                    }}
-                    title="Click to view details"
-                  >
-                    <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 2 }}>{ev.title}</div>
-                    <div style={{ color: '#555', fontSize: 12, marginBottom: 2 }}>
-                      {ev.type}: <span style={{ fontWeight: 600 }}>{ev.person}</span>
+                  getEventsForDate(viewEventsDate).map(ev => (
+                    <div
+                      key={ev.id}
+                      style={{
+                        background: '#ffe082',
+                        color: '#111',
+                        borderRadius: 6,
+                        padding: '8px 12px',
+                        fontSize: 13,
+                        marginBottom: 0,
+                        boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+                        fontWeight: 500,
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 8,
+                        maxWidth: 340,
+                      }}
+                    >
+                      <div
+                        style={{ flex: 1, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 2 }}
+                        onClick={() => {
+                          setSelectedEvent(ev);
+                          setEventDetailsModalOpen(true);
+                        }}
+                        title="Click to view details"
+                      >
+                        <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 2 }}>{ev.title}</div>
+                        <div style={{ color: '#555', fontSize: 12, marginBottom: 2 }}>
+                          {ev.type}: <span style={{ fontWeight: 600 }}>{ev.person}</span>
+                        </div>
+                        <div style={{ color: '#888', fontSize: 12 }}>{ev.location}</div>
+                      </div>
+                      <IconButton aria-label="delete" size="small" onClick={() => handleDeleteEvent(ev._id)} style={{ marginLeft: 4 }}>
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
                     </div>
-                    <div style={{ color: '#888', fontSize: 12 }}>{ev.location}</div>
-                  </div>
-                ))
+                  ))
               ) : (
                 <div style={{ color: '#888', fontSize: 14, textAlign: 'center', marginTop: 18 }}>No schedule for this day.</div>
               )}

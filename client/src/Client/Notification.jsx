@@ -4,21 +4,9 @@ import './Notification.css';
 
 const Notification = () => {
   const notifications = [
-    { id: 1, title: 'Booking Confirmed', message: 'Your booking for Garden Set has been confirmed.' },
-    { id: 2, title: 'Payment Received', message: 'Your down payment of PHP50,000 has been received.' },
-    { id: 3, title: 'Event Reminder', message: 'Reminder: Your event is scheduled for August 15.' },
-       { id: 1, title: 'Booking Confirmed', message: 'Your booking for Garden Set has been confirmed.' },
-    { id: 2, title: 'Payment Received', message: 'Your down payment of PHP50,000 has been received.' },
-    { id: 3, title: 'Event Reminder', message: 'Reminder: Your event is scheduled for August 15.' },
-       { id: 1, title: 'Booking Confirmed', message: 'Your booking for Garden Set has been confirmed.' },
-    { id: 2, title: 'Payment Received', message: 'Your down payment of PHP50,000 has been received.' },
-    { id: 3, title: 'Event Reminder', message: 'Reminder: Your event is scheduled for August 15.' },
-       { id: 1, title: 'Booking Confirmed', message: 'Your booking for Garden Set has been confirmed.' },
-    { id: 2, title: 'Payment Received', message: 'Your down payment of PHP50,000 has been received.' },
-    { id: 3, title: 'Event Reminder', message: 'Reminder: Your event is scheduled for August 15.' },
-       { id: 1, title: 'Booking Confirmed', message: 'Your booking for Garden Set has been confirmed.' },
-    { id: 2, title: 'Payment Received', message: 'Your down payment of PHP50,000 has been received.' },
-    { id: 3, title: 'Event Reminder', message: 'Reminder: Your event is scheduled for August 15.' },
+   { id: 1, title: 'Booking Confirmed', message: 'Your booking for Garden Set has been confirmed.' },
+   { id: 2, title: 'Payment Received', message: 'Your down payment of PHP50,000 has been received.' },
+   { id: 3, title: 'Event Reminder', message: 'Reminder: Your event is scheduled for August 15.' }
   ];
 
   return (

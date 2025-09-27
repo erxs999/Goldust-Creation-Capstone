@@ -36,6 +36,7 @@ app.get('/api/schedules', async (req, res) => {
   }
 });
 
+
 app.post('/api/schedules', async (req, res) => {
   try {
     const schedule = new Schedule(req.body);
@@ -43,6 +44,17 @@ app.post('/api/schedules', async (req, res) => {
     res.status(201).json(schedule);
   } catch (err) {
     res.status(500).json({ error: 'Failed to add schedule' });
+  }
+});
+
+// DELETE endpoint for schedules
+app.delete('/api/schedules/:id', async (req, res) => {
+  try {
+    const deleted = await Schedule.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ error: 'Schedule not found' });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete schedule' });
   }
 });
 
