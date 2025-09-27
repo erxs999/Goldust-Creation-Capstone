@@ -9,11 +9,12 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { Link, useLocation } from 'react-router-dom';
 
 const navLinks = [
-  { label: 'Home', icon: <HomeIcon />, to: '/client/home' },
-  { label: 'Personal Information', icon: <PersonIcon />, to: '/client/personal-information' },
+
+  { label: 'Profile ', icon: <PersonIcon />, to: '/client/personal-information' },
  
-  { label: 'Booking Information', icon: <InfoIcon />, to: '/client/booking-information' },
+  { label: 'Booking ', icon: <InfoIcon />, to: '/client/booking-information' },
   { label: 'Notification', icon: <NotificationsIcon />, to: '/client/notification' },
+  { label: 'Home', icon: <HomeIcon />, to: '/client/home' },
   { label: 'Log out', icon: <LogoutIcon />, to: '/logout' },
 ];
 
@@ -23,31 +24,46 @@ const ClientSidebar = () => {
   return (
     <div className={`client-sidebar${expanded ? '' : ' shrunk'}`}>
       <div className="client-sidebar-header">
-        <h2 style={{margin: 0, padding: 0}}>{expanded ? 'Profile' : ''}</h2>
+  <h2 className="profile-title">{expanded ? 'Goldust' : ''}</h2>
         <button className="sidebar-toggle-btn" onClick={() => setExpanded((e) => !e)}>
           {expanded ? '<' : '>'}
         </button>
       </div>
       <ul>
-        {navLinks.map((link, idx) => {
-          const isActive = location.pathname === link.to;
-          // Insert a divider after Notification (before Log out)
-          if (link.label === 'Log out') {
-            return [
-              <li key="divider" className="sidebar-divider"><hr className="sidebar-hr" /></li>,
-              <li key={link.label} className={isActive ? 'active' : ''}>
+          {/* Render all links except Home and Log out */}
+          {navLinks.filter(link => link.label !== 'Home' && link.label !== 'Log out').map((link) => {
+            const isActive = location.pathname === link.to;
+            // Add extra space below Notification link
+            const extraStyle = link.label === 'Notification' ? { marginBottom: '32px' } : {};
+            return (
+              <li key={link.label} className={isActive ? 'active' : ''} style={extraStyle}>
                 <span className="icon">{link.icon}</span>
                 {expanded && <Link to={link.to} style={{ textDecoration: 'none', color: 'inherit' }}>{link.label}</Link>}
               </li>
-            ];
-          }
-          return (
-            <li key={link.label} className={isActive ? 'active' : ''}>
-              <span className="icon">{link.icon}</span>
-              {expanded && <Link to={link.to} style={{ textDecoration: 'none', color: 'inherit' }}>{link.label}</Link>}
-            </li>
-          );
-        })}
+            );
+          })}
+          {/* Home link above Log out */}
+          {(() => {
+            const homeLink = navLinks.find(link => link.label === 'Home');
+            const isActive = location.pathname === homeLink.to;
+            return (
+              <li key={homeLink.label} className={isActive ? 'active' : ''}>
+                <span className="icon">{homeLink.icon}</span>
+                {expanded && <Link to={homeLink.to} style={{ textDecoration: 'none', color: 'inherit' }}>{homeLink.label}</Link>}
+              </li>
+            );
+          })()}
+          {/* Log out link at the bottom */}
+          {(() => {
+            const logoutLink = navLinks.find(link => link.label === 'Log out');
+            const isActive = location.pathname === logoutLink.to;
+            return (
+              <li key={logoutLink.label} className={isActive ? 'active' : ''}>
+                <span className="icon">{logoutLink.icon}</span>
+                {expanded && <Link to={logoutLink.to} style={{ textDecoration: 'none', color: 'inherit' }}>{logoutLink.label}</Link>}
+              </li>
+            );
+          })()}
       </ul>
     </div>
   );

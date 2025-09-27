@@ -176,7 +176,7 @@ export default function Calendars() {
           </div>
           <div
             style={{
-              height: 560,
+              height: 600,
               background: '#fff',
               borderRadius: 12,
               marginTop: 24,
@@ -186,7 +186,7 @@ export default function Calendars() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'stretch',
-              justifyContent: 'center',
+              justifyContent: 'flex-start',
               position: 'relative',
               overflow: 'hidden',
             }}
@@ -262,7 +262,17 @@ export default function Calendars() {
             <h2 style={{ marginTop: 0, marginBottom: 14, fontWeight: 800, fontSize: '1.25rem', color: '#222', letterSpacing: 1 }}>
               Schedule for {viewEventsDate ? (typeof viewEventsDate === 'string' ? viewEventsDate : `${viewEventsDate.getFullYear()}-${String(viewEventsDate.getMonth()+1).padStart(2,'0')}-${String(viewEventsDate.getDate()).padStart(2,'0')}`) : ''}
             </h2>
-            <div style={{ minHeight: 40, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div
+              className="modal-schedule-scrollable"
+              style={{
+                minHeight: 40,
+                maxHeight: 500,
+                overflowY: 'auto',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 10
+              }}
+            >
               {viewEventsDate && getEventsForDate(viewEventsDate).length > 0 ? (
                 getEventsForDate(viewEventsDate).map(ev => (
                   <div key={ev.id} style={{
