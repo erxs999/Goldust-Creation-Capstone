@@ -1,18 +1,18 @@
 /* Custom scrollbar for modal schedule list */
-.modal-schedule-scrollable {
+.modal-schedule-scroll {
   scrollbar-width: thin;
   scrollbar-color: #fff #eee;
 }
 
-.modal-schedule-scrollable::-webkit-scrollbar {
-  width: 20px;
+.modal-schedule-scroll::-webkit-scrollbar {
+  width: 12px;
   background: #eee;
   border-radius: 8px;
 }
-.modal-schedule-scrollable::-webkit-scrollbar-thumb {
+.modal-schedule-scroll::-webkit-scrollbar-thumb {
   background: #fff;
   border-radius: 8px;
-  border: 5px solid #383838;
+  border: 2px solid #eee;
 }
 /* Custom styles for react-datepicker popup */
 .custom-datepicker-popper .react-datepicker {

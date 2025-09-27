@@ -263,7 +263,7 @@ export default function Calendars() {
               Schedule for {viewEventsDate ? (typeof viewEventsDate === 'string' ? viewEventsDate : `${viewEventsDate.getFullYear()}-${String(viewEventsDate.getMonth()+1).padStart(2,'0')}-${String(viewEventsDate.getDate()).padStart(2,'0')}`) : ''}
             </h2>
             <div
-              className="modal-schedule-scrollable"
+              className="modal-schedule-scroll"
               style={{
                 minHeight: 40,
                 maxHeight: 500,
