@@ -12,8 +12,21 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 
-const Schedule = require('./models/Schedule');
 
+// Create a separate connection for schedules/calendar
+const scheduleConnection = mongoose.createConnection('mongodb://127.0.0.1:27017/scheduleCalendar', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+scheduleConnection.on('connected', () => console.log('MongoDB scheduleCalendar connected!'));
+scheduleConnection.on('error', err => console.error('MongoDB scheduleCalendar connection error:', err));
+
+// Load Schedule model using the new connection
+const scheduleSchema = require('./models/Schedule').schema;
+const Schedule = scheduleConnection.model('Schedule', scheduleSchema);
+
+
+// Schedules API endpoints now use the scheduleConnection
 app.get('/api/schedules', async (req, res) => {
   try {
     const schedules = await Schedule.find();
@@ -22,7 +35,6 @@ app.get('/api/schedules', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch schedules' });
   }
 });
-
 
 app.post('/api/schedules', async (req, res) => {
   try {
@@ -197,6 +209,7 @@ app.post('/api/auth/login-customer', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+
 
 
 const MONGO_URI = 'mongodb://127.0.0.1:27017/ProductsAndServices';
