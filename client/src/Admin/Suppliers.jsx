@@ -8,6 +8,7 @@ export default function Suppliers() {
   const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     const fetchSuppliers = async () => {
@@ -24,12 +25,44 @@ export default function Suppliers() {
     };
     fetchSuppliers();
   }, []);
+
+  // Filter suppliers by search
+  const filteredSuppliers = suppliers.filter(supplier => {
+    const q = search.trim().toLowerCase();
+    if (!q) return true;
+    return (
+      (supplier.companyName || '').toLowerCase().includes(q) ||
+      (supplier.firstName || '').toLowerCase().includes(q) ||
+      (supplier.middleName || '').toLowerCase().includes(q) ||
+      (supplier.lastName || '').toLowerCase().includes(q)
+    );
+  });
+
   return (
     <div className="admin-dashboard-layout">
       <Sidebar />
       <main className="admin-dashboard-main">
         <div className="admin-suppliers-root">
-          <h2>Suppliers</h2>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+            <h2 style={{ margin: 0 }}>Suppliers</h2>
+            <input
+              type="text"
+              placeholder="Search company or name..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              style={{
+                padding: '8px 16px',
+                borderRadius: 6,
+                border: '1px solid #ccc',
+                fontSize: '1rem',
+                minWidth: 220,
+                background: '#fff',
+                color: '#222',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                fontWeight: 500
+              }}
+            />
+          </div>
           {loading ? (
             <p>Loading suppliers...</p>
           ) : (
@@ -47,8 +80,8 @@ export default function Suppliers() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {error ? null : suppliers.length > 0 ? (
-                    suppliers.map((supplier) => (
+                  {error ? null : filteredSuppliers.length > 0 ? (
+                    filteredSuppliers.map((supplier) => (
                       <TableRow key={supplier._id}>
                         <TableCell>{supplier.companyName}</TableCell>
                         <TableCell>{supplier.firstName}</TableCell>

@@ -6,28 +6,9 @@ import './reminders.css';
 function Modal({ open, onClose, children }) {
   if (!open) return null;
   return (
-    <div style={{
-      position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-      background: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
-    }}>
-      <div style={{ background: '#fff', borderRadius: 14, padding: 36, minWidth: 340, maxWidth: 480, boxShadow: '0 2px 16px rgba(0,0,0,0.18)', position: 'relative' }}>
-        <button
-          onClick={onClose}
-          style={{
-            position: 'absolute',
-            top: 18,
-            right: 22,
-            background: 'none',
-            border: 'none',
-            fontSize: 22,
-            cursor: 'pointer',
-            color: '#888',
-            lineHeight: 1,
-            padding: 0,
-            fontWeight: 700
-          }}
-          aria-label="Close"
-        >×</button>
+    <div className="reminder-modal-overlay">
+      <div className="reminder-modal">
+        <button className="reminder-modal-close" onClick={onClose} aria-label="Close">×</button>
         {children}
       </div>
     </div>
@@ -88,47 +69,20 @@ export default function Reminders() {
       <Sidebar />
       <main className="admin-dashboard-main">
         <div className="admin-reminders-root">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="reminders-header">
             <h2>Reminders</h2>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <label style={{ fontWeight: 500, fontSize: '1rem', color: '#222', marginRight: 8 }}>Show:</label>
+            <div className="reminders-header-controls">
+              <label className="reminders-filter-label">Show:</label>
               <select
+                className="reminders-filter-select"
                 value={filter}
                 onChange={e => setFilter(e.target.value)}
-                style={{
-                  padding: '6px 16px',
-                  borderRadius: '4px',
-                  border: '1px solid #ccc',
-                  fontSize: '1rem',
-                  color: '#222',
-                  background: '#fff',
-                  marginRight: 8,
-                  outline: 'none',
-                  boxShadow: 'none'
-                }}
               >
                 <option value="all">All</option>
                 <option value="1week">1 Week</option>
                 <option value="2week">2 Weeks</option>
                 <option value="1month">1 Month</option>
               </select>
-              <button
-                style={{
-                  background: 'linear-gradient(90deg, #e6b800 0%, #ffbe2e 100%)',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '7px',
-                  fontWeight: 700,
-                  fontSize: '1rem',
-                  padding: '0.45rem 1.2rem',
-                  cursor: 'pointer',
-                  boxShadow: '0 2px 8px 0 rgba(230, 184, 0, 0.10)',
-                  marginLeft: 0
-                }}
-                onClick={() => alert('Add Reminder clicked!')}
-              >
-                Add Reminder
-              </button>
             </div>
           </div>
           <ul style={{ listStyle: 'none', padding: 0, marginTop: 24 }}>
@@ -157,34 +111,14 @@ export default function Reminders() {
                 return (
                   <li
                     key={reminder._id}
-                    style={{
-                      background: isDueSoon ? 'linear-gradient(90deg, #ff4d4f 0%, #ffbe2e 100%)' : 'linear-gradient(90deg, #e6b800 0%, #ffbe2e 100%)',
-                      border: 'none',
-                      borderRadius: 8,
-                      padding: '16px 20px',
-                      marginBottom: 16,
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                      cursor: 'pointer',
-                      position: 'relative'
-                    }}
+                    className={`reminder-card${isDueSoon ? ' reminder-card-due-soon' : ''}`}
                     onClick={() => { setSelectedReminder(reminder); setModalOpen(true); }}
                     title="Click to view details"
                   >
-                    <div style={{ fontWeight: 500, fontSize: 18, color: '#ffffffff' }}>{reminder.title}</div>
-                    <div style={{ color: '#ffffffff', fontSize: 14, marginTop: 4 }}>Due: {reminder.date}</div>
+                    <div className="reminder-card-title">{reminder.title}</div>
+                    <div className="reminder-card-date">Due: {reminder.date}</div>
                     {isDueSoon && (
-                      <div style={{
-                        position: 'absolute',
-                        top: 12,
-                        right: 18,
-                        background: '#ff4d4f',
-                        color: '#fff',
-                        fontWeight: 700,
-                        fontSize: 13,
-                        padding: '2px 10px',
-                        borderRadius: 6,
-                        boxShadow: '0 1px 4px rgba(0,0,0,0.08)'
-                      }}>{dueLabel}</div>
+                      <div className="reminder-card-due-label">{dueLabel}</div>
                     )}
                   </li>
                 );
@@ -193,23 +127,13 @@ export default function Reminders() {
           </ul>
           <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
             {selectedReminder && (
-              <div style={{ minWidth: 320, maxWidth: 480, background: '#fff', borderRadius: 16, padding: '18px 24px 18px 24px', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 0 }}>
-                <h2 style={{ marginTop: 0, marginBottom: 18, fontWeight: 900, fontSize: '2rem', color: '#e6b800', letterSpacing: 1 }}>{selectedReminder.title}</h2>
-                <div style={{ marginBottom: 14, fontSize: 18 }}>
-                  <span style={{ fontWeight: 700, color: '#e6b800' }}>Type:</span> <span style={{ fontWeight: 500, color: '#222' }}>{selectedReminder.type}</span>
-                </div>
-                <div style={{ marginBottom: 14, fontSize: 18 }}>
-                  <span style={{ fontWeight: 700, color: '#e6b800' }}>{selectedReminder.type} Name:</span> <span style={{ fontWeight: 500, color: '#222' }}>{selectedReminder.person}</span>
-                </div>
-                <div style={{ marginBottom: 14, fontSize: 18 }}>
-                  <span style={{ fontWeight: 700, color: '#e6b800' }}>Date:</span> <span style={{ fontWeight: 500, color: '#222' }}>{selectedReminder.date}</span>
-                </div>
-                <div style={{ marginBottom: 14, fontSize: 18 }}>
-                  <span style={{ fontWeight: 700, color: '#e6b800' }}>Location:</span> <span style={{ fontWeight: 500, color: '#222' }}>{selectedReminder.location}</span>
-                </div>
-                <div style={{ marginBottom: 0, fontSize: 18 }}>
-                  <span style={{ fontWeight: 700, color: '#e6b800' }}>Description:</span> <span style={{ fontWeight: 500, color: '#222' }}>{selectedReminder.description}</span>
-                </div>
+              <div className="reminder-modal-details">
+                <h2 className="reminder-modal-title">{selectedReminder.title}</h2>
+                <div className="reminder-modal-row"><span className="reminder-modal-label">Type:</span> <span className="reminder-modal-value">{selectedReminder.type}</span></div>
+                <div className="reminder-modal-row"><span className="reminder-modal-label">{selectedReminder.type} Name:</span> <span className="reminder-modal-value">{selectedReminder.person}</span></div>
+                <div className="reminder-modal-row"><span className="reminder-modal-label">Date:</span> <span className="reminder-modal-value">{selectedReminder.date}</span></div>
+                <div className="reminder-modal-row"><span className="reminder-modal-label">Location:</span> <span className="reminder-modal-value">{selectedReminder.location}</span></div>
+                <div className="reminder-modal-row"><span className="reminder-modal-label">Description:</span> <span className="reminder-modal-value">{selectedReminder.description}</span></div>
               </div>
             )}
           </Modal>
