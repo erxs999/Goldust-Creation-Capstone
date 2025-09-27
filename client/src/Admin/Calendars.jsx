@@ -52,6 +52,9 @@ export default function Calendars() {
   // For viewing events modal
   const [viewEventsModalOpen, setViewEventsModalOpen] = useState(false);
   const [viewEventsDate, setViewEventsDate] = useState(null);
+  // For viewing event details
+  const [eventDetailsModalOpen, setEventDetailsModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   // Form state
   const [form, setForm] = useState({
@@ -275,20 +278,29 @@ export default function Calendars() {
             >
               {viewEventsDate && getEventsForDate(viewEventsDate).length > 0 ? (
                 getEventsForDate(viewEventsDate).map(ev => (
-                  <div key={ev.id} style={{
-                    background: '#ffe082',
-                    color: '#111',
-                    borderRadius: 6,
-                    padding: '8px 12px',
-                    fontSize: 13,
-                    marginBottom: 0,
-                    boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
-                    fontWeight: 500,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 2,
-                    maxWidth: 340
-                  }}>
+                  <div
+                    key={ev.id}
+                    style={{
+                      background: '#ffe082',
+                      color: '#111',
+                      borderRadius: 6,
+                      padding: '8px 12px',
+                      fontSize: 13,
+                      marginBottom: 0,
+                      boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+                      fontWeight: 500,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 2,
+                      maxWidth: 340,
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => {
+                      setSelectedEvent(ev);
+                      setEventDetailsModalOpen(true);
+                    }}
+                    title="Click to view details"
+                  >
                     <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 2 }}>{ev.title}</div>
                     <div style={{ color: '#555', fontSize: 12, marginBottom: 2 }}>
                       {ev.type}: <span style={{ fontWeight: 600 }}>{ev.person}</span>
@@ -299,6 +311,64 @@ export default function Calendars() {
               ) : (
                 <div style={{ color: '#888', fontSize: 14, textAlign: 'center', marginTop: 18 }}>No schedule for this day.</div>
               )}
+          {/* Modal for event details */}
+          <Modal open={eventDetailsModalOpen} onClose={() => setEventDetailsModalOpen(false)}>
+            {selectedEvent && (
+              <div
+                style={{
+                  minWidth: 340,
+                  maxWidth: 400,
+                  background: '#fff',
+                  borderRadius: 16,
+                  /* boxShadow removed */
+                  padding: '32px 28px 28px 0',
+                  position: 'relative',
+                  display: 'flex',
+                  flexDirection: 'row',
+                  alignItems: 'flex-start',
+                  gap: 0
+                }}
+              >
+                {/* Accent bar */}
+                <div style={{
+                  width: 10,
+                  height: '100%',
+                  borderRadius: '16px 0 0 16px',
+                  background: 'linear-gradient(180deg, #e6b800 0%, #ffbe2e 100%)',
+                  marginRight: 18
+                }} />
+                <div style={{ flex: 1 }}>
+                  <h2 style={{
+                    marginTop: 0,
+                    marginBottom: 18,
+                    fontWeight: 900,
+                    fontSize: '1.35rem',
+                    color: '#222',
+                    letterSpacing: 1,
+                    background: 'linear-gradient(90deg, #e6b800 0%, #ffbe2e 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                  }}>{selectedEvent.title}</h2>
+                  <div style={{ marginBottom: 14, fontSize: 16 }}>
+                    <span style={{ fontWeight: 700, color: '#e6b800' }}>Type:</span> <span style={{ fontWeight: 500, color: '#222' }}>{selectedEvent.type}</span>
+                  </div>
+                  <div style={{ marginBottom: 14, fontSize: 16 }}>
+                    <span style={{ fontWeight: 700, color: '#e6b800' }}>{selectedEvent.type} Name:</span> <span style={{ fontWeight: 500, color: '#222' }}>{selectedEvent.person}</span>
+                  </div>
+                  <div style={{ marginBottom: 14, fontSize: 16 }}>
+                    <span style={{ fontWeight: 700, color: '#e6b800' }}>Date:</span> <span style={{ fontWeight: 500, color: '#222' }}>{selectedEvent.date}</span>
+                  </div>
+                  <div style={{ marginBottom: 14, fontSize: 16 }}>
+                    <span style={{ fontWeight: 700, color: '#e6b800' }}>Location:</span> <span style={{ fontWeight: 500, color: '#222' }}>{selectedEvent.location}</span>
+                  </div>
+                  <div style={{ marginBottom: 0, fontSize: 16 }}>
+                    <span style={{ fontWeight: 700, color: '#e6b800' }}>Description:</span> <span style={{ fontWeight: 500, color: '#222' }}>{selectedEvent.description}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </Modal>
             </div>
           </Modal>
         </div>
