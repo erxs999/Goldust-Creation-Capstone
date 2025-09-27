@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import "./topbar.css";
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import { Link } from 'react-router-dom';
 
 
 const API_BASE = 'http://localhost:5051/api';
@@ -71,7 +72,7 @@ const TopBar = () => {
 
       <div className="topbar-right" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
         <a href="/event-cart" className="topbar-link" style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
-          <ShoppingCartIcon style={{ fontSize: 22 }} />
+          <ShoppingCartIcon style={{ fontSize: 22, color: '#ff133aff' }} />
           {cartCount > 0 && (
             <span style={{
               position: 'absolute',
@@ -88,9 +89,9 @@ const TopBar = () => {
           )}
         </a>
         {isCustomer ? (
-          <span className="topbar-link">{user.firstName} {user.lastName}</span>
+          <Link to="/client/profile" className="topbar-link" style={{ cursor: 'pointer' }}>{user.firstName} {user.lastName}</Link>
         ) : (
-          <a href="/signup" className="topbar-link">Sign up</a>
+          <Link to="/signup" className="topbar-link">Sign up</Link>
         )}
       </div>
     </header>

@@ -207,7 +207,7 @@ export default function AdminBooking() {
         <div className="admin-booking-root">
           {/* Header Row: Title, Search, and Filter */}
           <div className="admin-booking-header-row">
-            <h2 className="admin-booking-title">Admin Booking</h2>
+            <h2 className="admin-booking-title" style={{marginBottom: '-12px'}}>Admin Booking</h2>
             <div className="admin-booking-header-controls">
               <input
                 type="text"

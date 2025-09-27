@@ -36,26 +36,26 @@ const BookSummary = () => {
       <div className="booking-header">
         <h2>BOOKING SUMMARY</h2>
       </div>
-      <div className="booking-summary-container">
+  <div className="booking-summary-container" style={{ boxShadow: 'none' }}>
         <div>
           <div className="booking-summary-row">
             <div className="booking-summary-col">
-              <div style={{ marginBottom: 12, color: '#111' }}>Name : <span style={{ color: '#111' }}>{displayName}</span></div>
-              <div style={{ marginBottom: 12, color: '#111' }}>Contact Number : <span style={{ color: '#111' }}>{displayContact}</span></div>
-              <div style={{ marginBottom: 12, color: '#111' }}>Email Address : <span style={{ color: '#111' }}>{displayEmail}</span></div>
-              <div style={{ marginBottom: 12, color: '#111' }}>Event Type : <span style={{ color: '#111' }}>{booking?.eventType || ""}</span></div>
-              <div style={{ marginBottom: 12, color: '#111' }}>Event Date : <span style={{ color: '#111' }}>{booking?.date ? (typeof booking.date === 'string' ? booking.date : booking.date?.$d ? new Date(booking.date.$d).toLocaleDateString() : booking.date.toString()) : ""}</span></div>
+              <div style={{ marginBottom: 12, color: '#111' }}><span style={{ fontWeight: 'bold' }}>Name :</span> <span style={{ color: '#111' }}>{displayName}</span></div>
+              <div style={{ marginBottom: 12, color: '#111' }}><span style={{ fontWeight: 'bold' }}>Contact Number :</span> <span style={{ color: '#111' }}>{displayContact}</span></div>
+              <div style={{ marginBottom: 12, color: '#111' }}><span style={{ fontWeight: 'bold' }}>Email Address :</span> <span style={{ color: '#111' }}>{displayEmail}</span></div>
+              <div style={{ marginBottom: 12, color: '#111' }}><span style={{ fontWeight: 'bold' }}>Event Type :</span> <span style={{ color: '#111' }}>{booking?.eventType || ""}</span></div>
+              <div style={{ marginBottom: 12, color: '#111' }}><span style={{ fontWeight: 'bold' }}>Event Date :</span> <span style={{ color: '#111' }}>{booking?.date ? (typeof booking.date === 'string' ? booking.date : booking.date?.$d ? new Date(booking.date.$d).toLocaleDateString() : booking.date.toString()) : ""}</span></div>
               {/* Event Location removed as per request */}
-              <div style={{ marginBottom: 12, color: '#111' }}>Event Venue : <span style={{ color: '#111' }}>{booking?.eventVenue || ""}</span></div>
+              <div style={{ marginBottom: 12, color: '#111' }}><span style={{ fontWeight: 'bold' }}>Event Venue :</span> <span style={{ color: '#111' }}>{booking?.eventVenue || ""}</span></div>
             </div>
             <div className="booking-summary-col">
-              <div style={{ marginBottom: 12, color: '#111' }}>Guest Count : <span style={{ color: '#111' }}>{booking?.guestCount || ""}</span></div>
-              <div style={{ marginBottom: 12, color: '#111' }}>Total Price: <span style={{ color: '#111' }}>{booking?.totalPrice || ""}</span></div>
+              <div style={{ marginBottom: 12, color: '#111' }}><span style={{ fontWeight: 'bold' }}>Guest Count :</span> <span style={{ color: '#111' }}>{booking?.guestCount || ""}</span></div>
+              <div style={{ marginBottom: 12, color: '#111' }}><span style={{ fontWeight: 'bold' }}>Total Price:</span> <span style={{ color: '#111' }}>{booking?.totalPrice || ""}</span></div>
             </div>
           </div>
           {/* Services and Products Availed */}
           <div style={{ marginTop: 32, marginBottom: 0 }}>
-            <div style={{ marginBottom: 12, color: '#111', fontWeight: 500, fontSize: 18 }}>Services and Products Availed:</div>
+            <div style={{ marginBottom: 12, color: '#111', fontWeight: 'bold'}}>Services and Products Availed:</div>
             {booking?.products && booking.products.length > 0 ? (
               <div style={{ marginBottom: 24, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                 {booking.products.map((item, idx) => (
@@ -85,10 +85,10 @@ const BookSummary = () => {
           </div>
           {/* Special Request full width */}
           <div style={{ marginTop: 24, marginBottom: 0 }}>
-            <div style={{ marginBottom: 12, color: '#111', fontWeight: 500 }}>Special Request :</div>
+            <div style={{ marginBottom: 12, color: '#111', fontWeight: 'bold'}}>Special Request :</div>
             <textarea
               className="booking-special-request"
-              style={{ width: "100%", minHeight: 140, fontFamily: "inherit", fontSize: "1rem", padding: 12, borderRadius: 8, border: "2px solid #222", resize: "vertical", background: '#fff', color: '#111' }}
+              style={{ width: "100%", minHeight: 140, fontFamily: "inherit",  padding: 12, borderRadius: 8, border: "2px solid #222", resize: "vertical", background: '#fff', color: '#111' }}
               value={booking?.specialRequest || ""}
               readOnly
             />

@@ -61,7 +61,8 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPasswordFlow />} />
         {/* Client routes */}
         <Route path="/client/home" element={<Home />} />
-        <Route path="/client/personal-information" element={<PersonalInformation />} />
+  <Route path="/client/personal-information" element={<PersonalInformation />} />
+  <Route path="/client/profile" element={<PersonalInformation />} />
         <Route path="/client/message" element={<div style={{display:'flex'}}><ClientSidebar /><div style={{flex:1,padding:'32px'}}><h2>Message Page</h2></div></div>} />
         <Route path="/client/booking-information" element={<BookingInformation />} />
         
