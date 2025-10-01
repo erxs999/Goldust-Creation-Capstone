@@ -52,7 +52,12 @@ const PersonalInformation = () => {
           {!editMode ? (
             <div className="personal-info-fields" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
               {/* 2-column grid, each row is a grid with 2 columns: label and value */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 64 }}>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: 64,
+                columnGap: '120px' // extra gap between columns
+              }}>
                 {/* Column 1 */}
                 <div>
                   <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: 24 }}>
