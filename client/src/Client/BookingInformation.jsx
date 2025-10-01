@@ -1,73 +1,138 @@
 
-import React from 'react';
+
+import React, { useState, useEffect } from 'react';
+import api from '../services/api';
 import ClientSidebar from './ClientSidebar';
 import './BookingInformation.css';
 
-const bookingDetails = {
-  name: 'f f f',
-  contact: '123',
-  email: 'f@gmail.com',
-  price: 'PHP 50000',
-  eventType: 'Birthday',
-  eventDate: '9/19/2025',
-  eventVenue: 'General Prim East, Bangar, La Union',
-  guestCount: '5656',
-};
 
-const services = [
-  {
-    name: 'Function Hall',
-    price: 'PHP 50000',
-    img: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=80&q=80',
-  },
-];
 
 
 const BookingInformation = () => {
-  return (
-    <div className="booking-page">
-      <ClientSidebar />
-      <div className="booking-content" style={{display: 'flex', gap: '32px'}}>
-        <div style={{width: '100%'}}>
-          <h2 style={{fontWeight: 800, fontSize: '1.7rem', marginBottom: 24}}>Booking Details</h2>
-          <div style={{background: '#ffde7a', borderRadius: 24, padding: '32px 40px', display: 'flex', justifyContent: 'space-between', marginBottom: 32, boxShadow: '0 2px 16px rgba(0,0,0,0.08)'}}>
-            <div>
-              <div style={{marginBottom: 10}}><strong>Name:</strong> {bookingDetails.name}</div>
-              <div style={{marginBottom: 10}}><strong>Contact Number:</strong> {bookingDetails.contact}</div>
-              <div style={{marginBottom: 10}}><strong>Email Address:</strong> {bookingDetails.email}</div>
-              <div style={{marginBottom: 10}}><strong>Total Price:</strong> {bookingDetails.price}</div>
-            </div>
-            <div>
-              <div style={{marginBottom: 10}}><strong>Event Type:</strong> {bookingDetails.eventType}</div>
-              <div style={{marginBottom: 10}}><strong>Event Date:</strong> {bookingDetails.eventDate}</div>
-              <div style={{marginBottom: 10}}><strong>Event Venue:</strong> {bookingDetails.eventVenue}</div>
-              <div style={{marginBottom: 10}}><strong>Guest Count:</strong> {bookingDetails.guestCount}</div>
-            </div>
-          </div>
+  const [showModal, setShowModal] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-          <h3 style={{fontWeight: 700, fontSize: '1.4rem', marginBottom: 18}}>Services and Products Availed</h3>
-          {services.map((service, idx) => (
-            <div key={idx} style={{background: '#ffde7a', borderRadius: 16, padding: '16px 24px', display: 'flex', alignItems: 'center', gap: 18, marginBottom: 24, boxShadow: '0 2px 8px rgba(0,0,0,0.08)'}}>
-              <img src={service.img} alt={service.name} style={{width: 60, height: 60, borderRadius: 8, objectFit: 'cover'}} />
-              <div>
-                <div style={{fontWeight: 700, fontSize: '1.1rem'}}>{service.name}</div>
-                <div>{service.price}</div>
+  // Get user info (match Login.jsx logic)
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const userEmail = user.email;
+
+  useEffect(() => {
+    async function fetchBookings() {
+      try {
+        // Fetch all bookings and filter by user email
+        const [pendingRes, approvedRes, finishedRes] = await Promise.all([
+          api.get('/bookings/pending'),
+          api.get('/bookings/approved'),
+          api.get('/bookings/finished'),
+        ]);
+        const pending = pendingRes.data.filter(b => b.email === userEmail).map(b => ({ ...b, status: 'Pending' }));
+        const approved = approvedRes.data.filter(b => b.email === userEmail).map(b => ({ ...b, status: 'Approved' }));
+        const finished = finishedRes.data.filter(b => b.email === userEmail).map(b => ({ ...b, status: 'Finished' }));
+        setBookings([...pending, ...approved, ...finished]);
+      } catch (err) {
+        setBookings([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    if (userEmail) fetchBookings();
+  }, [userEmail]);
+
+  const handleCardClick = (booking) => {
+    setSelectedBooking(booking);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedBooking(null);
+  };
+
+  return (
+    <div className="notification-page">
+      <ClientSidebar />
+      <div className="notification-content">
+        <h2 style={{fontSize: '1.7rem', fontWeight: 800, marginBottom: 18, color: '#333'}}>Your Bookings</h2>
+        {loading ? (
+          <div>Loading bookings...</div>
+        ) : (
+          <div className="notification-list">
+            {bookings.length === 0 ? (
+              <div>No bookings found.</div>
+            ) : (
+              bookings.map((booking, idx) => (
+                <div
+                  key={booking._id || idx}
+                  className="notification-card"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    cursor: 'pointer',
+                    background:
+                      booking.status === 'Approved' ? '#66ee66' :
+                      booking.status === 'Pending' ? '#ffe066' :
+                      '#bdbdbd'
+                  }}
+                  onClick={() => handleCardClick(booking)}
+                >
+                  <div style={{display: 'flex', flexDirection: 'column'}}>
+                    <h4>{booking.eventType || booking.title}</h4>
+                    <div style={{fontSize: '1.05rem', color: '#666'}}>{booking.date ? new Date(booking.date).toLocaleDateString() : ''}</div>
+                  </div>
+                  <span style={{fontWeight: 500, fontSize: '1rem', marginLeft: 16}}>
+                    Status: {booking.status}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+        {/* Modal */}
+        {showModal && selectedBooking && (
+          <div style={{position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+            <div style={{background: '#fff', borderRadius: 10, padding: 32, maxWidth: 800, width: '90%', boxShadow: '0 2px 16px rgba(0,0,0,0.15)', position: 'relative'}}>
+              <button onClick={handleCloseModal} style={{position: 'absolute', top: 18, right: 18, background: 'none', border: 'none', fontSize: 28, cursor: 'pointer'}}>&times;</button>
+              <h2 style={{fontWeight: 800, fontSize: '2rem', marginBottom: 24}}>Booking Details</h2>
+              <div style={{background: '#ffe066', borderRadius: 24, padding: 24, marginBottom: 32, display: 'flex', flexWrap: 'wrap', gap: 32}}>
+                <div style={{flex: 1, minWidth: 220}}>
+                  <div><b>Name:</b> {selectedBooking.name}</div>
+                  <div><b>Contact Number:</b> {selectedBooking.contact}</div>
+                  <div><b>Email Address:</b> {selectedBooking.email}</div>
+                  <div><b>Total Price:</b> {selectedBooking.totalPrice || selectedBooking.price}</div>
+                </div>
+                <div style={{flex: 1, minWidth: 220}}>
+                  <div><b>Event Type:</b> {selectedBooking.eventType}</div>
+                  <div><b>Event Date:</b> {selectedBooking.date ? new Date(selectedBooking.date).toLocaleDateString() : ''}</div>
+                  <div><b>Event Venue:</b> {selectedBooking.eventVenue}</div>
+                  <div><b>Guest Count:</b> {selectedBooking.guestCount}</div>
+                </div>
+              </div>
+              <h3 style={{fontWeight: 700, marginBottom: 16}}>Services and Products Availed</h3>
+              <div style={{display: 'flex', gap: 18, marginBottom: 32}}>
+                {selectedBooking.products && selectedBooking.products.length > 0 ? (
+                  selectedBooking.products.map((prod, i) => (
+                    <div key={i} style={{background: '#ffe066', borderRadius: 16, padding: 16, minWidth: 180, display: 'flex', alignItems: 'center', gap: 12}}>
+                      {prod.image && <img src={prod.image} alt={prod.title} style={{width: 60, height: 60, borderRadius: 8, objectFit: 'cover'}} />}
+                      <div>
+                        <div style={{fontWeight: 700}}>{prod.title}</div>
+                        <div>PHP {prod.price}</div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div>No products/services listed.</div>
+                )}
+              </div>
+              <h3 style={{fontWeight: 700, marginBottom: 10}}>Special Request</h3>
+              <div style={{background: '#fffbe6', borderRadius: 12, padding: 16, border: '1px solid #ffe066', minHeight: 60}}>
+                {selectedBooking.specialRequest || 'None'}
               </div>
             </div>
-          ))}
-
-          <h3 style={{fontWeight: 700, fontSize: '1.2rem', marginBottom: 10}}>Special Request</h3>
-          <div style={{background: 'none', border: '2px solid #ffde7a', borderRadius: 16, minHeight: 100, marginBottom: 32, padding: 16}}></div>
-        </div>
-        {/* Payment Details Section */}
-        <div style={{minWidth: 320, maxWidth: 400, height: '50vh', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start'}}>
-          <h3 style={{fontWeight: 700, fontSize: '1.4rem', marginBottom: 18}}>Payment Details</h3>
-          <div style={{background: '#ffde7a', borderRadius: 16, padding: '24px 32px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', height: '100%'}}>
-            <div style={{marginBottom: 14}}><strong>Down Payment:</strong> PHP 50,000</div>
-            <div style={{marginBottom: 14}}><strong>Remaining Payment:</strong> PHP 50,000</div>
-            <div style={{marginBottom: 0}}><strong>Payment Status:</strong> Paid</div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -35,12 +35,17 @@ export default function Reminders() {
     }
     fetchReminders();
   }, []);
-  // Filter reminders by duration
+  // Filter reminders: only today and future, remove past
   const getFilteredReminders = () => {
-    let filtered = reminders;
+    const now = new Date();
+    now.setHours(0,0,0,0); // normalize to midnight
+    let filtered = reminders.filter(reminder => {
+      if (!reminder.date) return false;
+      const reminderDate = new Date(reminder.date);
+      reminderDate.setHours(0,0,0,0);
+      return reminderDate >= now; // only today and future
+    });
     if (filter !== 'all') {
-      const now = new Date();
-      now.setHours(0,0,0,0); // normalize to midnight
       let endDate;
       if (filter === '1week') {
         endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 7);
@@ -49,11 +54,10 @@ export default function Reminders() {
       } else if (filter === '1month') {
         endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 30);
       }
-      filtered = reminders.filter(reminder => {
-        if (!reminder.date) return false;
+      filtered = filtered.filter(reminder => {
         const reminderDate = new Date(reminder.date);
-        reminderDate.setHours(0,0,0,0); // normalize to midnight
-        return reminderDate >= now && reminderDate <= endDate;
+        reminderDate.setHours(0,0,0,0);
+        return reminderDate <= endDate;
       });
     }
     // Sort by soonest date first

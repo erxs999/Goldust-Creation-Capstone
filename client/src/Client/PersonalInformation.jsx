@@ -51,38 +51,41 @@ const PersonalInformation = () => {
         <form className="personal-info-form" noValidate autoComplete="off">
           {!editMode ? (
             <div className="personal-info-fields" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
-              {/* Column 1 */}
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
-                  <label htmlFor="firstName" className="personal-info-label" style={{ minWidth: 120 }}>First Name</label>
-                  <span className="personal-info-value" style={{ marginLeft: 16 }}>{user.firstName}</span>
+              {/* 2-column grid, each row is a grid with 2 columns: label and value */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 64 }}>
+                {/* Column 1 */}
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: 24 }}>
+                    <label htmlFor="firstName" className="personal-info-label" style={{ fontWeight: 'bold', fontSize: '1.125rem', textAlign: 'right', minWidth: 180 }}>First Name</label>
+                    <span className="personal-info-value" style={{ fontWeight: 'normal', fontSize: '1.125rem', textAlign: 'left', marginLeft: 12 }}>{user.firstName}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: 24 }}>
+                    <label htmlFor="lastName" className="personal-info-label" style={{ fontWeight: 'bold', fontSize: '1.125rem', textAlign: 'right', minWidth: 180 }}>Last Name</label>
+                    <span className="personal-info-value" style={{ fontWeight: 'normal', fontSize: '1.125rem', textAlign: 'left', marginLeft: 12 }}>{user.lastName}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: 24 }}>
+                    <label htmlFor="phone" className="personal-info-label" style={{ fontWeight: 'bold', fontSize: '1.125rem', textAlign: 'right', minWidth: 180 }}>Phone Number</label>
+                    <span className="personal-info-value" style={{ fontWeight: 'normal', fontSize: '1.125rem', textAlign: 'left', marginLeft: 12 }}>{user.phone}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: 24 }}>
+                    <label htmlFor="password" className="personal-info-label" style={{ fontWeight: 'bold', fontSize: '1.125rem', textAlign: 'right', minWidth: 180 }}>Password</label>
+                    <span className="personal-info-value" style={{ fontWeight: 'normal', fontSize: '1.125rem', textAlign: 'left', marginLeft: 12 }}>&#8226;&#8226;&#8226;</span>
+                  </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
-                  <label htmlFor="lastName" className="personal-info-label" style={{ minWidth: 120 }}>Last Name</label>
-                  <span className="personal-info-value" style={{ marginLeft: 16 }}>{user.lastName}</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
-                  <label htmlFor="phone" className="personal-info-label" style={{ minWidth: 120 }}>Phone Number</label>
-                  <span className="personal-info-value" style={{ marginLeft: 16 }}>{user.phone}</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
-                  <label htmlFor="password" className="personal-info-label" style={{ minWidth: 120 }}>Password</label>
-                  <span className="personal-info-value" style={{ marginLeft: 16 }}>&#8226;&#8226;&#8226;</span>
-                </div>
-              </div>
-              {/* Column 2 */}
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
-                  <label htmlFor="middleName" className="personal-info-label" style={{ minWidth: 120 }}>Middle Name</label>
-                  <span className="personal-info-value" style={{ marginLeft: 16 }}>{user.middleName}</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
-                  <label htmlFor="email" className="personal-info-label" style={{ minWidth: 120 }}>Email address</label>
-                  <span className="personal-info-value" style={{ marginLeft: 16 }}>{user.email}</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
-                  <label htmlFor="contact" className="personal-info-label" style={{ minWidth: 120 }}>Contact</label>
-                  <span className="personal-info-value" style={{ marginLeft: 16 }}>{user.contact}</span>
+                {/* Column 2 */}
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: 24 }}>
+                    <label htmlFor="middleName" className="personal-info-label" style={{ fontWeight: 'bold', fontSize: '1.125rem', textAlign: 'right', minWidth: 180 }}>Middle Name</label>
+                    <span className="personal-info-value" style={{ fontWeight: 'normal', fontSize: '1.125rem', textAlign: 'left', marginLeft: 12 }}>{user.middleName}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: 24 }}>
+                    <label htmlFor="email" className="personal-info-label" style={{ fontWeight: 'bold', fontSize: '1.125rem', textAlign: 'right', minWidth: 180 }}>Email address</label>
+                    <span className="personal-info-value" style={{ fontWeight: 'normal', fontSize: '1.125rem', textAlign: 'left', marginLeft: 12 }}>{user.email}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: 24 }}>
+                    <label htmlFor="contact" className="personal-info-label" style={{ fontWeight: 'bold', fontSize: '1.125rem', textAlign: 'right', minWidth: 180 }}>Contact</label>
+                    <span className="personal-info-value" style={{ fontWeight: 'normal', fontSize: '1.125rem', textAlign: 'left', marginLeft: 12 }}>{user.contact}</span>
+                  </div>
                 </div>
               </div>
             </div>

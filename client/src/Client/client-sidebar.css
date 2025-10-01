@@ -1,3 +1,23 @@
+/* Center icons horizontally when sidebar is shrunk */
+.client-sidebar.shrunk ul {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.client-sidebar.shrunk li {
+  justify-content: center;
+  width: 100%;
+}
+/* Highlight active link when sidebar is shrunk */
+.client-sidebar.shrunk li.active {
+  background: #fff3cd;
+  border-radius: 10%;
+  color: #d35400;
+  
+}
 .profile-title {
   background: #ffd500;
   color: #000;
@@ -67,17 +87,18 @@
 }
 
 .client-sidebar .sidebar-toggle-btn {
-  background: #ff9e89;
+  background: #d0513e;
   border: none;
-  color: #a23c2c;
+  color: #ffffff;
   font-size: 1.2rem;
   border-radius: 10%;
-  width: 40px;
+  width: 10px !important; /* Make width change obvious */
+  min-width: 10px !important;
   height: 24px;
   cursor: pointer;
-  align-self: flex-start;
-  margin-top: 0px;
-  margin-left: 16px;
+  position: absolute;
+  top: 50px; /* adjust vertical position */
+  right: -10px; /* adjust horizontal position */
   transition: background 0.2s;
   display: flex;
   align-items: center;
@@ -130,6 +151,7 @@
   background: #ffe998;
   color: #000000;
   border-radius: 5px;
+
 }
 
 .client-sidebar li.selected a,
