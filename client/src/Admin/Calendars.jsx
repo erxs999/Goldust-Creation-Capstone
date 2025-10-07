@@ -4,6 +4,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
+import Autocomplete from '@mui/material/Autocomplete';
+import TextField from '@mui/material/TextField';
 import Sidebar from './Sidebar';
 import './calendars.css';
 
@@ -67,6 +69,32 @@ export default function Calendars() {
     location: '',
     description: ''
   });
+
+    // Customer and Supplier lists
+    const [customers, setCustomers] = useState([]);
+    const [suppliers, setSuppliers] = useState([]);
+
+    // Fetch customers and suppliers when modal opens
+    useEffect(() => {
+      if (!modalOpen) return;
+      async function fetchLists() {
+        try {
+          // Fetch customers from /api/customers (matches backend)
+          const [custRes, suppRes] = await Promise.all([
+            fetch('/api/customers'),
+            fetch('/api/suppliers')
+          ]);
+          const custData = custRes.ok ? await custRes.json() : [];
+          const suppData = suppRes.ok ? await suppRes.json() : [];
+          setCustomers(Array.isArray(custData) ? custData : []);
+          setSuppliers(Array.isArray(suppData) ? suppData : []);
+        } catch (err) {
+          setCustomers([]);
+          setSuppliers([]);
+        }
+      }
+      fetchLists();
+    }, [modalOpen]);
 
   // Load events from backend API
   useEffect(() => {
@@ -151,7 +179,7 @@ export default function Calendars() {
         {dayEvents.length > maxToShow
           ? ([
               ...dayEvents.slice(0, maxToShow).map(ev => (
-                <div key={ev.id} style={{ background: '#ffe082', color: '#111', borderRadius: 4, padding: '2px 6px', fontSize: 11, marginBottom: 2 }}>
+                <div key={ev._id || ev.id} style={{ background: '#ffe082', color: '#111', borderRadius: 4, padding: '2px 6px', fontSize: 11, marginBottom: 2 }}>
                   {ev.title}
                 </div>
               )),
@@ -160,7 +188,7 @@ export default function Calendars() {
               </div>
             ])
           : dayEvents.map(ev => (
-              <div key={ev.id} style={{ background: '#ffe082', color: '#111', borderRadius: 4, padding: '2px 6px', fontSize: 11, marginBottom: 2 }}>
+              <div key={ev._id || ev.id} style={{ background: '#ffe082', color: '#111', borderRadius: 4, padding: '2px 6px', fontSize: 11, marginBottom: 2 }}>
                 {ev.title}
               </div>
             ))}
@@ -222,7 +250,7 @@ export default function Calendars() {
           </div>
           {/* Modal for adding event */}
           <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-            <h3 style={{ marginTop: 0 }}>Add Event / Meeting</h3>
+            <h4 style={{ marginTop: 0 }}>Add Event / Meeting / Reminder</h4>
             <form onSubmit={handleAddEvent} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <label style={{ width: '100%', marginBottom: 0 }}>
                 Title:
@@ -241,7 +269,76 @@ export default function Calendars() {
               </label>
               <label style={{ width: '100%', marginBottom: 0 }}>
                 {form.type} Name:
-                <input type="text" required value={form.person} onChange={e => setForm(f => ({ ...f, person: e.target.value }))} style={{ width: '100%', padding: 6, marginTop: 2, marginBottom: 2, background: '#fff', color: '#111', border: '1px solid #ccc', borderRadius: 4, boxSizing: 'border-box' }} />
+                <Autocomplete
+                  freeSolo
+                  options={form.type === 'Customer'
+                    ? customers.map(c => ({
+                        label: `${c.firstName || ''} ${c.lastName || ''}`.trim(),
+                        value: `${c.firstName || ''} ${c.lastName || ''}`.trim()
+                      })
+                    )
+                    : suppliers.map(s => {
+                        const company = s.companyName || s.name || '';
+                        const first = s.firstName || '';
+                        const last = s.lastName || '';
+                        return {
+                          label: `${company}${first || last ? ` (${first} ${last})` : ''}`.trim(),
+                          value: `${company}${first || last ? ` (${first} ${last})` : ''}`.trim()
+                        };
+                      })
+                  }
+                  getOptionLabel={option => typeof option === 'string' ? option : option.label}
+                  value={typeof form.person === 'string' ? form.person : (form.person && form.person.value) || ''}
+                  onInputChange={(e, newValue) => setForm(f => ({ ...f, person: newValue }))}
+                  onChange={(e, newValue) => setForm(f => ({ ...f, person: (newValue && newValue.value) ? newValue.value : (typeof newValue === 'string' ? newValue : '') }))}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      required
+                      placeholder={`Select or type ${form.type.toLowerCase()} name`}
+                      InputProps={{
+                        ...params.InputProps,
+                        style: {
+                          fontSize: '1rem', // increased font size for input
+                          fontWeight: 500,
+                          width: '100%',
+                          padding: 0,
+                          marginTop: 2,
+                          marginBottom: 2,
+                          background: '#fff',
+                          color: '#111',
+                          borderRadius: 4,
+                          boxSizing: 'border-box',
+                        }
+                      }}
+                      inputProps={{
+                        ...params.inputProps,
+                        style: {
+                          fontSize: '1rem', // increased font size for placeholder
+                          fontWeight: 500,
+                          color: '#111',
+                        }
+                      }}
+                      FormHelperTextProps={{
+                        style: {
+                          fontSize: '1rem',
+                        }
+                      }}
+                    />
+                  )}
+                  sx={{
+                    '& .MuiAutocomplete-listbox': {
+                      fontSize: '1rem', // increased font size for dropdown
+                      fontWeight: 500,
+                      color: '#111',
+                    },
+                    '& .MuiAutocomplete-option': {
+                      fontSize: '1rem', // increased font size for dropdown options
+                      fontWeight: 500,
+                      color: '#111',
+                    },
+                  }}
+                />
               </label>
               <label style={{ width: '100%', marginBottom: 0 }}>
                 Location:
