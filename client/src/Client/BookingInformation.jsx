@@ -65,24 +65,14 @@ const BookingInformation = () => {
               bookings.map((booking, idx) => (
                 <div
                   key={booking._id || idx}
-                  className="notification-card"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    cursor: 'pointer',
-                    background:
-                      booking.status === 'Approved' ? '#66ee66' :
-                      booking.status === 'Pending' ? '#ffe066' :
-                      '#bdbdbd'
-                  }}
+                  className="booking-card"
                   onClick={() => handleCardClick(booking)}
                 >
                   <div style={{display: 'flex', flexDirection: 'column'}}>
                     <h4>{booking.eventType || booking.title}</h4>
                     <div style={{fontSize: '1.05rem', color: '#666'}}>{booking.date ? new Date(booking.date).toLocaleDateString() : ''}</div>
                   </div>
-                  <span style={{fontWeight: 500, fontSize: '1rem', marginLeft: 16}}>
+                  <span className="status">
                     Status: {booking.status}
                   </span>
                 </div>

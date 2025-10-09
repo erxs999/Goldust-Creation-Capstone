@@ -29,9 +29,9 @@
 
  .notification-list .notification-card {
   background-color: #02d302a5 !important;
-  border-radius: 16px;
-  padding: 16px 24px;
-  min-height: 48px;
+  border-radius: 10px;
+  padding: 15px 24px;
+  min-height: 22px;
   box-shadow: 0 2px 8px 0 rgba(0,0,0,0.08);
   border: none;
   transition: box-shadow 0.3s, transform 0.3s;
