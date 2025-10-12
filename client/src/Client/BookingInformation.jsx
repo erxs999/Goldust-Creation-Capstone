@@ -51,14 +51,14 @@ const BookingInformation = () => {
   };
 
   return (
-    <div className="notification-page">
-      <ClientSidebar />
-      <div className="notification-content">
+    <div className="booking-page">
+  <ClientSidebar userType={JSON.parse(localStorage.getItem('user') || '{}').role === 'supplier' ? 'supplier' : 'client'} />
+      <div className="booking-content">
         <h2 style={{fontSize: '1.7rem', fontWeight: 800, marginBottom: 18, color: '#333'}}>Your Bookings</h2>
         {loading ? (
           <div>Loading bookings...</div>
         ) : (
-          <div className="notification-list">
+          <div className="booking-list">
             {bookings.length === 0 ? (
               <div>No bookings found.</div>
             ) : (

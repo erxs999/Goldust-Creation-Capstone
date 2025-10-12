@@ -1,4 +1,5 @@
-/* Booking Card Styles */
+
+/* Booking Card Styles - distinct from notification */
 .booking-card {
   background: linear-gradient(90deg, #ffd600 0%, #fff 60%);
   border-radius: 16px;
@@ -7,11 +8,11 @@
   min-height: 48px;
   border: none;
   transition: box-shadow 0.3s, transform 0.3s;
-  margin-bottom: 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
+  margin-bottom: 8px; /* Reduced gap between booking cards */
 }
 
 .booking-card:hover {
@@ -33,20 +34,23 @@
 }
 .booking-page {
   display: flex;
- 
   min-height: 100vh;
-
-  
-
+  background-color: #fff;
+  padding-left: 0px; /* More space left of sidebar */
 }
 
 .booking-content {
-  display: flex;
   flex: 1;
-  padding: 20px;
-  margin-left: 330px;
-  height: 95vh;
-  gap: 20px;
+  padding: 40px 48px 32px 48px; /* More space around content */
+  background: #fff;
+  margin-left: 320px; /* Even more sidebar offset */
+}
+/* Booking list container for vertical cards layout */
+.booking-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 24px;
 }
 
 .booking-details,

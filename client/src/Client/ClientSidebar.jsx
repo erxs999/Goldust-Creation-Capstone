@@ -9,10 +9,9 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { Link, useLocation } from 'react-router-dom';
 
 const navLinks = [
-
   { label: 'Profile ', icon: <PersonIcon />, to: '/client/personal-information' },
- 
   { label: 'Booking ', icon: <InfoIcon />, to: '/client/booking-information' },
+  { label: 'Calendar', icon: <InfoIcon />, to: '/client/calendar' }, // Calendar link for both users
   { label: 'Notification', icon: <NotificationsIcon />, to: '/client/notification' },
   { label: 'Home', icon: <HomeIcon />, to: '/client/home' },
   { label: 'Log out', icon: <LogoutIcon />, to: '/logout' },

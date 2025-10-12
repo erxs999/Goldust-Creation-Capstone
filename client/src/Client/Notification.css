@@ -3,13 +3,14 @@
   background-color: #ffffff;
   min-height: 100vh;
 
-  margin-left: 50px;
+  margin-left: 60px;
 }
 
 .notification-content {
   flex: 1;
   padding: 40px 32px 32px 32px;
   background: #fff;
+  margin-left: 270px; /* Sidebar width offset, adjust as needed */
 }
 
 .notification-content h2 {
@@ -23,12 +24,12 @@
 .notification-list {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px; /* Reduced gap between notification cards */
   margin-top: 24px;
 }
 
- .notification-list .notification-card {
-  background-color: #02d302a5 !important;
+.notification-list .notification-card {
+  background: #02d302;
   border-radius: 10px;
   padding: 15px 24px;
   min-height: 22px;
@@ -39,7 +40,8 @@
 
 .notification-card:hover {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  transform: translateY(-4px);
+  transform: scale(1.02) translateY(-4px); /* Less zoom */
+  transition: box-shadow 0.3s, transform 0.3s;
 }
 
 .notification-card h4 {
@@ -53,7 +55,7 @@
 
 .notification-card p {
   margin: 0;
-  color: #eafbe7;
+  color: #6f6f6f;
   font-size: 0.98rem;
   font-weight: 400;
 }
