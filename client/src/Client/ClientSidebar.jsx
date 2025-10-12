@@ -19,51 +19,47 @@ const navLinks = [
 ];
 
 const ClientSidebar = () => {
-  const [expanded, setExpanded] = useState(true);
   const location = useLocation();
   return (
-    <div className={`client-sidebar${expanded ? '' : ' shrunk'}`}>
+    <div className="client-sidebar">
       <div className="client-sidebar-header">
-  <h2 className="profile-title">{expanded ? 'Goldust' : ''}</h2>
-        <button className="sidebar-toggle-btn" onClick={() => setExpanded((e) => !e)}>
-          {expanded ? '<' : '>'}
-        </button>
+        <h2 className="profile-title">Goldust</h2>
       </div>
       <ul>
-          {/* Render all links except Home and Log out */}
-          {navLinks.filter(link => link.label !== 'Home' && link.label !== 'Log out').map((link) => {
-            const isActive = location.pathname === link.to;
-            // Add extra space below Notification link
-            const extraStyle = link.label === 'Notification' ? { marginBottom: '32px' } : {};
-            return (
-              <li key={link.label} className={isActive ? 'active' : ''} style={extraStyle}>
-                <span className="icon">{link.icon}</span>
-                {expanded && <Link to={link.to} style={{ textDecoration: 'none', color: 'inherit' }}>{link.label}</Link>}
-              </li>
-            );
-          })}
-          {/* Home link above Log out */}
-          {(() => {
-            const homeLink = navLinks.find(link => link.label === 'Home');
-            const isActive = location.pathname === homeLink.to;
-            return (
-              <li key={homeLink.label} className={isActive ? 'active' : ''}>
-                <span className="icon">{homeLink.icon}</span>
-                {expanded && <Link to={homeLink.to} style={{ textDecoration: 'none', color: 'inherit' }}>{homeLink.label}</Link>}
-              </li>
-            );
-          })()}
-          {/* Log out link at the bottom */}
-          {(() => {
-            const logoutLink = navLinks.find(link => link.label === 'Log out');
-            const isActive = location.pathname === logoutLink.to;
-            return (
-              <li key={logoutLink.label} className={isActive ? 'active' : ''}>
-                <span className="icon">{logoutLink.icon}</span>
-                {expanded && <Link to={logoutLink.to} style={{ textDecoration: 'none', color: 'inherit' }}>{logoutLink.label}</Link>}
-              </li>
-            );
-          })()}
+        {/* Render all links except Home and Log out */}
+        {navLinks.filter(link => link.label !== 'Home' && link.label !== 'Log out').map((link) => {
+          const isActive = location.pathname === link.to;
+          // Add extra space below Notification link
+          const extraStyle = link.label === 'Notification' ? { marginBottom: '32px' } : {};
+          return (
+            <li key={link.label} className={isActive ? 'active' : ''} style={extraStyle}>
+              <span className="icon">{link.icon}</span>
+              <Link to={link.to} style={{ textDecoration: 'none', color: 'inherit' }}>{link.label}</Link>
+            </li>
+          );
+        })}
+        {/* Home link above Log out */}
+        {(() => {
+          const homeLink = navLinks.find(link => link.label === 'Home');
+          const isActive = location.pathname === homeLink.to;
+          return (
+            <li key={homeLink.label} className={isActive ? 'active' : ''}>
+              <span className="icon">{homeLink.icon}</span>
+              <Link to={homeLink.to} style={{ textDecoration: 'none', color: 'inherit' }}>{homeLink.label}</Link>
+            </li>
+          );
+        })()}
+        {/* Log out link at the bottom */}
+        {(() => {
+          const logoutLink = navLinks.find(link => link.label === 'Log out');
+          const isActive = location.pathname === logoutLink.to;
+          return (
+            <li key={logoutLink.label} className={isActive ? 'active' : ''}>
+              <span className="icon">{logoutLink.icon}</span>
+              <Link to={logoutLink.to} style={{ textDecoration: 'none', color: 'inherit' }}>{logoutLink.label}</Link>
+            </li>
+          );
+        })()}
       </ul>
     </div>
   );

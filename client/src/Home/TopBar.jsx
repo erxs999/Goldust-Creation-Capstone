@@ -58,6 +58,7 @@ const TopBar = () => {
   } catch {}
   // Only show name for customer role
   const isCustomer = user && user.firstName && user.lastName && (!user.role || user.role === 'customer' || user.role === 'user');
+  const isAdmin = user && user.role === 'admin';
 
   return (
     <header className={`topbar${expanded ? " topbar-expanded" : ""}`}>
@@ -88,7 +89,9 @@ const TopBar = () => {
             }}>{cartCount}</span>
           )}
         </a>
-        {isCustomer ? (
+        {isAdmin ? (
+          <Link to="/admin/dashboard" className="topbar-link" style={{ cursor: 'pointer' }}>Admin Dashboard</Link>
+        ) : isCustomer ? (
           <Link to="/client/profile" className="topbar-link" style={{ cursor: 'pointer' }}>{user.firstName} {user.lastName}</Link>
         ) : (
           <Link to="/signup" className="topbar-link">Sign up</Link>
