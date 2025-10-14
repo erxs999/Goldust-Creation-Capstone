@@ -6,9 +6,10 @@ const Notification = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Get logged-in user email
+  // Get logged-in user info
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const userEmail = user.email;
+  const userRole = user.role || (user.companyName ? 'supplier' : 'customer');
 
   useEffect(() => {
     async function fetchReminders() {
@@ -16,11 +17,21 @@ const Notification = () => {
         const res = await fetch('/api/schedules');
         if (!res.ok) throw new Error('Failed to fetch reminders');
         const data = await res.json();
-  // Get user's name and email
-  const userName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
-  // Filter reminders for this user by name or email
-  const filtered = data.filter(rem => rem.type === 'Customer' && (rem.person === userEmail || rem.person === userName));
-  setNotifications(filtered);
+        // Debug: log fetched data and user info
+        console.log('Fetched schedules:', data);
+        console.log('Logged-in user:', user);
+        console.log('User role:', userRole);
+        // Get user's name and email
+        const userName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+        let filtered = [];
+        if (userRole === 'supplier') {
+          filtered = data.filter(rem => rem.type === 'Supplier' && (rem.person === userEmail || rem.person === userName));
+        } else {
+          filtered = data.filter(rem => rem.type === 'Customer' && (rem.person === userEmail || rem.person === userName));
+        }
+        // Debug: log filtered notifications
+        console.log('Filtered notifications:', filtered);
+        setNotifications(filtered);
       } catch (err) {
         setNotifications([]);
       } finally {
@@ -28,7 +39,7 @@ const Notification = () => {
       }
     }
     if (userEmail) fetchReminders();
-  }, [userEmail]);
+  }, [userEmail, userRole]);
 
   return (
     <div className="notification-page">

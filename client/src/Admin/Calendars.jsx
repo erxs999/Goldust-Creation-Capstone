@@ -274,7 +274,7 @@ export default function Calendars() {
                   options={form.type === 'Customer'
                     ? customers.map(c => ({
                         label: `${c.firstName || ''} ${c.lastName || ''}`.trim(),
-                        value: `${c.firstName || ''} ${c.lastName || ''}`.trim()
+                        value: c.email // Use email for customer person field
                       })
                     )
                     : suppliers.map(s => {
@@ -283,7 +283,7 @@ export default function Calendars() {
                         const last = s.lastName || '';
                         return {
                           label: `${company}${first || last ? ` (${first} ${last})` : ''}`.trim(),
-                          value: `${company}${first || last ? ` (${first} ${last})` : ''}`.trim()
+                          value: s.email // Use email for supplier person field
                         };
                       })
                   }
