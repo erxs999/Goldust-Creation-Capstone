@@ -56,19 +56,21 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-    // Fetch urgent reminders (due today or tomorrow)
-    fetch('http://localhost:5051/api/reminders')
+    // Fetch urgent reminders (schedules due today or tomorrow)
+    fetch('http://localhost:5051/api/schedules')
       .then(res => res.json())
       .then(data => {
         const today = new Date();
         today.setHours(0,0,0,0);
         const tomorrow = new Date(today);
         tomorrow.setDate(today.getDate() + 1);
-        const count = data.filter(rem => {
-          if (!rem.dueDate) return false;
-          const due = new Date(rem.dueDate);
-          due.setHours(0,0,0,0);
-          return due.getTime() === today.getTime() || due.getTime() === tomorrow.getTime();
+        const count = data.filter(sch => {
+          if (!sch.date) return false;
+          // sch.date is expected to be 'YYYY-MM-DD'
+          const [year, month, day] = sch.date.split('-').map(Number);
+          const schedDate = new Date(year, month - 1, day);
+          schedDate.setHours(0,0,0,0);
+          return schedDate.getTime() === today.getTime() || schedDate.getTime() === tomorrow.getTime();
         }).length;
         setUrgentReminders(count);
       })
