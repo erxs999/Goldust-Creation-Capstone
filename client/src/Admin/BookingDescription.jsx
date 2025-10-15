@@ -246,6 +246,32 @@ export default function BookingDescription({ open, onClose, booking }) {
               <div style={{ color: '#fedb71', marginBottom: 16, fontSize: 15 }}>No products/services selected.</div>
             )}
           </div>
+          {/* Selected Additionals (admin view) */}
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ fontWeight: 800, fontSize: 17, marginBottom: 12, color: '#222' }}>Selected Additionals</div>
+            {editData.products && editData.products.length > 0 ? (
+              (() => {
+                const allAdds = [];
+                editData.products.forEach(p => {
+                  const adds = p.__cart_additionals || p.additionals || [];
+                  if (Array.isArray(adds)) adds.forEach(a => allAdds.push(a));
+                });
+                if (allAdds.length === 0) return <div style={{ color: '#222' }}>No additionals selected.</div>;
+                return (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                    {allAdds.map((add, idx) => (
+                      <div key={add._id || add.title || idx} style={{ background: '#fff', borderRadius: 8, padding: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid #eee' }}>
+                        <div style={{ fontWeight: 700 }}>{add.title}</div>
+                        <div style={{ color: '#222' }}>PHP {add.price ? add.price : 0}</div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()
+            ) : (
+              <div style={{ color: '#222' }}>No additionals selected.</div>
+            )}
+          </div>
           {/* Special Request */}
           <div style={{ marginBottom: 18 }}>
             <div style={{ fontWeight: 800, fontSize: 17, marginBottom: 10, color: '#222' }}>Special Request</div>

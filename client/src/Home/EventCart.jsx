@@ -59,6 +59,19 @@ const EventCart = () => {
                   <div style={{ flex: 1 }}>
                     <div className="event-cart-item-title">{item.product ? item.product.title : ''}</div>
                     {item.product && item.product.price && <div className="event-cart-item-price">PHP {item.product.price}</div>}
+                    {/* Show additionals if any */}
+                    {Array.isArray(item.additionals) && item.additionals.length > 0 && (
+                      <div style={{ marginTop: 8, marginLeft: 8 }}>
+                        <div style={{ fontWeight: 500, fontSize: 14, color: '#888' }}>Additionals:</div>
+                        <ul style={{ margin: 0, paddingLeft: 18 }}>
+                          {item.additionals.map((add, aidx) => (
+                            <li key={add._id || add.title || aidx} style={{ fontSize: 14, color: '#555' }}>
+                              {add.title} {add.price ? <span style={{ color: '#888' }}>- PHP {add.price}</span> : ''}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
                   <IconButton aria-label="delete" onClick={() => handleDelete(idx)} style={{ color: 'red' }}>
                     <DeleteIcon />
@@ -77,16 +90,29 @@ const EventCart = () => {
                 </div>
               ) : (
                 cart.map((item, idx) => (
-                  <div key={idx} className="event-cart-summary-row">
-                    <span>{item.product ? item.product.title : ''}</span>
-                    <span style={{ fontWeight: 600 }}>PHP {item.product && item.product.price ? item.product.price : 0}</span>
-                  </div>
+                  <React.Fragment key={idx}>
+                    <div className="event-cart-summary-row">
+                      <span>{item.product ? item.product.title : ''}</span>
+                      <span style={{ fontWeight: 600 }}>PHP {item.product && item.product.price ? item.product.price : 0}</span>
+                    </div>
+                    {/* Additionals in summary */}
+                    {Array.isArray(item.additionals) && item.additionals.length > 0 && item.additionals.map((add, aidx) => (
+                      <div key={add._id || add.title || aidx} className="event-cart-summary-row" style={{ paddingLeft: 18, fontSize: 14, color: '#555' }}>
+                        <span>+ {add.title}</span>
+                        <span>PHP {add.price ? add.price : 0}</span>
+                      </div>
+                    ))}
+                  </React.Fragment>
                 ))
               )}
             </div>
             <div className="event-cart-summary-total">
               <span>Total</span>
-              <span>PHP {cart.reduce((sum, item) => sum + (parseFloat(item.product && item.product.price) || 0), 0)}</span>
+              <span>PHP {cart.reduce((sum, item) => {
+                let base = parseFloat(item.product && item.product.price) || 0;
+                let adds = Array.isArray(item.additionals) ? item.additionals.reduce((a, add) => a + (parseFloat(add.price) || 0), 0) : 0;
+                return sum + base + adds;
+              }, 0)}</span>
             </div>
             <button
               className="event-cart-book-btn"

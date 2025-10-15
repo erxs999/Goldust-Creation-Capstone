@@ -93,6 +93,33 @@ const BookSummary = () => {
               readOnly
             />
           </div>
+          {/* Selected Additionals */}
+          <div style={{ marginTop: 24 }}>
+            <div style={{ marginBottom: 12, color: '#111', fontWeight: 'bold'}}>Selected Additionals:</div>
+            {booking?.products && booking.products.length > 0 ? (
+              (() => {
+                // Gather additionals from booking.products. They may be stored as __cart_additionals or as product.additionals
+                const allAdds = [];
+                booking.products.forEach((p, i) => {
+                  const adds = p.__cart_additionals || p.additionals || [];
+                  if (Array.isArray(adds)) adds.forEach(a => allAdds.push(a));
+                });
+                if (allAdds.length === 0) return <div style={{ color: '#888' }}>No additionals selected.</div>;
+                return (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                    {allAdds.map((add, idx) => (
+                      <div key={add._id || add.title || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 8, background: '#fafafa', borderRadius: 6, border: '1px solid #eee' }}>
+                        <div style={{ fontWeight: 600 }}>{add.title}</div>
+                        <div style={{ color: '#888' }}>PHP {add.price ? add.price : 0}</div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()
+            ) : (
+              <div style={{ color: '#888' }}>No additionals selected.</div>
+            )}
+          </div>
           <div className="booking-summary-btn-row">
             <button
               type="button"
@@ -121,6 +148,11 @@ const BookSummary = () => {
                   } else if (user?.name) {
                     fullName = user.name;
                   }
+                  // Ensure each product includes its additionals when sending to backend
+                  const productsWithAdd = (booking.products || []).map(p => ({
+                    ...p,
+                    additionals: p.__cart_additionals || p.additionals || []
+                  }));
                   const bookingToSend = {
                     name: booking.name || fullName || '',
                     contact: booking.contact || user?.contact || user?.phone || '',
@@ -132,7 +164,7 @@ const BookSummary = () => {
                     eventVenue: booking.eventVenue || '',
                     guestCount: booking.guestCount || 0,
                     totalPrice: booking.totalPrice || 0,
-                    products: booking.products || [],
+                    products: productsWithAdd,
                     specialRequest: booking.specialRequest || '',
                   };
                   await fetch('http://localhost:5051/api/bookings/pending', {

@@ -3,6 +3,13 @@ import React, { useEffect, useState } from 'react';
 import IconButton from '@mui/material/IconButton';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import ProductDetailsModal from './ProductDetailsModal';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import { useLocation } from 'react-router-dom';
 import TopBar from './TopBar';
 
@@ -13,8 +20,37 @@ const CART_LOCAL_KEY = 'gd_event_cart';
 
 export default function PnSDetails() {
   // Add to cart handler
+  // Additionals modal state
+  const [additionalsOpen, setAdditionalsOpen] = useState(false);
+  const [additionalsList, setAdditionalsList] = useState([]); // fetched additionals
+  const [selectedAdditionals, setSelectedAdditionals] = useState([]);
+  const [pendingProduct, setPendingProduct] = useState(null);
+
+  // Open additionals modal when user clicks add to cart
   async function handleAddToCart(product) {
-    // Prevent duplicate products in cart for this user
+    setPendingProduct(product);
+    // Fetch additionals for this product (simulate or from API)
+    // For demo, assume product.additionals or fetch from API
+    let additionals = [];
+    if (product && product._id) {
+      try {
+        const res = await fetch(`${API_BASE}/products/${product._id}/additionals`);
+        if (res.ok) {
+          additionals = await res.json();
+        }
+      } catch {}
+    }
+    // fallback: check if product.additionals exists
+    if (!additionals.length && Array.isArray(product.additionals)) {
+      additionals = product.additionals;
+    }
+    setAdditionalsList(additionals);
+    setSelectedAdditionals([]);
+    setAdditionalsOpen(true);
+  }
+
+  // Actually add to cart with additionals
+  async function confirmAddToCart() {
     let userEmail = null;
     try {
       const user = JSON.parse(localStorage.getItem('user'));
@@ -22,25 +58,40 @@ export default function PnSDetails() {
     } catch {}
     if (!userEmail) {
       alert('You must be logged in to add to cart.');
+      setAdditionalsOpen(false);
       return;
     }
     try {
       const res = await fetch(`${API_BASE}/cart?userEmail=${encodeURIComponent(userEmail)}`);
       const cart = await res.json();
-      const exists = Array.isArray(cart) && cart.some(item => item.product && item.product.title === product.title);
+      const exists = Array.isArray(cart) && cart.some(item => item.product && item.product.title === pendingProduct.title);
       if (exists) {
         alert('This product is already in your cart.');
+        setAdditionalsOpen(false);
         return;
       }
+      // Remove additionals from product if present, send as top-level field
+      const { additionals, ...productWithoutAdditionals } = pendingProduct || {};
       await fetch(`${API_BASE}/cart`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ product, userEmail })
+        body: JSON.stringify({ product: productWithoutAdditionals, userEmail, additionals: selectedAdditionals })
       });
       // Optionally show a success message
     } catch (err) {
       // Optionally show an error message
     }
+    setAdditionalsOpen(false);
+  }
+
+  function handleAdditionalToggle(additional) {
+    setSelectedAdditionals(prev => {
+      if (prev.some(a => a._id ? a._id === additional._id : a.title === additional.title)) {
+        return prev.filter(a => (a._id ? a._id !== additional._id : a.title !== additional.title));
+      } else {
+        return [...prev, additional];
+      }
+    });
   }
   const location = useLocation();
   const [products, setProducts] = useState([]);
@@ -154,6 +205,35 @@ export default function PnSDetails() {
               </div>
             ))}
             <ProductDetailsModal open={modalOpen} onClose={() => setModalOpen(false)} product={selectedProduct} />
+            {/* Additionals Modal */}
+            <Dialog open={additionalsOpen} onClose={() => setAdditionalsOpen(false)}>
+              <DialogTitle>Add Additionals?</DialogTitle>
+              <DialogContent>
+                {additionalsList.length === 0 ? (
+                  <div style={{ color: '#888', fontSize: 16 }}>No additionals available for this product.</div>
+                ) : (
+                  <div>
+                    <div style={{ marginBottom: 12 }}>Select any additionals you want to add:</div>
+                    {additionalsList.map((add, idx) => (
+                      <FormControlLabel
+                        key={add._id || add.title || idx}
+                        control={
+                          <Checkbox
+                            checked={selectedAdditionals.some(a => (a._id ? a._id === add._id : a.title === add.title))}
+                            onChange={() => handleAdditionalToggle(add)}
+                          />
+                        }
+                        label={<span>{add.title} {add.price ? `- PHP ${add.price}` : ''}</span>}
+                      />
+                    ))}
+                  </div>
+                )}
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setAdditionalsOpen(false)} color="secondary">Cancel</Button>
+                <Button onClick={confirmAddToCart} color="primary" variant="contained">Add to Cart</Button>
+              </DialogActions>
+            </Dialog>
           </div>
         )}
       </div>
