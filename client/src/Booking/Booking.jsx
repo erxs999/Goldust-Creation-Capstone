@@ -80,10 +80,24 @@ const Booking = () => {
   }, [form.city]);
 
   React.useEffect(() => {
-    fetch('http://localhost:5051/api/cart')
+    // Get userEmail from localStorage user object (same as cart logic)
+    let userEmail = null;
+    try {
+      const user = JSON.parse(localStorage.getItem('user'));
+      userEmail = user && user.email;
+    } catch {}
+    if (!userEmail) {
+      setForm(f => ({ ...f, products: [] }));
+      return;
+    }
+    fetch(`http://localhost:5051/api/cart?userEmail=${encodeURIComponent(userEmail)}`)
       .then(res => res.json())
       .then(data => {
-        const products = Array.isArray(data) ? data.map(item => item.product) : [];
+        // include additionals from cart items along with product
+        const products = Array.isArray(data) ? data.map(item => {
+          // item.product is the base product, item.additionals may exist
+          return { ...(item.product || {}), __cart_additionals: Array.isArray(item.additionals) ? item.additionals : [] };
+        }) : [];
         setForm(f => ({ ...f, products }));
       })
       .catch(() => setForm(f => ({ ...f, products: [] })));
@@ -93,7 +107,11 @@ const Booking = () => {
 
   const computeTotalPrice = () => {
     if (!form.products || !Array.isArray(form.products)) return 0;
-    return form.products.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
+    return form.products.reduce((sum, item) => {
+      const base = Number(item.price) || 0;
+      const adds = Array.isArray(item.__cart_additionals) ? item.__cart_additionals.reduce((a, add) => a + (Number(add.price) || 0), 0) : 0;
+      return sum + base + adds;
+    }, 0);
   };
 
   const getEventVenue = () => {
@@ -133,8 +151,8 @@ const Booking = () => {
       </div>
       <div className="booking-center-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '70vh', width: '100%' }}>
         <div className="booking-main-row" style={{ display: 'flex', gap: 0, maxWidth: 1050, width: '100%', justifyContent: 'center', marginBottom: 32 }}>
-          <div className="booking-calendar-box" style={{ flex: 1, minWidth: 0, maxWidth: 'none', width: '50%', display: 'flex', flexDirection: 'column', justifyContent: 'stretch', height: 370 }}>
-            <h3 style={{ color: '#111', fontWeight: 700 }}>Choose your event date</h3>
+          <div className="booking-calendar-box" style={{ flex: 1, minWidth: 0, maxWidth: 'none', width: '50%', display: 'flex', flexDirection: 'column', justifyContent: 'stretch', height: 340 }}>
+            <h3 style={{ color: '#111', fontWeight: 700, textAlign: 'left', marginLeft: 0, marginBottom: 8 }}>Choose your event date</h3>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <StaticDatePicker
                 displayStaticWrapperAs="desktop"
@@ -310,6 +328,33 @@ const Booking = () => {
                     </div>
                   </div>
                 ))}
+              </div>
+              {/* New: Selected Additionals Section */}
+              <div style={{ width: '100%', marginTop: 8, background: '#fff', borderRadius: 6, padding: 12, border: '1px solid #eee' }}>
+                <div style={{ fontWeight: 700, marginBottom: 8 }}>Selected Additionals</div>
+                {(() => {
+                  // gather all additionals across products
+                  const allAdds = [];
+                  form.products.forEach((p, i) => {
+                    if (Array.isArray(p.__cart_additionals) && p.__cart_additionals.length) {
+                      p.__cart_additionals.forEach(add => allAdds.push({ productIndex: i, ...add }));
+                    }
+                  });
+                  if (allAdds.length === 0) return <div style={{ color: '#888' }}>No additionals selected.</div>;
+                  return (
+                    <div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px 32px' }}>
+                        {allAdds.map((add, aidx) => (
+                          <div key={add._id || add.title || aidx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0' }}>
+                            <div style={{ fontWeight: 600 }}>{add.title}</div>
+                            {add.price ? <div style={{ color: '#888' }}>PHP {add.price}</div> : <div style={{ color: '#888' }}>PHP 0</div>}
+                          </div>
+                        ))}
+                      </div>
+                      {/* subtotal removed as requested */}
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           ) : (

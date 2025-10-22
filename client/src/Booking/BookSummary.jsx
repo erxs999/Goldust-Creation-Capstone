@@ -8,13 +8,35 @@ const BookSummary = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const booking = location.state?.booking || {};
+  // Get user details from localStorage (adjust key if needed)
+  let user = {};
+  try {
+    user = JSON.parse(localStorage.getItem('user')) || {};
+  } catch (e) {
+    user = {};
+  }
+  // Use booking data if present, else fallback to user data
+  // Build full name from user details if available
+  let fullName = '';
+  if (user?.firstName) {
+    fullName = user.firstName;
+    if (user.middleName) fullName += ' ' + user.middleName;
+    if (user.lastName) fullName += ' ' + user.lastName;
+  } else if (user?.fullName) {
+    fullName = user.fullName;
+  } else if (user?.name) {
+    fullName = user.name;
+  }
+  const displayName = booking?.name || fullName || '';
+  const displayContact = booking?.contact || user?.contact || user?.phone || '';
+  const displayEmail = booking?.email || user?.email || '';
   return (
     <div className="booking-root">
       <TopBar />
       <div className="booking-header">
         <h2>BOOKING SUMMARY</h2>
       </div>
-      <div className="booking-summary-container">
+  <div className="booking-summary-container" style={{ boxShadow: 'none' }}>
         <div>
           <div className="booking-summary-row">
             <div className="booking-summary-col">
@@ -26,12 +48,12 @@ const BookSummary = () => {
               <div style={{ marginBottom: 12, color: '#111' }}>Event Venue : <span style={{ color: '#111' }}>{booking?.eventVenue || ""}</span></div>
             </div>
             <div className="booking-summary-col">
-              <div style={{ marginBottom: 12, color: '#111' }}>Guest Count : <span style={{ color: '#111' }}>{booking?.guestCount || ""}</span></div>
-              <div style={{ marginBottom: 12, color: '#111' }}>Total Price: <span style={{ color: '#111' }}>{booking?.totalPrice || ""}</span></div>
+              <div style={{ marginBottom: 12, color: '#111' }}><span style={{ fontWeight: 'bold' }}>Guest Count :</span> <span style={{ color: '#111' }}>{booking?.guestCount || ""}</span></div>
+              <div style={{ marginBottom: 12, color: '#111' }}><span style={{ fontWeight: 'bold' }}>Total Price:</span> <span style={{ color: '#111' }}>{booking?.totalPrice || ""}</span></div>
             </div>
           </div>
           <div style={{ marginTop: 32, marginBottom: 0 }}>
-            <div style={{ marginBottom: 12, color: '#111', fontWeight: 500, fontSize: 18 }}>Services and Products Availed:</div>
+            <div style={{ marginBottom: 12, color: '#111', fontWeight: 'bold'}}>Services and Products Availed:</div>
             {booking?.products && booking.products.length > 0 ? (
               <div style={{ marginBottom: 24, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                 {booking.products.map((item, idx) => (
@@ -60,13 +82,40 @@ const BookSummary = () => {
             )}
           </div>
           <div style={{ marginTop: 24, marginBottom: 0 }}>
-            <div style={{ marginBottom: 12, color: '#111', fontWeight: 500 }}>Special Request :</div>
+            <div style={{ marginBottom: 12, color: '#111', fontWeight: 'bold'}}>Special Request :</div>
             <textarea
               className="booking-special-request"
-              style={{ width: "100%", minHeight: 140, fontFamily: "inherit", fontSize: "1rem", padding: 12, borderRadius: 8, border: "2px solid #222", resize: "vertical", background: '#fff', color: '#111' }}
+              style={{ width: "100%", minHeight: 140, fontFamily: "inherit",  padding: 12, borderRadius: 8, border: "2px solid #222", resize: "vertical", background: '#fff', color: '#111' }}
               value={booking?.specialRequest || ""}
               readOnly
             />
+          </div>
+          {/* Selected Additionals */}
+          <div style={{ marginTop: 24 }}>
+            <div style={{ marginBottom: 12, color: '#111', fontWeight: 'bold'}}>Selected Additionals:</div>
+            {booking?.products && booking.products.length > 0 ? (
+              (() => {
+                // Gather additionals from booking.products. They may be stored as __cart_additionals or as product.additionals
+                const allAdds = [];
+                booking.products.forEach((p, i) => {
+                  const adds = p.__cart_additionals || p.additionals || [];
+                  if (Array.isArray(adds)) adds.forEach(a => allAdds.push(a));
+                });
+                if (allAdds.length === 0) return <div style={{ color: '#888' }}>No additionals selected.</div>;
+                return (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                    {allAdds.map((add, idx) => (
+                      <div key={add._id || add.title || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 8, background: '#fafafa', borderRadius: 6, border: '1px solid #eee' }}>
+                        <div style={{ fontWeight: 600 }}>{add.title}</div>
+                        <div style={{ color: '#888' }}>PHP {add.price ? add.price : 0}</div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()
+            ) : (
+              <div style={{ color: '#888' }}>No additionals selected.</div>
+            )}
           </div>
           <div className="booking-summary-btn-row">
             <button
@@ -84,9 +133,9 @@ const BookSummary = () => {
               onClick={async () => {
                 try {
                   const bookingToSend = {
-                    name: booking.name || '',
-                    contact: booking.contact || '',
-                    email: booking.email || '',
+                    name: booking.name || fullName || '',
+                    contact: booking.contact || user?.contact || user?.phone || '',
+                    email: booking.email || user?.email || '',
                     eventType: booking.eventType || '',
                     date: booking.date?.$d
                       ? new Date(booking.date.$d).toISOString()
@@ -94,7 +143,7 @@ const BookSummary = () => {
                     eventVenue: booking.eventVenue || '',
                     guestCount: booking.guestCount || 0,
                     totalPrice: booking.totalPrice || 0,
-                    products: booking.products || [],
+                    products: productsWithAdd,
                     specialRequest: booking.specialRequest || '',
                   };
                   await fetch('http://localhost:5051/api/bookings/pending', {

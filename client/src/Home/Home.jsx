@@ -79,25 +79,29 @@ const Home = () => {
         <h2 className="home-services-title">SERVICES</h2>
         <div className="home-services-grid">
           {categories.length === 0 && <div>No services yet.</div>}
-          {categories.map((cat, idx) => (
-            <div
-              key={cat.title + idx}
-              className="home-service-card"
-              style={{ cursor: 'pointer' }}
-              onClick={() => navigate('/pns-details', { state: { category: cat } })}
-            >
-              {cat.image ? (
-                <div className="home-service-img-wrapper">
-                  <img src={cat.image} alt={cat.title} className="home-service-img" />
-                  <div className="home-service-title-overlay">
-                    {cat.title}
-                  </div>
+          {Array.from({ length: Math.ceil(categories.length / 3) }).map((_, rowIdx) => (
+            <div className="home-services-row" key={rowIdx}>
+              {categories.slice(rowIdx * 3, rowIdx * 3 + 3).map((cat, idx) => (
+                <div
+                  key={cat.title + (rowIdx * 3 + idx)}
+                  className="home-service-card"
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => navigate('/pns-details', { state: { category: cat } })}
+                >
+                  {cat.image ? (
+                    <div className="home-service-img-wrapper">
+                      <img src={cat.image} alt={cat.title} className="home-service-img" />
+                      <div className="home-service-title-overlay">
+                        {cat.title}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="home-service-img-wrapper">
+                      <span className="home-service-title-overlay">{cat.title}</span>
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <div className="home-service-img-wrapper">
-                  <span className="home-service-title-overlay">{cat.title}</span>
-                </div>
-              )}
+              ))}
             </div>
           ))}
         </div>

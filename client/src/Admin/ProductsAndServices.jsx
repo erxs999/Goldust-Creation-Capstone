@@ -168,9 +168,12 @@ export default function ProductsAndServices() {
   };
 
   const handleDelete = async (idx) => {
-    if (!window.confirm('Delete this category?')) return;
+    if (!window.confirm('Delete this category? All products/services in this category will also be deleted.')) return;
     const catToDelete = categories[idx];
     try {
+      // Delete all products in this category
+      await fetch(`${API_BASE}/products/category/${catToDelete.title}`, { method: 'DELETE' });
+      // Delete the category itself
       await fetch(`${API_BASE}/categories/${catToDelete._id}`, { method: 'DELETE' });
       setCategories(categories.filter((_, i) => i !== idx));
     } catch {}

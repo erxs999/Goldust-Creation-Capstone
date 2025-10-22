@@ -5,7 +5,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
 .topbar {
   width: 100%;  
-  background: linear-gradient(120deg, #e1ff00 0%, #ffe47a 25%, #ffb347 70%, #b4cb00 100%);
+  background: linear-gradient(120deg, #ffd500 0%, #fba560 25%, #ffd500 70%, #ffd500 100%);
   background-size: 250% 250%;
   /* animation only when scrolled */
   backdrop-filter: blur(16px) saturate(160%);
@@ -44,7 +44,7 @@
 }
 
 .topbar.topbar-expanded {
-  background: linear-gradient(120deg, #ad840a 0%, #ffd014 25%, #fdbd63 55%, #d79e00 100%);
+  background: linear-gradient(120deg, #ffd500 0%, #fba560 25%, #ffd500 70%, #ffd500 100%);
   background-size: 250% 250%;
   animation: gold-pink-gradient-move 8s ease-in-out infinite alternate;
   backdrop-filter: blur(18px);

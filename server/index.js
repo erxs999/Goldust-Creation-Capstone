@@ -1,3 +1,4 @@
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -27,6 +28,7 @@ const customerSchema = new mongoose.Schema({
   lastName: String,
   middleName: String,
   phone: String,
+  contact: String,
   contact: String,
   createdAt: { type: Date, default: Date.now }
 });
@@ -122,7 +124,8 @@ const bookingBaseSchema = new mongoose.Schema({
     {
       image: String,
       title: String,
-      price: Number
+      price: Number,
+      additionals: { type: [Object], default: [] }
     }
   ],
   specialRequest: String,
@@ -142,9 +145,9 @@ app.get('/api/cart', async (req, res) => {
 });
 
 app.post('/api/cart', async (req, res) => {
-  const { product, userEmail } = req.body;
+  const { product, userEmail, additionals } = req.body;
   if (!userEmail || !product) return res.status(400).json({ error: 'Missing userEmail or product' });
-  const item = new CartItem({ product, userEmail });
+  const item = new CartItem({ product, userEmail, additionals: Array.isArray(additionals) ? additionals : [] });
   await item.save();
   res.status(201).json(item);
 });

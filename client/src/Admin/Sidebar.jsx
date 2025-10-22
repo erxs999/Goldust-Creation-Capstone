@@ -12,6 +12,7 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import GroupIcon from '@mui/icons-material/Group';
 import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
 import LogoutIcon from '@mui/icons-material/Logout';
+import HomeIcon from '@mui/icons-material/Home';
 
 
 const navItems = [
@@ -23,6 +24,7 @@ const navItems = [
   { label: 'Suppliers', path: '/admin/suppliers', icon: <LocalShippingIcon fontSize="small" /> },
   { label: 'Users / Clients', path: '/admin/user-clients', icon: <GroupIcon fontSize="small" /> },
   { label: 'Background Gallery', path: '/admin/background-gallery', icon: <PhotoLibraryIcon fontSize="small" /> },
+  { label: 'Home', path: '/', icon: <HomeIcon fontSize="small" /> },
 ];
 
 export default function Sidebar() {

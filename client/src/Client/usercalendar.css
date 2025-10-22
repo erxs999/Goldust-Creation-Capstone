@@ -1,0 +1,223 @@
+/* Hide the last row in RSuite calendar to show only 5 rows */
+.uc-rsuite-calendar .rs-calendar-table-row:last-child {
+	display: none !important;
+}
+
+/* Main layout */
+.uc-main-layout {
+	display: flex;
+	min-height: 100vh;
+	background: #ffffff;
+	padding-left: 345px;
+	padding-top: 4px;
+	padding-right: 20px;
+}
+
+.uc-content {
+	flex: 1;
+	padding: 32px 16px 32px 0;
+	margin-left: 24px;
+}
+
+.uc-title {
+	color: #111;
+	margin-bottom: 0;
+	margin-left: 8px;
+	font-size: 1.7rem;
+	font-weight: 800;
+	letter-spacing: 1px;
+}
+
+.uc-calendar-container {
+	height: 600px;
+	background: #fff;
+	border-radius: 18px;
+	margin-top: 24px;
+	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+	color: #111;
+	padding: 24px;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	justify-content: flex-start;
+	position: relative;
+	overflow: hidden;
+}
+
+.uc-calendar-inner {
+	flex: 1;
+	width: 100%;
+	height: 100%;
+	background: #fff;
+	border-radius: 12px;
+	box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.uc-loading {
+	text-align: center;
+	margin-top: 80px;
+	color: #888;
+	font-size: 18px;
+}
+
+/* Calendar cell and event styles */
+.uc-calendar-cell {
+	margin-top: 4px;
+	cursor: pointer;
+}
+.uc-calendar-event {
+	background: #ffe082;
+	color: #111;
+	border-radius: 4px;
+	padding: 2px 6px;
+	font-size: 11px;
+	margin-bottom: 2px;
+}
+.uc-calendar-event-plus {
+	text-align: center;
+	font-weight: 700;
+}
+
+/* Modal styles */
+.uc-modal-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background: rgba(0,0,0,0.3);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+}
+.uc-modal-content {
+	background: #fff;
+	border-radius: 10px;
+	padding: 32px;
+	min-width: 350px;
+	box-shadow: 0 2px 16px rgba(0,0,0,0.18);
+	position: relative;
+}
+.uc-modal-close {
+	position: absolute;
+	top: 18px;
+	right: 22px;
+	background: none;
+	border: none;
+	font-size: 18px;
+	cursor: pointer;
+	color: #888;
+	line-height: 1;
+	padding: 0;
+	font-weight: 700;
+}
+.uc-modal-title {
+	margin-top: 0;
+	margin-bottom: 14px;
+	font-weight: 800;
+	font-size: 1.25rem;
+	color: #222;
+	letter-spacing: 1px;
+}
+.uc-modal-schedule-list {
+	min-height: 40px;
+	max-height: 500px;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+.uc-modal-schedule-card {
+	background: #ffe082;
+	color: #111;
+	border-radius: 6px;
+	padding: 8px 12px;
+	font-size: 13px;
+	margin-bottom: 0;
+	box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+	font-weight: 500;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 8px;
+	max-width: 340px;
+}
+.uc-modal-schedule-card-main {
+	flex: 1;
+	cursor: pointer;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+.uc-modal-schedule-title {
+	font-weight: 700;
+	font-size: 14px;
+	margin-bottom: 2px;
+}
+.uc-modal-schedule-type {
+	color: #555;
+	font-size: 12px;
+	margin-bottom: 2px;
+	font-weight: 600;
+}
+.uc-modal-schedule-type span {
+	font-weight: 600;
+}
+.uc-modal-schedule-location {
+	color: #888;
+	font-size: 12px;
+}
+.uc-modal-no-schedule {
+	color: #888;
+	font-size: 14px;
+	text-align: center;
+	margin-top: 18px;
+}
+
+/* Modal details styles */
+.uc-modal-details {
+	min-width: 340px;
+	max-width: 400px;
+	background: #fff;
+	border-radius: 16px;
+	padding: 32px 28px 28px 0;
+	position: relative;
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+	gap: 0;
+}
+.uc-modal-details-accent {
+	width: 10px;
+	height: 100%;
+	border-radius: 16px 0 0 16px;
+	background: linear-gradient(180deg, #e6b800 0%, #ffbe2e 100%);
+	margin-right: 18px;
+}
+.uc-modal-details-main {
+	flex: 1;
+}
+.uc-modal-details-title {
+	margin-top: 0;
+	margin-bottom: 18px;
+	font-weight: 900;
+	font-size: 1.35rem;
+	color: #222;
+	letter-spacing: 1px;
+	background: linear-gradient(90deg, #e6b800 0%, #ffbe2e 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+}
+.uc-modal-details-row {
+	margin-bottom: 14px;
+	font-size: 16px;
+	font-weight: 500;
+	color: #222;
+}
+.uc-modal-details-row span:first-child {
+	font-weight: 700;
+	color: #e6b800;
+	margin-right: 6px;
+}

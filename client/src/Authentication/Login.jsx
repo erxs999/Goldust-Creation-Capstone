@@ -32,7 +32,22 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // Try logging in as supplier first
+      // Check for hardcoded admin credentials
+      if (
+        form.emailOrPhone === 'goldustadmin@gmail.com' &&
+        form.password === 'admin123'
+      ) {
+        // Save admin info
+        localStorage.setItem('user', JSON.stringify({
+          email: 'goldustadmin@gmail.com',
+          role: 'admin',
+          firstName: 'Goldust',
+          lastName: 'Admin'
+        }));
+        navigate('/admin/dashboard');
+        return;
+      }
+      // ...existing supplier/customer login logic...
       let response = await fetch('http://localhost:5051/api/auth/login-supplier', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -51,9 +66,7 @@ const Login = () => {
           throw new Error(data.error || 'Login failed. Please try again.');
         }
       }
-      // Save user info
       localStorage.setItem('user', JSON.stringify(data.user));
-      // Redirect to home page for both supplier and customer
       navigate('/');
     } catch (err) {
       setError(err.message || "Login failed. Please try again.");
