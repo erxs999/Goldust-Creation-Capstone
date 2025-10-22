@@ -23,7 +23,6 @@ const BookSummary = () => {
               <div style={{ marginBottom: 12, color: '#111' }}>Email Address : <span style={{ color: '#111' }}>{booking?.email || ""}</span></div>
               <div style={{ marginBottom: 12, color: '#111' }}>Event Type : <span style={{ color: '#111' }}>{booking?.eventType || ""}</span></div>
               <div style={{ marginBottom: 12, color: '#111' }}>Event Date : <span style={{ color: '#111' }}>{booking?.date ? (typeof booking.date === 'string' ? booking.date : booking.date?.$d ? new Date(booking.date.$d).toLocaleDateString() : booking.date.toString()) : ""}</span></div>
-              {/* Event Location removed as per request */}
               <div style={{ marginBottom: 12, color: '#111' }}>Event Venue : <span style={{ color: '#111' }}>{booking?.eventVenue || ""}</span></div>
             </div>
             <div className="booking-summary-col">
@@ -31,7 +30,6 @@ const BookSummary = () => {
               <div style={{ marginBottom: 12, color: '#111' }}>Total Price: <span style={{ color: '#111' }}>{booking?.totalPrice || ""}</span></div>
             </div>
           </div>
-          {/* Services and Products Availed */}
           <div style={{ marginTop: 32, marginBottom: 0 }}>
             <div style={{ marginBottom: 12, color: '#111', fontWeight: 500, fontSize: 18 }}>Services and Products Availed:</div>
             {booking?.products && booking.products.length > 0 ? (
@@ -61,7 +59,6 @@ const BookSummary = () => {
               <div style={{ color: '#888', marginBottom: 16 }}>No products/services selected.</div>
             )}
           </div>
-          {/* Special Request full width */}
           <div style={{ marginTop: 24, marginBottom: 0 }}>
             <div style={{ marginBottom: 12, color: '#111', fontWeight: 500 }}>Special Request :</div>
             <textarea
@@ -85,9 +82,7 @@ const BookSummary = () => {
               className="booking-btn booking-btn-next booking-btn-orange"
               style={{ minWidth: 100, background: '#ff9800', color: '#fff', border: 'none' }}
               onClick={async () => {
-                // Send booking to pending bookings
                 try {
-                  // Convert date to ISO string if needed
                   const bookingToSend = {
                     name: booking.name || '',
                     contact: booking.contact || '',

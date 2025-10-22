@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-// PSGC API endpoints
 const PSGC_API = 'https://psgc.gitlab.io/api';
 import { useNavigate } from "react-router-dom";
 import "./booking.css";
@@ -28,7 +27,7 @@ const Booking = () => {
     eventLocation: '',
     eventVenue: '',
     specialRequest: '',
-    products: [], // will hold selected products/services
+    products: [],
     guestCount: '',
     totalPrice: '',
     province: '',
@@ -42,7 +41,6 @@ const Booking = () => {
   const [cities, setCities] = useState([]);
   const [barangays, setBarangays] = useState([]);
   const [loading, setLoading] = useState({ provinces: false, cities: false, barangays: false });
-  // Load provinces on mount
   useEffect(() => {
     setLoading(l => ({ ...l, provinces: true }));
     fetch(`${PSGC_API}/provinces/`)
@@ -51,7 +49,6 @@ const Booking = () => {
       .finally(() => setLoading(l => ({ ...l, provinces: false })));
   }, []);
 
-  // Load cities/municipalities when province changes
   useEffect(() => {
     if (form.province) {
       setLoading(l => ({ ...l, cities: true }));
@@ -68,7 +65,6 @@ const Booking = () => {
     }
   }, [form.province]);
 
-  // Load barangays when city changes
   useEffect(() => {
     if (form.city) {
       setLoading(l => ({ ...l, barangays: true }));
@@ -83,7 +79,6 @@ const Booking = () => {
     }
   }, [form.city]);
 
-  // On mount, load selected products/services from backend cart
   React.useEffect(() => {
     fetch('http://localhost:5051/api/cart')
       .then(res => res.json())
@@ -95,27 +90,18 @@ const Booking = () => {
   }, []);
   const navigate = useNavigate();
 
-  // TODO: Wire up form state to inputs if needed
 
-
-
-  // Compute total price from products
   const computeTotalPrice = () => {
     if (!form.products || !Array.isArray(form.products)) return 0;
     return form.products.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
   };
 
-  // Get event venue as a string from selected location
   const getEventVenue = () => {
-    // Find names from codes
     const provinceName = provinces.find(p => p.code === form.province)?.name || '';
     const cityName = cities.find(c => c.code === form.city)?.name || '';
     const barangayName = barangays.find(b => b.code === form.barangay)?.name || '';
-    // Only show non-empty parts
     return [barangayName, cityName, provinceName].filter(Boolean).join(', ');
   };
-
-  // Validation: required fields
   const isFormValid = () => {
     return (
       form.date &&
@@ -129,10 +115,8 @@ const Booking = () => {
 
   const handleNext = () => {
     if (!isFormValid()) {
-      // Optionally show a message here
       return;
     }
-    // Add computed totalPrice and eventVenue to booking object
     const booking = {
       ...form,
       totalPrice: computeTotalPrice(),
@@ -175,7 +159,6 @@ const Booking = () => {
             </LocalizationProvider>
           </div>
           <div className="booking-form-box" style={{ flex: 1, minWidth: 0, maxWidth: 'none', width: '50%', display: 'flex', flexDirection: 'column', padding: '24px 32px', boxSizing: 'border-box' }}>
-            {/* Event Venue label above location picker */}
             <div style={{ fontWeight: 600, fontSize: 17, marginBottom: 8, marginTop: 8, color: '#222' }}>Event Venue</div>
             <div className="booking-field" style={{ marginBottom: 20 }}>
               <FormControl fullWidth size="small" style={{ marginBottom: 12 }}>
@@ -225,7 +208,6 @@ const Booking = () => {
                 </Select>
               </FormControl>
             </div>
-            {/* Add space and label above event type */}
             <div style={{ height: 18 }} />
             <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 6, color: '#222' }}>Event Type</div>
             <div className="booking-field" style={{ marginBottom: 20 }}>
@@ -275,7 +257,6 @@ const Booking = () => {
                 </RadioGroup>
               </FormControl>
             </div>
-            {/* Special Request field moved to services card below */}
           </div>
         </div>
         <div className="booking-services-box" style={{ maxWidth: 900, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '0 auto' }}>
@@ -306,7 +287,6 @@ const Booking = () => {
               </IconButton>
             )}
           </div>
-          {/* Show selected products/services from cart */}
           {form.products && form.products.length > 0 ? (
             <div style={{ width: '100%' }}>
               <div style={{ marginBottom: 24, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
@@ -351,7 +331,6 @@ const Booking = () => {
           </div>
         </div>
       </div>
-      {/* Confirm Button */}
   <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: 16, marginBottom: 80 }}>
         <button
           style={{

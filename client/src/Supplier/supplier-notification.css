@@ -2,7 +2,6 @@
   display: flex;
   background-color: #ffffff;
   min-height: 100vh;
-  /* font-family removed to prevent sidebar font override */
 }
 
 .notification-content {

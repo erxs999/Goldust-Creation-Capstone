@@ -91,9 +91,8 @@ const SignUp = () => {
       });
       const data = await response.json();
       if (response.ok) {
-        // Show popup notification
         window.alert('Sign up successful! Please log in.');
-        navigate('/login'); // Redirect to login page after signup
+        navigate('/login');
       } else {
         setError(data.message || 'Registration failed');
       }

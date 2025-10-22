@@ -1,38 +1,13 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-// ...existing code...
-
-// ...existing code...
-
-// Authentication DB connection (for supplier and customer)
-// ...existing code...
-
-// Place login routes AFTER app is initialized
-
-// ...existing code...
-
-// (Insert these after app is initialized, after 'const app = express();')
-
-// Login Supplier
-// ...existing code...
-
-// Login Customer
-// ...existing code...
-// ...existing code...
-
-// ...existing code...
-
-// Authentication DB connection (for supplier and customer)
-// Authentication DB connection (for supplier and customer)
-const authConnection = mongoose.createConnection('mongodb://127.0.0.1:27017/authentication', {
+const authConnection = mongoose.createConnection('mongodb+srv://hedgjprotacio_db_user:H3r0514v35!@goldust.9lkqckv.mongodb.net/authentication?retryWrites=true&w=majority&appName=Goldust', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
 authConnection.on('connected', () => console.log('MongoDB authentication connected!'));
 authConnection.on('error', err => console.error('MongoDB authentication connection error:', err));
 
-// Supplier schema/model
 const supplierSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
@@ -41,12 +16,10 @@ const supplierSchema = new mongoose.Schema({
   lastName: String,
   middleName: String,
   phone: String,
-  contact: String, // keep for backward compatibility
+  contact: String,
   createdAt: { type: Date, default: Date.now }
 });
 const Supplier = authConnection.model('Supplier', supplierSchema);
-
-// Customer schema/model
 const customerSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
@@ -54,24 +27,17 @@ const customerSchema = new mongoose.Schema({
   lastName: String,
   middleName: String,
   phone: String,
-  contact: String, // keep for backward compatibility
+  contact: String,
   createdAt: { type: Date, default: Date.now }
 });
 const Customer = authConnection.model('Customer', customerSchema);
-
-// const bcrypt = require('bcryptjs');
-// const jwt = require('jsonwebtoken');
-
 const app = express();
 const PORT = 5051;
-// const User = require('./models/User');
-// const auth = require('./middleware/auth');
 
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// Login Supplier
 app.post('/api/auth/login-supplier', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -88,7 +54,6 @@ app.post('/api/auth/login-supplier', async (req, res) => {
   }
 });
 
-// Login Customer
 app.post('/api/auth/login-customer', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -105,14 +70,12 @@ app.post('/api/auth/login-customer', async (req, res) => {
   }
 });
 
-// Main DB for ProductsAndServices
-const MONGO_URI = 'mongodb://127.0.0.1:27017/ProductsAndServices';
+const MONGO_URI = 'mongodb+srv://hedgjprotacio_db_user:H3r0514v35!@goldust.9lkqckv.mongodb.net/ProductsAndServices?retryWrites=true&w=majority&appName=Goldust';
 mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('MongoDB ProductsAndServices connected!'))
   .catch(err => console.error('MongoDB ProductsAndServices connection error:', err));
 
-// Booking DB connection
-const bookingConnection = mongoose.createConnection('mongodb://127.0.0.1:27017/booking', {
+const bookingConnection = mongoose.createConnection('mongodb+srv://hedgjprotacio_db_user:H3r0514v35!@goldust.9lkqckv.mongodb.net/booking?retryWrites=true&w=majority&appName=Goldust', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
@@ -121,7 +84,6 @@ bookingConnection.on('error', err => console.error('MongoDB booking connection e
 
 
 
-// Category schema and model
 const categorySchema = new mongoose.Schema({
   title: { type: String, required: true },
   image: String,
@@ -129,26 +91,23 @@ const categorySchema = new mongoose.Schema({
 });
 const Category = mongoose.model('Category', categorySchema);
 
-// Product schema and model
 const productSchema = new mongoose.Schema({
   image: String,
   title: { type: String, required: true },
   description: String,
   price: String,
   additionals: [{ title: String, price: String, description: String }],
-  categoryTitle: String, // reference to category title
+  categoryTitle: String
 });
 const Product = mongoose.model('Product', productSchema);
 
-// CART schema/model/routes (must be after mongoose init)
 const cartItemSchema = new mongoose.Schema({
-  product: Object, // store product snapshot
-  userEmail: { type: String, required: true }, // associate with user
+  product: Object,
+  userEmail: { type: String, required: true },
   createdAt: { type: Date, default: Date.now }
 });
 const CartItem = mongoose.model('CartItem', cartItemSchema);
 
-// BOOKING SCHEMAS/MODELS (using bookingConnection)
 const bookingBaseSchema = new mongoose.Schema({
   userId: String,
   name: String,
@@ -175,8 +134,6 @@ const PendingBooking = bookingConnection.model('PendingBooking', bookingBaseSche
 const ApprovedBooking = bookingConnection.model('ApprovedBooking', bookingBaseSchema);
 const FinishedBooking = bookingConnection.model('FinishedBooking', bookingBaseSchema);
 
-// Get all cart items
-// Get cart items for a specific user (by email, from query param)
 app.get('/api/cart', async (req, res) => {
   const userEmail = req.query.userEmail;
   if (!userEmail) return res.status(400).json({ error: 'Missing userEmail' });
@@ -184,7 +141,6 @@ app.get('/api/cart', async (req, res) => {
   res.json(items);
 });
 
-// Add to cart
 app.post('/api/cart', async (req, res) => {
   const { product, userEmail } = req.body;
   if (!userEmail || !product) return res.status(400).json({ error: 'Missing userEmail or product' });
@@ -193,8 +149,6 @@ app.post('/api/cart', async (req, res) => {
   res.status(201).json(item);
 });
 
-// Delete from cart
-// Only allow deletion if userEmail matches (user must send userEmail as query param)
 app.delete('/api/cart/:id', async (req, res) => {
   const userEmail = req.query.userEmail;
   if (!userEmail) return res.status(400).json({ error: 'Missing userEmail' });
@@ -204,8 +158,6 @@ app.delete('/api/cart/:id', async (req, res) => {
   res.json({ success: true });
 });
 
-// BOOKING ROUTES
-// Pending Bookings
 app.get('/api/bookings/pending', async (req, res) => {
   const bookings = await PendingBooking.find();
   res.json(bookings);
@@ -220,7 +172,6 @@ app.delete('/api/bookings/pending/:id', async (req, res) => {
   res.json({ success: true });
 });
 
-// Approved Bookings
 app.get('/api/bookings/approved', async (req, res) => {
   const bookings = await ApprovedBooking.find();
   res.json(bookings);
@@ -235,7 +186,6 @@ app.delete('/api/bookings/approved/:id', async (req, res) => {
   res.json({ success: true });
 });
 
-// Finished Bookings
 app.get('/api/bookings/finished', async (req, res) => {
   const bookings = await FinishedBooking.find();
   res.json(bookings);
@@ -250,62 +200,41 @@ app.delete('/api/bookings/finished/:id', async (req, res) => {
   res.json({ success: true });
 });
 
-// Example route
 app.get('/', (req, res) => res.send('Server running with MongoDB!'));
-
-// CATEGORY ROUTES
-// Get all categories
 app.get('/api/categories', async (req, res) => {
   const categories = await Category.find();
   res.json(categories);
 });
-// Add a category
 app.post('/api/categories', async (req, res) => {
   const cat = new Category(req.body);
   await cat.save();
   res.status(201).json(cat);
 });
-// Update a category
 app.put('/api/categories/:id', async (req, res) => {
   const cat = await Category.findByIdAndUpdate(req.params.id, req.body, { new: true });
   res.json(cat);
 });
-// Delete a category
 app.delete('/api/categories/:id', async (req, res) => {
   await Category.findByIdAndDelete(req.params.id);
   res.json({ success: true });
 });
-
-// PRODUCT ROUTES
-// Get all products for a category
 app.get('/api/products/:categoryTitle', async (req, res) => {
   const products = await Product.find({ categoryTitle: req.params.categoryTitle });
   res.json(products);
 });
-// Add a product
 app.post('/api/products', async (req, res) => {
   const prod = new Product(req.body);
   await prod.save();
   res.status(201).json(prod);
 });
-// Update a product
 app.put('/api/products/:id', async (req, res) => {
   const prod = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
   res.json(prod);
 });
-// Delete a product
 app.delete('/api/products/:id', async (req, res) => {
   await Product.findByIdAndDelete(req.params.id);
   res.json({ success: true });
 });
-
-
-
-// AUTH ROUTES
-
-
-// Register Supplier
-// Get all suppliers
 app.get('/api/suppliers', async (req, res) => {
   try {
     const suppliers = await Supplier.find();
@@ -321,12 +250,10 @@ app.post('/api/auth/register-supplier', async (req, res) => {
     if (!email || !password || !companyName || !firstName || !lastName) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
-    // Check if supplier already exists
     const existing = await Supplier.findOne({ email });
     if (existing) {
       return res.status(409).json({ error: 'Supplier already exists' });
     }
-    // Create new supplier
     const supplier = new Supplier({ email, password, companyName, firstName, lastName, middleName, phone, contact: phone });
     await supplier.save();
     res.status(201).json({ message: 'Supplier registered successfully', user: supplier });
@@ -335,19 +262,16 @@ app.post('/api/auth/register-supplier', async (req, res) => {
   }
 });
 
-// Register Customer
 app.post('/api/auth/register-customer', async (req, res) => {
   try {
     const { email, password, firstName, lastName, middleName, phone } = req.body;
     if (!email || !password || !firstName || !lastName) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
-    // Check if customer already exists
     const existing = await Customer.findOne({ email });
     if (existing) {
       return res.status(409).json({ error: 'Customer already exists' });
     }
-    // Create new customer
     const customer = new Customer({ email, password, firstName, lastName, middleName, phone, contact: phone });
     await customer.save();
     res.status(201).json({ message: 'Customer registered successfully', user: customer });
@@ -357,7 +281,6 @@ app.post('/api/auth/register-customer', async (req, res) => {
 });
 
 
-// Get all customers
 app.get('/api/customers', async (req, res) => {
   try {
     const customers = await Customer.find();

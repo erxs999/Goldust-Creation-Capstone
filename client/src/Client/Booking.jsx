@@ -7,7 +7,7 @@ const Booking = () => {
       <ClientSidebar />
       <div className="client-booking" style={{ flex: 1, padding: '32px' }}>
         <h2>Booking</h2>
-        {/* Booking functionality here */}
+
       </div>
     </div>
   );

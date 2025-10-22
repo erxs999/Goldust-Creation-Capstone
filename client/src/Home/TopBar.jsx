@@ -20,12 +20,11 @@ const TopBar = () => {
       }
     };
     window.addEventListener("scroll", handleScroll);
-    handleScroll(); // set initial state
+    handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
-    // Fetch cart count for the logged-in user
     let intervalId;
     async function updateCartCount() {
       let userEmail = null;
@@ -50,12 +49,10 @@ const TopBar = () => {
     return () => clearInterval(intervalId);
   }, []);
 
-  // Get user from localStorage (outside of useEffect)
   let user = null;
   try {
     user = JSON.parse(localStorage.getItem('user'));
   } catch {}
-  // Only show name for customer role
   const isCustomer = user && user.firstName && user.lastName && (!user.role || user.role === 'customer' || user.role === 'user');
 
   return (

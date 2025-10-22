@@ -46,7 +46,6 @@ const EventCart = () => {
       <div className="event-cart-root">
         <h2 className="event-cart-title">Event Cart</h2>
         <div className="event-cart-main">
-          {/* Left: Cart Items */}
           <div className="event-cart-items">
             {cart.length === 0 ? (
               <p>Your selected events and services will appear here.</p>
@@ -67,7 +66,6 @@ const EventCart = () => {
               ))
             )}
           </div>
-          {/* Right: Summary */}
           <div className="event-cart-summary">
             <div className="event-cart-summary-title">Summary</div>
             <div className="event-cart-summary-list">

@@ -12,9 +12,7 @@ const API_BASE = 'http://localhost:5051/api';
 const CART_LOCAL_KEY = 'gd_event_cart';
 
 export default function PnSDetails() {
-  // Add to cart handler
   async function handleAddToCart(product) {
-    // Prevent duplicate products in cart for this user
     let userEmail = null;
     try {
       const user = JSON.parse(localStorage.getItem('user'));
@@ -37,9 +35,7 @@ export default function PnSDetails() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ product, userEmail })
       });
-      // Optionally show a success message
     } catch (err) {
-      // Optionally show an error message
     }
   }
   const location = useLocation();
@@ -49,18 +45,15 @@ export default function PnSDetails() {
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
-    // Try to get category from location.state or from query param
     let cat = '';
     if (location.state && location.state.category && location.state.category.title) {
       cat = location.state.category.title;
     } else {
-      // fallback: try to get from URL (e.g. /pns-details?category=we)
       const params = new URLSearchParams(window.location.search);
       cat = params.get('category') || '';
     }
     setCategoryTitle(cat);
     if (cat) {
-      // Fetch products for this category from API
   fetch(`${API_BASE}/products/${encodeURIComponent(cat)}`)
         .then(res => res.json())
         .then(data => setProducts(Array.isArray(data) ? data : []))

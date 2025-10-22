@@ -31,7 +31,6 @@ const ClientSidebar = () => {
       <ul>
         {navLinks.map((link, idx) => {
           const isActive = location.pathname === link.to;
-          // Insert a divider after Notification (before Log out)
           if (link.label === 'Log out') {
             return [
               <li key="divider" className="sidebar-divider"><hr className="sidebar-hr" /></li>,
