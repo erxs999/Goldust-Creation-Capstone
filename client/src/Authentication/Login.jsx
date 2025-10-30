@@ -32,12 +32,10 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // Check for hardcoded admin credentials
       if (
         form.emailOrPhone === 'goldustadmin@gmail.com' &&
         form.password === 'admin123'
       ) {
-        // Save admin info
         localStorage.setItem('user', JSON.stringify({
           email: 'goldustadmin@gmail.com',
           role: 'admin',
@@ -47,7 +45,6 @@ const Login = () => {
         navigate('/admin/dashboard');
         return;
       }
-      // ...existing supplier/customer login logic...
       let response = await fetch('http://localhost:5051/api/auth/login-supplier', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -55,7 +52,6 @@ const Login = () => {
       });
       let data = await response.json();
       if (!response.ok) {
-        // If not supplier, try customer
         response = await fetch('http://localhost:5051/api/auth/login-customer', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

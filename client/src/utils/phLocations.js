@@ -1,4 +1,3 @@
-// Utility to get all provinces, cities, and barangays using ph-locations
 import data from '../data/ph_locations.json';
 
 export function getProvinces() {

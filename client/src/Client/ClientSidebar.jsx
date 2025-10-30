@@ -28,8 +28,15 @@ const ClientSidebar = () => {
         {/* Render all links except Home and Log out */}
         {navLinks.filter(link => link.label !== 'Home' && link.label !== 'Log out').map((link) => {
           const isActive = location.pathname === link.to;
-          // Add extra space below Notification link
-          const extraStyle = link.label === 'Notification' ? { marginBottom: '32px' } : {};
+          if (link.label === 'Log out') {
+            return [
+              <li key="divider" className="sidebar-divider"><hr className="sidebar-hr" /></li>,
+              <li key={link.label} className={isActive ? 'active' : ''}>
+                <span className="icon">{link.icon}</span>
+                {expanded && <Link to={link.to} style={{ textDecoration: 'none', color: 'inherit' }}>{link.label}</Link>}
+              </li>
+            ];
+          }
           return (
             <li key={link.label} className={isActive ? 'active' : ''} style={extraStyle}>
               <span className="icon">{link.icon}</span>

@@ -1,6 +1,4 @@
-
-
-import React, { useState, useEffect } from 'react';
+import React, const user = JSON.parse(localStorage.getItem('user')) || '{}';{ useState, useEffect } from 'react';
 import api from '../services/api';
 import ClientSidebar from './ClientSidebar';
 import './BookingInformation.css';
@@ -14,14 +12,12 @@ const BookingInformation = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Get user info (match Login.jsx logic)
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const userEmail = user.email;
 
   useEffect(() => {
     async function fetchBookings() {
       try {
-        // Fetch all bookings and filter by user email
         const [pendingRes, approvedRes, finishedRes] = await Promise.all([
           api.get('/bookings/pending'),
           api.get('/bookings/approved'),
@@ -80,7 +76,6 @@ const BookingInformation = () => {
             )}
           </div>
         )}
-        {/* Modal */}
         {showModal && selectedBooking && (
           <div style={{position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
             <div style={{background: '#fff', borderRadius: 10, padding: 32, maxWidth: 800, width: '90%', boxShadow: '0 2px 16px rgba(0,0,0,0.15)', position: 'relative'}}>

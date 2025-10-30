@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-// PSGC API endpoints
 const PSGC_API = 'https://psgc.gitlab.io/api';
 import { useNavigate } from "react-router-dom";
 import "./booking.css";
@@ -28,7 +27,7 @@ const Booking = () => {
     eventLocation: '',
     eventVenue: '',
     specialRequest: '',
-    products: [], // will hold selected products/services
+    products: [],
     guestCount: '',
     totalPrice: '',
     province: '',
@@ -42,7 +41,6 @@ const Booking = () => {
   const [cities, setCities] = useState([]);
   const [barangays, setBarangays] = useState([]);
   const [loading, setLoading] = useState({ provinces: false, cities: false, barangays: false });
-  // Load provinces on mount
   useEffect(() => {
     setLoading(l => ({ ...l, provinces: true }));
     fetch(`${PSGC_API}/provinces/`)
@@ -51,7 +49,6 @@ const Booking = () => {
       .finally(() => setLoading(l => ({ ...l, provinces: false })));
   }, []);
 
-  // Load cities/municipalities when province changes
   useEffect(() => {
     if (form.province) {
       setLoading(l => ({ ...l, cities: true }));
@@ -68,7 +65,6 @@ const Booking = () => {
     }
   }, [form.province]);
 
-  // Load barangays when city changes
   useEffect(() => {
     if (form.city) {
       setLoading(l => ({ ...l, barangays: true }));
@@ -83,7 +79,6 @@ const Booking = () => {
     }
   }, [form.city]);
 
-  // On mount, load selected products/services from backend cart (with userEmail)
   React.useEffect(() => {
     // Get userEmail from localStorage user object (same as cart logic)
     let userEmail = null;
@@ -109,11 +104,7 @@ const Booking = () => {
   }, []);
   const navigate = useNavigate();
 
-  // TODO: Wire up form state to inputs if needed
 
-
-
-  // Compute total price from products
   const computeTotalPrice = () => {
     if (!form.products || !Array.isArray(form.products)) return 0;
     return form.products.reduce((sum, item) => {
@@ -123,17 +114,12 @@ const Booking = () => {
     }, 0);
   };
 
-  // Get event venue as a string from selected location
   const getEventVenue = () => {
-    // Find names from codes
     const provinceName = provinces.find(p => p.code === form.province)?.name || '';
     const cityName = cities.find(c => c.code === form.city)?.name || '';
     const barangayName = barangays.find(b => b.code === form.barangay)?.name || '';
-    // Only show non-empty parts
     return [barangayName, cityName, provinceName].filter(Boolean).join(', ');
   };
-
-  // Validation: required fields
   const isFormValid = () => {
     return (
       form.date &&
@@ -147,10 +133,8 @@ const Booking = () => {
 
   const handleNext = () => {
     if (!isFormValid()) {
-      // Optionally show a message here
       return;
     }
-    // Add computed totalPrice and eventVenue to booking object
     const booking = {
       ...form,
       totalPrice: computeTotalPrice(),
@@ -192,94 +176,86 @@ const Booking = () => {
               />
             </LocalizationProvider>
           </div>
-          <div className="booking-form-box" style={{ flex: 1, minWidth: 0, maxWidth: 'none', width: '50%', display: 'flex', flexDirection: 'column', padding: '24px 32px', boxSizing: 'border-box', height: 400, justifyContent: 'center' }}>
-            <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start', marginBottom: 20 }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 8, marginTop: 8, color: !form.province ? '#000000ff' : '#333' }}>Event Venue</div>
-                <div className="booking-field">
-                  <FormControl fullWidth size="small" style={{ marginBottom: 12 }}>
-                    <InputLabel id="province-label">Province</InputLabel>
-                    <Select
-                      labelId="province-label"
-                      value={form.province} 
-                      label="Province"
-                      onChange={e => setForm(f => ({ ...f, province: e.target.value }))}
-                      MenuProps={{ disablePortal: false, style: { zIndex: 2000 } }}
-                      disabled={loading.provinces}
-                    >
-                      <MenuItem value="" style={{ fontWeight: 500, color: '#888', fontSize: 16 }}>Province</MenuItem>
-                      {provinces.map(p => (
-                        <MenuItem key={p.code} value={p.code}>{p.name}</MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                  <FormControl fullWidth size="small" style={{ marginBottom: 12 }} disabled={!form.province || loading.cities}>
-                    <InputLabel id="city-label">City/Municipality</InputLabel>
-                    <Select
-                      labelId="city-label"
-                      value={form.city}
-                      label="City/Municipality"
-                      onChange={e => setForm(f => ({ ...f, city: e.target.value }))}
-                      MenuProps={{ disablePortal: false, style: { zIndex: 2000 } }}
-                    >
-                      <MenuItem value="" style={{ fontWeight: 500, color: '#888', fontSize: 16 }}>City/Municipality</MenuItem>
-                      {cities.map((c, idx) => (
-                        <MenuItem key={c.code} value={c.code}>{c.name}</MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                  <FormControl fullWidth size="small" disabled={!form.city || loading.barangays}>
-                    <InputLabel id="barangay-label">Barangay</InputLabel>
-                    <Select
-                      labelId="barangay-label"
-                      value={form.barangay}
-                      label="Barangay"
-                      onChange={e => setForm(f => ({ ...f, barangay: e.target.value }))}
-                      MenuProps={{ disablePortal: false, style: { zIndex: 2000 } }}
-                    >
-                      <MenuItem value="" style={{ fontWeight: 500, color: '#888', fontSize: 16 }}>Barangay</MenuItem>
-                      {barangays.map((b, idx) => (
-                        <MenuItem key={b.code} value={b.code}>{b.name}</MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </div>
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 6, marginTop: 8, color: !form.eventType ? '#000000ff' : '#000000ff' }}>Event Type</div>
-                <div className="booking-field">
-                  <FormControl fullWidth size="small">
-                    <InputLabel id="event-type-label">Choose Event Type</InputLabel>
-                    <Select
-                      labelId="event-type-label"
-                      label="Event Type"
-                      variant="outlined"
-                      size="small"
-                      
-                      value={form.eventType}
-                      onChange={e => setForm(f => ({ ...f, eventType: e.target.value }))}
-                    >
-                      
-                      <MenuItem value="Wedding">Wedding</MenuItem>
-                      <MenuItem value="Birthday">Birthday</MenuItem>
-                      <MenuItem value="Debut">Debut</MenuItem>
-                      <MenuItem value="Corporate">Corporate</MenuItem>
-                      <MenuItem value="Other">Other</MenuItem>
-                    </Select>
-                  </FormControl>
-                </div>
-                <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 6, marginTop: 12, color: !form.guestCount ? '#000000ff' : '#333' }}>Guest Count</div>
-                <TextField
-                  fullWidth
-                  type="number"
-                  label="Enter Guest Count"
-                  variant="outlined"
-                  size="small"
-                  value={form.guestCount}
-                  onChange={e => setForm(f => ({ ...f, guestCount: e.target.value }))}
-                  inputProps={{ min: 1 }}
-                />
-              </div>
+          <div className="booking-form-box" style={{ flex: 1, minWidth: 0, maxWidth: 'none', width: '50%', display: 'flex', flexDirection: 'column', padding: '24px 32px', boxSizing: 'border-box' }}>
+            <div style={{ fontWeight: 600, fontSize: 17, marginBottom: 8, marginTop: 8, color: '#222' }}>Event Venue</div>
+            <div className="booking-field" style={{ marginBottom: 20 }}>
+              <FormControl fullWidth size="small" style={{ marginBottom: 12 }}>
+                <InputLabel id="province-label">Province</InputLabel>
+                <Select
+                  labelId="province-label"
+                  value={form.province}
+                  label="Province"
+                  onChange={e => setForm(f => ({ ...f, province: e.target.value }))}
+                  MenuProps={{ disablePortal: false, style: { zIndex: 2000 } }}
+                  disabled={loading.provinces}
+                >
+                  <MenuItem value="">Select Province</MenuItem>
+                  {provinces.map(p => (
+                    <MenuItem key={p.code} value={p.code}>{p.name}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl fullWidth size="small" style={{ marginBottom: 12 }} disabled={!form.province || loading.cities}>
+                <InputLabel id="city-label">City/Municipality</InputLabel>
+                <Select
+                  labelId="city-label"
+                  value={form.city}
+                  label="City/Municipality"
+                  onChange={e => setForm(f => ({ ...f, city: e.target.value }))}
+                  MenuProps={{ disablePortal: false, style: { zIndex: 2000 } }}
+                >
+                  <MenuItem value="">Select City/Municipality</MenuItem>
+                  {cities.map((c, idx) => (
+                    <MenuItem key={c.code} value={c.code}>{c.name}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl fullWidth size="small" disabled={!form.city || loading.barangays}>
+                <InputLabel id="barangay-label">Barangay</InputLabel>
+                <Select
+                  labelId="barangay-label"
+                  value={form.barangay}
+                  label="Barangay"
+                  onChange={e => setForm(f => ({ ...f, barangay: e.target.value }))}
+                  MenuProps={{ disablePortal: false, style: { zIndex: 2000 } }}
+                >
+                  <MenuItem value="">Select Barangay</MenuItem>
+                  {barangays.map((b, idx) => (
+                    <MenuItem key={b.code} value={b.code}>{b.name}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+            <div style={{ height: 18 }} />
+            <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 6, color: '#222' }}>Event Type</div>
+            <div className="booking-field" style={{ marginBottom: 20 }}>
+              <FormControl fullWidth size="small">
+                <InputLabel id="event-type-label">Event Type</InputLabel>
+                <Select
+                  labelId="event-type-label"
+                  label="Event Type"
+                  value={form.eventType}
+                  onChange={e => setForm(f => ({ ...f, eventType: e.target.value }))}
+                >
+                  <MenuItem value="">Choose your Event Type</MenuItem>
+                  <MenuItem value="Wedding">Wedding</MenuItem>
+                  <MenuItem value="Birthday">Birthday</MenuItem>
+                  <MenuItem value="Debut">Debut</MenuItem>
+                  <MenuItem value="Corporate">Corporate</MenuItem>
+                  <MenuItem value="Other">Other</MenuItem>
+                </Select>
+              </FormControl>
+              <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 6, marginTop: 12, color: '#222' }}>Guest Count</div>
+              <TextField
+                fullWidth
+                type="number"
+                label="Guest Count"
+                variant="outlined"
+                size="small"
+                value={form.guestCount}
+                onChange={e => setForm(f => ({ ...f, guestCount: e.target.value }))}
+                inputProps={{ min: 1 }}
+              />
             </div>
             <div className="booking-field" style={{ marginBottom: 0 }}>
               <FormControl component="fieldset" fullWidth>
@@ -299,7 +275,6 @@ const Booking = () => {
                 </RadioGroup>
               </FormControl>
             </div>
-            {/* Special Request field moved to services card below */}
           </div>
         </div>
         <div className="booking-services-box" style={{ maxWidth: 900, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '0 auto' }}>
@@ -330,7 +305,6 @@ const Booking = () => {
               </IconButton>
             )}
           </div>
-          {/* Show selected products/services from cart */}
           {form.products && form.products.length > 0 ? (
             <div style={{ width: '100%' }}>
               <div style={{ marginBottom: 24, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
@@ -402,7 +376,6 @@ const Booking = () => {
           </div>
         </div>
       </div>
-      {/* Confirm Button */}
   <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: 16, marginBottom: 80 }}>
         <button
           style={{

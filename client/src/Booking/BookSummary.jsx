@@ -8,15 +8,12 @@ const BookSummary = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const booking = location.state?.booking || {};
-  // Get user details from localStorage (adjust key if needed)
   let user = {};
   try {
     user = JSON.parse(localStorage.getItem('user')) || {};
   } catch (e) {
     user = {};
   }
-  // Use booking data if present, else fallback to user data
-  // Build full name from user details if available
   let fullName = '';
   if (user?.firstName) {
     fullName = user.firstName;
@@ -40,20 +37,18 @@ const BookSummary = () => {
         <div>
           <div className="booking-summary-row">
             <div className="booking-summary-col">
-              <div style={{ marginBottom: 12, color: '#111' }}><span style={{ fontWeight: 'bold' }}>Name :</span> <span style={{ color: '#111' }}>{displayName}</span></div>
-              <div style={{ marginBottom: 12, color: '#111' }}><span style={{ fontWeight: 'bold' }}>Contact Number :</span> <span style={{ color: '#111' }}>{displayContact}</span></div>
-              <div style={{ marginBottom: 12, color: '#111' }}><span style={{ fontWeight: 'bold' }}>Email Address :</span> <span style={{ color: '#111' }}>{displayEmail}</span></div>
-              <div style={{ marginBottom: 12, color: '#111' }}><span style={{ fontWeight: 'bold' }}>Event Type :</span> <span style={{ color: '#111' }}>{booking?.eventType || ""}</span></div>
-              <div style={{ marginBottom: 12, color: '#111' }}><span style={{ fontWeight: 'bold' }}>Event Date :</span> <span style={{ color: '#111' }}>{booking?.date ? (typeof booking.date === 'string' ? booking.date : booking.date?.$d ? new Date(booking.date.$d).toLocaleDateString() : booking.date.toString()) : ""}</span></div>
-              {/* Event Location removed as per request */}
-              <div style={{ marginBottom: 12, color: '#111' }}><span style={{ fontWeight: 'bold' }}>Event Venue :</span> <span style={{ color: '#111' }}>{booking?.eventVenue || ""}</span></div>
+              <div style={{ marginBottom: 12, color: '#111' }}>Name : <span style={{ color: '#111' }}>{booking?.name || ""}</span></div>
+              <div style={{ marginBottom: 12, color: '#111' }}>Contact Number : <span style={{ color: '#111' }}>{booking?.contact || ""}</span></div>
+              <div style={{ marginBottom: 12, color: '#111' }}>Email Address : <span style={{ color: '#111' }}>{booking?.email || ""}</span></div>
+              <div style={{ marginBottom: 12, color: '#111' }}>Event Type : <span style={{ color: '#111' }}>{booking?.eventType || ""}</span></div>
+              <div style={{ marginBottom: 12, color: '#111' }}>Event Date : <span style={{ color: '#111' }}>{booking?.date ? (typeof booking.date === 'string' ? booking.date : booking.date?.$d ? new Date(booking.date.$d).toLocaleDateString() : booking.date.toString()) : ""}</span></div>
+              <div style={{ marginBottom: 12, color: '#111' }}>Event Venue : <span style={{ color: '#111' }}>{booking?.eventVenue || ""}</span></div>
             </div>
             <div className="booking-summary-col">
               <div style={{ marginBottom: 12, color: '#111' }}><span style={{ fontWeight: 'bold' }}>Guest Count :</span> <span style={{ color: '#111' }}>{booking?.guestCount || ""}</span></div>
               <div style={{ marginBottom: 12, color: '#111' }}><span style={{ fontWeight: 'bold' }}>Total Price:</span> <span style={{ color: '#111' }}>{booking?.totalPrice || ""}</span></div>
             </div>
           </div>
-          {/* Services and Products Availed */}
           <div style={{ marginTop: 32, marginBottom: 0 }}>
             <div style={{ marginBottom: 12, color: '#111', fontWeight: 'bold'}}>Services and Products Availed:</div>
             {booking?.products && booking.products.length > 0 ? (
@@ -83,7 +78,6 @@ const BookSummary = () => {
               <div style={{ color: '#888', marginBottom: 16 }}>No products/services selected.</div>
             )}
           </div>
-          {/* Special Request full width */}
           <div style={{ marginTop: 24, marginBottom: 0 }}>
             <div style={{ marginBottom: 12, color: '#111', fontWeight: 'bold'}}>Special Request :</div>
             <textarea
@@ -93,12 +87,10 @@ const BookSummary = () => {
               readOnly
             />
           </div>
-          {/* Selected Additionals */}
           <div style={{ marginTop: 24 }}>
             <div style={{ marginBottom: 12, color: '#111', fontWeight: 'bold'}}>Selected Additionals:</div>
             {booking?.products && booking.products.length > 0 ? (
               (() => {
-                // Gather additionals from booking.products. They may be stored as __cart_additionals or as product.additionals
                 const allAdds = [];
                 booking.products.forEach((p, i) => {
                   const adds = p.__cart_additionals || p.additionals || [];
@@ -134,25 +126,7 @@ const BookSummary = () => {
               className="booking-btn booking-btn-next booking-btn-orange"
               style={{ minWidth: 100, background: '#ff9800', color: '#fff', border: 'none' }}
               onClick={async () => {
-                // Send booking to pending bookings
                 try {
-                  // Convert date to ISO string if needed
-                  // Use user details if booking fields are missing
-                  let fullName = '';
-                  if (user?.firstName) {
-                    fullName = user.firstName;
-                    if (user.middleName) fullName += ' ' + user.middleName;
-                    if (user.lastName) fullName += ' ' + user.lastName;
-                  } else if (user?.fullName) {
-                    fullName = user.fullName;
-                  } else if (user?.name) {
-                    fullName = user.name;
-                  }
-                  // Ensure each product includes its additionals when sending to backend
-                  const productsWithAdd = (booking.products || []).map(p => ({
-                    ...p,
-                    additionals: p.__cart_additionals || p.additionals || []
-                  }));
                   const bookingToSend = {
                     name: booking.name || fullName || '',
                     contact: booking.contact || user?.contact || user?.phone || '',

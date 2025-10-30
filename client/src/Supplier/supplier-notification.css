@@ -1,0 +1,36 @@
+.notification-page {
+  display: flex;
+  background-color: #ffffff;
+  min-height: 100vh;
+}
+
+.notification-content {
+  flex: 1;
+  padding: 32px;
+  margin-left: 270px;
+}
+
+.notification-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.notification-card {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 0 0 2px #eee, 0 4px 24px 0 rgba(0,0,0,0.06);
+  transition: 0.3s;
+}
+
+.notification-card:hover {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  transform: translateY(-5px);
+}
+
+.notification-card p {
+  margin: 0;
+  color: #555;
+}

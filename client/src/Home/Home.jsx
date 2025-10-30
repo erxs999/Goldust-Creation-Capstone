@@ -15,38 +15,32 @@ const Home = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch categories from API
     fetch(`${API_BASE}/categories`)
       .then(res => res.json())
       .then(data => setCategories(Array.isArray(data) ? data : []))
       .catch(() => setCategories([]));
 
-    // Scroll to services if ?scroll=services is in the URL
     if (window.location.search.includes('scroll=services')) {
       setTimeout(() => {
         const el = document.getElementById('services');
         if (el) el.scrollIntoView({ behavior: 'smooth' });
       }, 100);
     }
-    // Fetch background images from backend
-    fetch(`${API_BASE}/background-images`)
-      .then(res => res.json())
-      .then(imgs => {
-        setBgImages(imgs.map(img => img.url));
-        setBgIndex(0);
-      })
-      .catch(() => {
-        setBgImages([]);
-        setBgIndex(0);
-      });
+    try {
+      const imgs = JSON.parse(localStorage.getItem('gd_background_gallery')) || [];
+      setBgImages(imgs.map(img => img.url));
+      setBgIndex(0);
+    } catch {
+      setBgImages([]);
+      setBgIndex(0);
+    }
   }, []);
 
-  // Slideshow effect
   React.useEffect(() => {
     if (bgImages.length <= 1) return;
     const interval = setInterval(() => {
       setBgIndex(idx => (idx + 1) % bgImages.length);
-    }, 5000); // 5 seconds
+    }, 5000);
     return () => clearInterval(interval);
   }, [bgImages]);
 

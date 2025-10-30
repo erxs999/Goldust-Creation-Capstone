@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useEffect } from 'react';
 import ClientSidebar from './ClientSidebar';
 import { Calendar as RsuiteCalendar } from 'rsuite';
@@ -28,7 +25,6 @@ const UserCalendar = () => {
 	const [selectedEvent, setSelectedEvent] = useState(null);
 	const [loading, setLoading] = useState(true);
 
-	// Get logged-in user info
 	const user = JSON.parse(localStorage.getItem('user') || '{}');
 	const userEmail = user.email;
 	const userName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
@@ -39,7 +35,6 @@ const UserCalendar = () => {
 				const res = await fetch('/api/schedules');
 				if (!res.ok) throw new Error('Failed to fetch schedules');
 				const data = await res.json();
-				// Filter events for this user by name or email for both Customer and Supplier
 				const filtered = data.filter(ev => {
 					if (ev.type === 'Customer' || ev.type === 'Supplier') {
 						return (ev.person === userEmail || ev.person === userName);
@@ -56,7 +51,6 @@ const UserCalendar = () => {
 		if (userEmail) fetchEvents();
 	}, [userEmail, userName]);
 
-	// Get events for a specific date (compare as string)
 	const getEventsForDate = (date) => {
 		let d;
 		if (typeof date === 'string') {
