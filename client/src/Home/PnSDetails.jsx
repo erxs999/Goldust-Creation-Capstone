@@ -39,7 +39,6 @@ export default function PnSDetails() {
         setAdditionalsOpen(false);
         return;
       }
-      // Remove additionals from product if present, send as top-level field
       const { additionals, ...productWithoutAdditionals } = pendingProduct || {};
       await fetch(`${API_BASE}/cart`, {
         method: 'POST',
@@ -158,7 +157,6 @@ export default function PnSDetails() {
               </div>
             ))}
             <ProductDetailsModal open={modalOpen} onClose={() => setModalOpen(false)} product={selectedProduct} />
-            {/* Additionals Modal */}
             <Dialog open={additionalsOpen} onClose={() => setAdditionalsOpen(false)}>
               <DialogTitle>Add Additionals?</DialogTitle>
               <DialogContent>

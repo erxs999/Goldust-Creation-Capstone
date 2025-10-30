@@ -8,15 +8,12 @@ const BookSummary = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const booking = location.state?.booking || {};
-  // Get user details from localStorage (adjust key if needed)
   let user = {};
   try {
     user = JSON.parse(localStorage.getItem('user')) || {};
   } catch (e) {
     user = {};
   }
-  // Use booking data if present, else fallback to user data
-  // Build full name from user details if available
   let fullName = '';
   if (user?.firstName) {
     fullName = user.firstName;
@@ -90,12 +87,10 @@ const BookSummary = () => {
               readOnly
             />
           </div>
-          {/* Selected Additionals */}
           <div style={{ marginTop: 24 }}>
             <div style={{ marginBottom: 12, color: '#111', fontWeight: 'bold'}}>Selected Additionals:</div>
             {booking?.products && booking.products.length > 0 ? (
               (() => {
-                // Gather additionals from booking.products. They may be stored as __cart_additionals or as product.additionals
                 const allAdds = [];
                 booking.products.forEach((p, i) => {
                   const adds = p.__cart_additionals || p.additionals || [];

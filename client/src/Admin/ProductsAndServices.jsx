@@ -30,12 +30,13 @@ export default function ProductsAndServices() {
   const navigate = useNavigate();
   // State for Add Product/Service modal
   const [showProductModal, setShowProductModal] = useState(false);
-  const [productImage, setProductImage] = useState("");
+  const [productImages, setProductImages] = useState([]);
   const [productTitle, setProductTitle] = useState("");
   const [productDescription, setProductDescription] = useState("");
   const [productPrice, setProductPrice] = useState("");
   const [showAdditionals, setShowAdditionals] = useState(false);
   const [additionals, setAdditionals] = useState([{ title: '', price: '', description: '' }]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   // State for products/services added in the selected category
   const PRODUCTS_LOCAL_KEY = 'gd_products_by_category';
   const [products, setProducts] = useState([]);
@@ -462,7 +463,7 @@ export default function ProductsAndServices() {
                   e.preventDefault();
                   if (!productTitle.trim() || !productDescription.trim() || !productPrice.trim()) return;
                   const newProduct = {
-                    image: productImage,
+                    images: productImages,
                     title: productTitle,
                     description: productDescription,
                     price: productPrice,
@@ -488,36 +489,134 @@ export default function ProductsAndServices() {
                 }}>
                   <DialogContent>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 16 }}>
-                      {productImage ? (
-                        <img
-                          src={productImage}
-                          alt="Preview"
-                          style={{ width: 120, height: 120, objectFit: 'cover', borderRadius: 8, marginBottom: 8, border: '1px solid #ccc' }}
-                        />
-                      ) : (
-                        <div style={{ width: 120, height: 120, background: '#eee', borderRadius: 8, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888', border: '1px solid #ccc' }}>
-                          No Image
-                        </div>
-                      )}
-                      <Button
-                        variant="outlined"
-                        component="label"
-                        sx={{ mb: 1 }}
-                      >
-                        Upload Picture
-                        <input
-                          type="file"
-                          accept="image/*"
-                          hidden
-                          onChange={e => {
-                            const file = e.target.files[0];
-                            if (!file) return;
-                            const reader = new FileReader();
-                            reader.onloadend = () => setProductImage(reader.result);
-                            reader.readAsDataURL(file);
-                          }}
-                        />
-                      </Button>
+                      <div style={{ position: 'relative', width: '100%', maxWidth: 400, marginBottom: 16 }}>
+                        {productImages.length > 0 ? (
+                          <div style={{ position: 'relative' }}>
+                            <img
+                              src={productImages[currentImageIndex]}
+                              alt={`Preview ${currentImageIndex + 1}`}
+                              style={{ width: '100%', height: 240, objectFit: 'cover', borderRadius: 8, border: '1px solid #ccc' }}
+                            />
+                            {productImages.length > 1 && (
+                              <>
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    setCurrentImageIndex((prev) => (prev === 0 ? productImages.length - 1 : prev - 1));
+                                  }}
+                                  style={{
+                                    position: 'absolute',
+                                    left: 8,
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    background: 'rgba(255,255,255,0.8)',
+                                    border: 'none',
+                                    borderRadius: '50%',
+                                    width: 36,
+                                    height: 36,
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                  }}
+                                >
+                                  ←
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    setCurrentImageIndex((prev) => (prev === productImages.length - 1 ? 0 : prev + 1));
+                                  }}
+                                  style={{
+                                    position: 'absolute',
+                                    right: 8,
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    background: 'rgba(255,255,255,0.8)',
+                                    border: 'none',
+                                    borderRadius: '50%',
+                                    width: 36,
+                                    height: 36,
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                  }}
+                                >
+                                  →
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        ) : (
+                          <div style={{ width: '100%', height: 240, background: '#eee', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888', border: '1px solid #ccc' }}>
+                            No Images
+                          </div>
+                        )}
+                        
+                        {/* Thumbnail Preview */}
+                        {productImages.length > 0 && (
+                          <div style={{ display: 'flex', gap: 8, marginTop: 8, overflowX: 'auto', padding: '8px 0' }}>
+                            {productImages.map((img, idx) => (
+                              <img
+                                key={idx}
+                                src={img}
+                                alt={`Thumbnail ${idx + 1}`}
+                                style={{
+                                  width: 60,
+                                  height: 60,
+                                  objectFit: 'cover',
+                                  borderRadius: 4,
+                                  cursor: 'pointer',
+                                  border: currentImageIndex === idx ? '2px solid #e6b800' : '1px solid #ccc'
+                                }}
+                                onClick={() => setCurrentImageIndex(idx)}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <Button
+                          variant="outlined"
+                          component="label"
+                          sx={{ mb: 1 }}
+                        >
+                          Add Images
+                          <input
+                            type="file"
+                            accept="image/*"
+                            hidden
+                            multiple
+                            onChange={e => {
+                              const files = Array.from(e.target.files);
+                              Promise.all(
+                                files.map(file => new Promise((resolve) => {
+                                  const reader = new FileReader();
+                                  reader.onloadend = () => resolve(reader.result);
+                                  reader.readAsDataURL(file);
+                                }))
+                              ).then(results => {
+                                setProductImages(prev => [...prev, ...results]);
+                              });
+                            }}
+                          />
+                        </Button>
+                        {productImages.length > 0 && (
+                          <Button
+                            variant="outlined"
+                            color="error"
+                            sx={{ mb: 1 }}
+                            onClick={() => {
+                              setProductImages([]);
+                              setCurrentImageIndex(0);
+                            }}
+                          >
+                            Clear Images
+                          </Button>
+                        )}
+                      </div>
                     </div>
                     <TextField
                       label="Product/Service Title"
@@ -628,7 +727,16 @@ export default function ProductsAndServices() {
                           <IconButton
                             aria-label="Delete"
                             size="small"
-                            onClick={e => { e.stopPropagation(); /* delete logic here */ }}
+                            onClick={async e => { 
+                              e.stopPropagation(); 
+                              if (!window.confirm('Delete this product/service?')) return;
+                              try {
+                                await fetch(`${API_BASE}/products/${prod._id}`, { method: 'DELETE' });
+                                setProducts(products.filter(p => p._id !== prod._id));
+                              } catch (err) {
+                                console.error('Error deleting product:', err);
+                              }
+                            }}
                             style={{
                               position: 'absolute',
                               top: 8,
@@ -639,15 +747,31 @@ export default function ProductsAndServices() {
                           >
                             <DeleteIcon style={{ color: '#e53935' }} fontSize="small" />
                           </IconButton>
-                          {prod.image ? (
-                            <img src={prod.image} alt={prod.title} style={{
-                              display: 'block',
-                              width: '100%',
-                              height: 220,
-                              objectFit: 'cover',
-                              borderRadius: 0,
-                              margin: 0,
-                            }} />
+                          {prod.images && prod.images.length > 0 ? (
+                            <div style={{ position: 'relative' }}>
+                              <img src={prod.images[0]} alt={prod.title} style={{
+                                display: 'block',
+                                width: '100%',
+                                height: 220,
+                                objectFit: 'cover',
+                                borderRadius: 0,
+                                margin: 0,
+                              }} />
+                              {prod.images.length > 1 && (
+                                <div style={{
+                                  position: 'absolute',
+                                  bottom: 8,
+                                  right: 8,
+                                  background: 'rgba(0,0,0,0.6)',
+                                  color: 'white',
+                                  padding: '4px 8px',
+                                  borderRadius: 4,
+                                  fontSize: 12
+                                }}>
+                                  +{prod.images.length - 1} more
+                                </div>
+                              )}
+                            </div>
                           ) : (
                             <div style={{
                               width: '100%',
@@ -703,9 +827,9 @@ export default function ProductsAndServices() {
                       }}>
                         <DialogContent>
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 16 }}>
-                            {editProductData.image ? (
+                            {editProductData.images && editProductData.images.length > 0 ? (
                               <img
-                                src={editProductData.image}
+                                src={editProductData.images[0]}
                                 alt="Preview"
                                 style={{ width: 120, height: 120, objectFit: 'cover', borderRadius: 8, marginBottom: 8, border: '1px solid #ccc' }}
                               />
@@ -729,7 +853,10 @@ export default function ProductsAndServices() {
                                   if (!file) return;
                                   const reader = new FileReader();
                                   reader.onloadend = () => {
-                                    setEditProductData({ ...editProductData, image: reader.result });
+                                    setEditProductData({ 
+                                      ...editProductData, 
+                                      images: [reader.result, ...(editProductData.images || []).slice(1)] 
+                                    });
                                   };
                                   reader.readAsDataURL(file);
                                 }}

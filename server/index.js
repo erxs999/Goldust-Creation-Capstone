@@ -2,7 +2,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const authConnection = mongoose.createConnection('mongodb+srv://hedgjprotacio_db_user:H3r0514v35!@goldust.9lkqckv.mongodb.net/authentication?retryWrites=true&w=majority&appName=Goldust', {
+const authConnection = mongoose.createConnection('mongodb+srv://goldust:goldust123@goldust.9lkqckv.mongodb.net/authentication?retryWrites=true&w=majority&appName=Goldust', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
@@ -72,12 +72,12 @@ app.post('/api/auth/login-customer', async (req, res) => {
   }
 });
 
-const MONGO_URI = 'mongodb+srv://hedgjprotacio_db_user:H3r0514v35!@goldust.9lkqckv.mongodb.net/ProductsAndServices?retryWrites=true&w=majority&appName=Goldust';
+const MONGO_URI = 'mongodb+srv://goldust:goldust123@goldust.9lkqckv.mongodb.net/ProductsAndServices?retryWrites=true&w=majority&appName=Goldust';
 mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('MongoDB ProductsAndServices connected!'))
   .catch(err => console.error('MongoDB ProductsAndServices connection error:', err));
 
-const bookingConnection = mongoose.createConnection('mongodb+srv://hedgjprotacio_db_user:H3r0514v35!@goldust.9lkqckv.mongodb.net/booking?retryWrites=true&w=majority&appName=Goldust', {
+const bookingConnection = mongoose.createConnection('mongodb+srv://goldust:goldust123@goldust.9lkqckv.mongodb.net/booking?retryWrites=true&w=majority&appName=Goldust', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
@@ -94,7 +94,7 @@ const categorySchema = new mongoose.Schema({
 const Category = mongoose.model('Category', categorySchema);
 
 const productSchema = new mongoose.Schema({
-  image: String,
+  images: [{ type: String }],
   title: { type: String, required: true },
   description: String,
   price: String,

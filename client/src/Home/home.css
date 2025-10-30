@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
+
 .home-services-row {
   display: flex;
   flex-direction: row;
@@ -5,7 +7,6 @@
   justify-content: center;
   margin-bottom: 15px;
 }
-/* Modern Policy Styles */
 .policy-modern-container {
   display: flex;
   justify-content: center;

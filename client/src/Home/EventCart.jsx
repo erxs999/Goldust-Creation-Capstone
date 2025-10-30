@@ -58,7 +58,6 @@ const EventCart = () => {
                   <div style={{ flex: 1 }}>
                     <div className="event-cart-item-title">{item.product ? item.product.title : ''}</div>
                     {item.product && item.product.price && <div className="event-cart-item-price">PHP {item.product.price}</div>}
-                    {/* Show additionals if any */}
                     {Array.isArray(item.additionals) && item.additionals.length > 0 && (
                       <div style={{ marginTop: 8, marginLeft: 8 }}>
                         <div style={{ fontWeight: 500, fontSize: 14, color: '#888' }}>Additionals:</div>
@@ -93,7 +92,6 @@ const EventCart = () => {
                       <span>{item.product ? item.product.title : ''}</span>
                       <span style={{ fontWeight: 600 }}>PHP {item.product && item.product.price ? item.product.price : 0}</span>
                     </div>
-                    {/* Additionals in summary */}
                     {Array.isArray(item.additionals) && item.additionals.length > 0 && item.additionals.map((add, aidx) => (
                       <div key={add._id || add.title || aidx} className="event-cart-summary-row" style={{ paddingLeft: 18, fontSize: 14, color: '#555' }}>
                         <span>+ {add.title}</span>
