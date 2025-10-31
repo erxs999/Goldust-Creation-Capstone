@@ -4,7 +4,7 @@ import ClientSidebar from './ClientSidebar';
 import './BookingInformation.css';
 
 
-
+/* */
 
 const BookingInformation = () => {
   const [showModal, setShowModal] = useState(false);
