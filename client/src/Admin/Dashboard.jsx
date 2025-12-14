@@ -156,32 +156,56 @@ export default function Dashboard() {
         ['Branch:', branchFilter === 'all' ? 'All Branches' : branchFilter],
         [],
         ['BOOKINGS SUMMARY'],
-        ['Pending Bookings', pendingCount],
-        ['Approved Bookings', approvedCount],
-        ['Finished Bookings', finishedCount],
+        ['Status', 'Count'],
+        ['Pending Bookings', String(pendingCount)],
+        ['Approved Bookings', String(approvedCount)],
+        ['Finished Bookings', String(finishedCount)],
+        ['TOTAL BOOKINGS', String(pendingCount + approvedCount + finishedCount)],
         [],
         ['APPOINTMENTS'],
-        ['Upcoming Appointments', upcomingAppointments !== null ? upcomingAppointments : 0],
-        ['Finished Appointments', finishedAppointments !== null ? finishedAppointments : 0],
+        ['Type', 'Count'],
+        ['Upcoming Appointments', String(upcomingAppointments !== null ? upcomingAppointments : 0)],
+        ['Finished Appointments', String(finishedAppointments !== null ? finishedAppointments : 0)],
+        ['TOTAL APPOINTMENTS', String((upcomingAppointments || 0) + (finishedAppointments || 0))],
         [],
         ['CUSTOMERS & SUPPLIERS'],
-        ['Total Customers', totalCustomers !== null ? totalCustomers : 0],
-        ['Total Suppliers', totalSuppliers !== null ? totalSuppliers : 0],
+        ['Category', 'Count'],
+        ['Total Customers', String(totalCustomers !== null ? totalCustomers : 0)],
+        ['Total Suppliers', String(totalSuppliers !== null ? totalSuppliers : 0)],
         [],
         ['BOOKINGS BY LOCATION'],
-        ['Sta. Fe, Nueva Vizcaya', bookingsByLocation['sta fe nueva vizcaya'] || 0],
-        ['La Trinidad, Benguet', bookingsByLocation['la trinidad benguet'] || 0],
-        ['Maddela, Quirino', bookingsByLocation['maddela quirino'] || 0],
+        ['Branch', 'Count'],
+        ['Sta. Fe, Nueva Vizcaya', String(bookingsByLocation['sta fe nueva vizcaya'] || 0)],
+        ['La Trinidad, Benguet', String(bookingsByLocation['la trinidad benguet'] || 0)],
+        ['Maddela, Quirino', String(bookingsByLocation['maddela quirino'] || 0)],
+        ['TOTAL', String((bookingsByLocation['sta fe nueva vizcaya'] || 0) + (bookingsByLocation['la trinidad benguet'] || 0) + (bookingsByLocation['maddela quirino'] || 0))],
         [],
         ['REVIEWS'],
+        ['Metric', 'Value'],
         ['Average Rating', reviewSummary.avg.toFixed(1)],
-        ['Total Reviews', reviewSummary.total],
+        ['Total Reviews', String(reviewSummary.total)],
         [],
         ['URGENT REMINDERS'],
-        ['Due within 3 days', urgentReminders]
+        ['Due within 3 days', String(urgentReminders)]
       ];
       
       const ws1 = XLSX.utils.aoa_to_sheet(overviewData);
+      
+      // Auto-size columns and set left alignment for Overview sheet
+      const maxWidth1 = overviewData.reduce((w, r) => Math.max(w, r[0] ? r[0].toString().length : 0), 10);
+      ws1['!cols'] = [{ wch: maxWidth1 + 5 }, { wch: 15 }];
+      
+      // Apply left alignment to all cells
+      const range1 = XLSX.utils.decode_range(ws1['!ref']);
+      for (let R = range1.s.r; R <= range1.e.r; ++R) {
+        for (let C = range1.s.c; C <= range1.e.c; ++C) {
+          const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+          if (!ws1[cellAddress]) continue;
+          if (!ws1[cellAddress].s) ws1[cellAddress].s = {};
+          ws1[cellAddress].s.alignment = { horizontal: 'left' };
+        }
+      }
+      
       XLSX.utils.book_append_sheet(wb, ws1, 'Overview');
       
       // Sheet 2: Revenue Data
@@ -194,24 +218,39 @@ export default function Dashboard() {
       
       if (revenueData && revenueData.length > 0) {
         revenueData.forEach(item => {
-          revenueSheetData.push([months[item.month] || item.month, item.value || 0]);
+          revenueSheetData.push([months[item.month] || item.month, String(item.value || 0)]);
         });
         
         // Add total
         const totalRevenue = revenueData.reduce((sum, item) => sum + (item.value || 0), 0);
         revenueSheetData.push(['', '']);
-        revenueSheetData.push(['TOTAL REVENUE', totalRevenue]);
+        revenueSheetData.push(['TOTAL REVENUE', String(totalRevenue)]);
       } else {
         revenueSheetData.push(['No revenue data available', '']);
       }
       
       const ws2 = XLSX.utils.aoa_to_sheet(revenueSheetData);
+      
+      // Auto-size columns and set left alignment for Revenue sheet
+      ws2['!cols'] = [{ wch: 20 }, { wch: 20 }];
+      
+      // Apply left alignment to all cells
+      const range2 = XLSX.utils.decode_range(ws2['!ref']);
+      for (let R = range2.s.r; R <= range2.e.r; ++R) {
+        for (let C = range2.s.c; C <= range2.e.c; ++C) {
+          const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+          if (!ws2[cellAddress]) continue;
+          if (!ws2[cellAddress].s) ws2[cellAddress].s = {};
+          ws2[cellAddress].s.alignment = { horizontal: 'left' };
+        }
+      }
+      
       XLSX.utils.book_append_sheet(wb, ws2, 'Revenue');
       
       // Sheet 3: Detailed Bookings (Filtered by selected month/year)
       const bookingDetails = [
         ['BOOKING DETAILS - ' + (filter === 'all' ? 'All Months' : months[filter]) + ' ' + selectedYear],
-        ['Total Bookings:', filteredBookings.length],
+        ['Total Bookings:', String(filteredBookings.length)],
         [],
         ['Booking ID', 'Status', 'Client Name', 'Email', 'Contact', 'Event Type', 'Event Venue', 'Branch Location', 'Date', 'Number of Pax', 'Theme', 'Total Price (PHP)', 'Special Request']
       ];
@@ -220,7 +259,7 @@ export default function Dashboard() {
         filteredBookings.forEach(booking => {
           bookingDetails.push([
             booking._id || 'N/A',
-            (booking.status || 'unknown').toUpperCase(),
+            (booking.status || 'pending').toUpperCase(),
             booking.name || 'N/A',
             booking.email || 'N/A',
             booking.contact || 'N/A',
@@ -228,74 +267,191 @@ export default function Dashboard() {
             booking.eventVenue || 'N/A',
             booking.branchLocation || 'N/A',
             booking.date ? new Date(booking.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' }) : 'N/A',
-            booking.guestCount || 'N/A',
+            String(booking.guestCount || 'N/A'),
             booking.theme || 'N/A',
-            booking.totalPrice || 0,
+            String(booking.totalPrice || 0),
             booking.specialRequest || 'None'
           ]);
         });
         
         // Add summary at the bottom
         bookingDetails.push([]);
-        bookingDetails.push(['SUMMARY']);
-        bookingDetails.push(['Total Revenue (PHP):', filteredBookings.reduce((sum, b) => sum + (Number(b.totalPrice) || 0), 0)]);
-        bookingDetails.push(['Average Number of Pax:', Math.round(filteredBookings.reduce((sum, b) => sum + (Number(b.guestCount) || 0), 0) / filteredBookings.length)]);
+        bookingDetails.push(['SUMMARY', '', '', '', '', '', '', '', '', '', '', '', '']);
+        bookingDetails.push(['Total Bookings:', String(filteredBookings.length), '', '', '', '', '', '', '', '', '', '', '']);
+        bookingDetails.push(['Total Revenue (PHP):', String(filteredBookings.reduce((sum, b) => sum + (Number(b.totalPrice) || 0), 0)), '', '', '', '', '', '', '', '', '', '', '']);
+        bookingDetails.push(['Average Number of Pax:', String(Math.round(filteredBookings.reduce((sum, b) => sum + (Number(b.guestCount) || 0), 0) / filteredBookings.length)), '', '', '', '', '', '', '', '', '', '', '', '']);
       } else {
         bookingDetails.push(['No bookings found for the selected filter', '', '', '', '', '', '', '', '', '', '', '', '']);
       }
       
       const ws3 = XLSX.utils.aoa_to_sheet(bookingDetails);
+      
+      // Auto-size columns and set left alignment for Bookings sheet
+      ws3['!cols'] = [
+        { wch: 25 }, // Booking ID
+        { wch: 12 }, // Status
+        { wch: 20 }, // Client Name
+        { wch: 25 }, // Email
+        { wch: 15 }, // Contact
+        { wch: 20 }, // Event Type
+        { wch: 25 }, // Event Venue
+        { wch: 25 }, // Branch Location
+        { wch: 15 }, // Date
+        { wch: 15 }, // Number of Pax
+        { wch: 20 }, // Theme
+        { wch: 18 }, // Total Price
+        { wch: 30 }  // Special Request
+      ];
+      
+      // Apply left alignment to all cells
+      const range3 = XLSX.utils.decode_range(ws3['!ref']);
+      for (let R = range3.s.r; R <= range3.e.r; ++R) {
+        for (let C = range3.s.c; C <= range3.e.c; ++C) {
+          const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+          if (!ws3[cellAddress]) continue;
+          if (!ws3[cellAddress].s) ws3[cellAddress].s = {};
+          ws3[cellAddress].s.alignment = { horizontal: 'left' };
+        }
+      }
+      
       XLSX.utils.book_append_sheet(wb, ws3, 'Bookings');
       
       // Sheet 4: Active Customers
       const customerData = [
         ['CUSTOMERS WHO BOOKED'],
-        ['Name', 'Email', 'Times Booked']
+        [],
+        ['Name', 'Email', 'Number of Bookings']
       ];
       
-      activeCustomers.forEach(customer => {
-        customerData.push([
-          customer.customerName,
-          customer.customerEmail,
-          customer.count
-        ]);
-      });
+      if (activeCustomers && activeCustomers.length > 0) {
+        activeCustomers.forEach(customer => {
+          customerData.push([
+            customer.customerName,
+            customer.customerEmail,
+            String(customer.count)
+          ]);
+        });
+        
+        // Add total
+        const totalBookings = activeCustomers.reduce((sum, c) => sum + (c.count || 0), 0);
+        customerData.push([]);
+        customerData.push(['TOTAL', '', String(totalBookings)]);
+      } else {
+        customerData.push(['No customer data available', '', '']);
+      }
       
       const ws4 = XLSX.utils.aoa_to_sheet(customerData);
+      
+      // Auto-size columns and set left alignment for Customers sheet
+      ws4['!cols'] = [
+        { wch: 30 }, // Name
+        { wch: 30 }, // Email
+        { wch: 20 }  // Number of Bookings
+      ];
+      
+      // Apply left alignment to all cells
+      const range4 = XLSX.utils.decode_range(ws4['!ref']);
+      for (let R = range4.s.r; R <= range4.e.r; ++R) {
+        for (let C = range4.s.c; C <= range4.e.c; ++C) {
+          const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+          if (!ws4[cellAddress]) continue;
+          if (!ws4[cellAddress].s) ws4[cellAddress].s = {};
+          ws4[cellAddress].s.alignment = { horizontal: 'left' };
+        }
+      }
+      
       XLSX.utils.book_append_sheet(wb, ws4, 'Customers');
       
       // Sheet 5: Active Suppliers
       const supplierData = [
         ['MOST ACTIVE SUPPLIERS'],
-        ['Company Name', 'Phone', 'Email', 'Times Booked']
+        [],
+        ['Company Name', 'Phone', 'Email', 'Number of Bookings']
       ];
       
-      activeSuppliers.forEach(supplier => {
-        supplierData.push([
-          supplier.supplierName,
-          supplier.supplierPhone || '',
-          supplier.supplierEmail,
-          supplier.count
-        ]);
-      });
+      if (activeSuppliers && activeSuppliers.length > 0) {
+        activeSuppliers.forEach(supplier => {
+          supplierData.push([
+            supplier.supplierName,
+            supplier.supplierPhone || '',
+            supplier.supplierEmail,
+            String(supplier.count)
+          ]);
+        });
+        
+        // Add total
+        const totalBookings = activeSuppliers.reduce((sum, s) => sum + (s.count || 0), 0);
+        supplierData.push([]);
+        supplierData.push(['TOTAL', '', '', String(totalBookings)]);
+      } else {
+        supplierData.push(['No supplier data available', '', '', '']);
+      }
       
       const ws5 = XLSX.utils.aoa_to_sheet(supplierData);
+      
+      // Auto-size columns and set left alignment for Suppliers sheet
+      ws5['!cols'] = [
+        { wch: 30 }, // Company Name
+        { wch: 18 }, // Phone
+        { wch: 30 }, // Email
+        { wch: 20 }  // Number of Bookings
+      ];
+      
+      // Apply left alignment to all cells
+      const range5 = XLSX.utils.decode_range(ws5['!ref']);
+      for (let R = range5.s.r; R <= range5.e.r; ++R) {
+        for (let C = range5.s.c; C <= range5.e.c; ++C) {
+          const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+          if (!ws5[cellAddress]) continue;
+          if (!ws5[cellAddress].s) ws5[cellAddress].s = {};
+          ws5[cellAddress].s.alignment = { horizontal: 'left' };
+        }
+      }
+      
       XLSX.utils.book_append_sheet(wb, ws5, 'Suppliers');
       
       // Sheet 6: Most Availed Products/Services
       const productsData = [
         ['MOST AVAILED PRODUCTS/SERVICES'],
+        [],
         ['Product/Service Name', 'Times Availed']
       ];
       
-      mostAvailedProducts.forEach(product => {
-        productsData.push([
-          product.productName,
-          product.count
-        ]);
-      });
+      if (mostAvailedProducts && mostAvailedProducts.length > 0) {
+        mostAvailedProducts.forEach(product => {
+          productsData.push([
+            product.productName,
+            String(product.count)
+          ]);
+        });
+        
+        // Add total
+        const totalAvailed = mostAvailedProducts.reduce((sum, p) => sum + (p.count || 0), 0);
+        productsData.push([]);
+        productsData.push(['TOTAL', String(totalAvailed)]);
+      } else {
+        productsData.push(['No products/services data available', '']);
+      }
       
       const ws6 = XLSX.utils.aoa_to_sheet(productsData);
+      
+      // Auto-size columns and set left alignment for Products sheet
+      ws6['!cols'] = [
+        { wch: 40 }, // Product/Service Name
+        { wch: 18 }  // Times Availed
+      ];
+      
+      // Apply left alignment to all cells
+      const range6 = XLSX.utils.decode_range(ws6['!ref']);
+      for (let R = range6.s.r; R <= range6.e.r; ++R) {
+        for (let C = range6.s.c; C <= range6.e.c; ++C) {
+          const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+          if (!ws6[cellAddress]) continue;
+          if (!ws6[cellAddress].s) ws6[cellAddress].s = {};
+          ws6[cellAddress].s.alignment = { horizontal: 'left' };
+        }
+      }
+      
       XLSX.utils.book_append_sheet(wb, ws6, 'Products & Services');
       
       // Generate filename with date and filter

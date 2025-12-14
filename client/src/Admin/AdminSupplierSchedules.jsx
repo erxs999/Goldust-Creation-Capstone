@@ -319,9 +319,7 @@ const AdminSupplierSchedules = () => {
                         </div>
                       )}
                       
-                      <div style={{display:'flex',gap:'8px',marginTop:'8px'}}>
-                        <button style={{background:'#f44336',color:'#fff',border:'none',borderRadius:'4px',padding:'6px 24px',fontWeight:'600',cursor:'pointer'}} onClick={() => handleForceCancel(sch._id)}>Delete</button>
-                      </div>
+                      {/* Note: Delete button removed - accepted schedules cannot be forcefully deleted */}
                     </div>
                   )})}
                 </div>
