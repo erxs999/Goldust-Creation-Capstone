@@ -1,103 +1,111 @@
-# Goldust Creation Capstone - Quick Start Guide
+# Venuevista - Installation Guide
 
-## Project Structure
+Venuevista is a comprehensive venue and event management system designed to streamline bookings, scheduling, and supplier management.
 
-This is a full-stack MERN application with separate client and server directories:
-- **`/client`** - React/Vite frontend
-- **`/server`** - Express/Node.js backend
+## System Requirements
 
-## Local Development Setup
+### Prerequisites
+- **Node.js**: v16.0.0 or higher
+- **npm**: v7.0.0 or higher
+- **MongoDB**: Cloud (MongoDB Atlas) or local installation
+- **Email Service**: Gmail account with app-specific password (for notifications)
 
-### 1. Server Setup
+### Supported Operating Systems
+- Windows 10/11
+- macOS 10.14+
+- Linux (Ubuntu 18.04+)
+
+## Installation Instructions
+
+### Step 1: Install Dependencies
+
+Navigate to the project root and install all dependencies:
 
 ```bash
-cd server
 npm install
+cd client && npm install
+cd ../server && npm install
+cd ..
 ```
 
-Create `server/.env.production` from `server/.env.example`:
+### Step 2: Configure Environment Variables
+
+#### Server Configuration
+
+Create `server/.env.production`:
+
 ```env
-MONGODB_URI=mongodb+srv://goldust:goldustadmin@goldust.9lkqckv.mongodb.net/
+MONGODB_URI=your-mongodb-connection-string
 JWT_SECRET=your-jwt-secret-key
-EMAIL_USER=truegoldustcreation@gmail.com
-EMAIL_PASS=your-email-app-password
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASS=your-gmail-app-password
 PORT=5051
 CLIENT_URL=http://localhost:5173
 NODE_ENV=production
 ```
 
-Start the server:
-```bash
-npm start
-```
+#### Client Configuration
 
-Server runs at `http://localhost:5051`
+Create `client/.env.production`:
 
-### 2. Client Setup
-
-```bash
-cd client
-npm install
-```
-
-Create `client/.env.development` from `client/.env.example`:
 ```env
 VITE_API_URL=http://localhost:5051
 ```
 
-Start the dev server:
+### Step 3: Start the Application
+
+#### Start Server
+
 ```bash
+cd server
+npm start
+```
+
+The server will run at `http://localhost:5051`
+
+#### Start Client (in a new terminal)
+
+```bash
+cd client
 npm run dev
 ```
 
-Client runs at `http://localhost:5173`
+The application will be available at `http://localhost:5173`
 
-## Building for Production
+## Building for Distribution
 
-### Build Client
+To build the application for production deployment:
+
 ```bash
 cd client
 npm run build
 ```
 
-The built files will be in `client/dist/`
+Distribution files will be generated in `client/dist/`
 
-### Build Server
-No build step needed - Node.js runs the source directly.
+## Deployment
 
-## Deployment to Render
+For production deployment instructions, see **[RENDER_DEPLOYMENT.md](./RENDER_DEPLOYMENT.md)**.
 
-See **[RENDER_DEPLOYMENT.md](./RENDER_DEPLOYMENT.md)** for complete deployment instructions.
+## Troubleshooting
 
-### Quick Deploy Steps:
+### Port Already in Use
+- Server (5051): `lsof -ti:5051 | xargs kill -9` (macOS/Linux) or use Task Manager (Windows)
+- Client (5173): `lsof -ti:5173 | xargs kill -9` (macOS/Linux) or use Task Manager (Windows)
 
-1. **Deploy Server First**
-   - Create Web Service on Render
-   - Set root directory to `server`
-   - Add environment variables
-   - Note the server URL
+### MongoDB Connection Failed
+- Verify MongoDB connection string in `server/.env.production`
+- Ensure your MongoDB account has network access enabled
+- Check firewall settings
 
-2. **Deploy Client Second**
-   - Update `client/.env.production` with server URL
-   - Create Static Site on Render
-   - Set root directory to `client`
-   - Note the client URL
+### Email Service Not Working
+- Verify email credentials in `server/.env.production`
+- Use Gmail app-specific password (not your regular password)
+- Enable "Less secure apps" if needed
 
-3. **Update Server CORS**
-   - Add client URL to server's `CLIENT_URL` env var
-   - Redeploy server
+## Support
 
-## Important Files
-
-### Configuration Files
-- `server/render.yaml` - Render server configuration
-- `client/render.yaml` - Render client configuration
-- `server/.env.example` - Server environment template
-- `client/.env.example` - Client environment template
-
-### Environment Variables
-- **Server**: Uses `.env.production` for configuration
-- **Client**: Uses `.env.development` (local) and `.env.production` (build)
+For additional help, refer to [RENDER_DEPLOYMENT.md](./RENDER_DEPLOYMENT.md) for deployment-specific guidance.
 
 ### API Communication
 - Use `client/src/utils/api.js` for API calls

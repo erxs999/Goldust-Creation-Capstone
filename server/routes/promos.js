@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 
-// Get all promos
 router.get('/', async (req, res) => {
   try {
     const { Promo } = req.app.locals;
@@ -13,7 +12,6 @@ router.get('/', async (req, res) => {
       query.status = status;
     }
     
-    // Filter only active promos (valid date range)
     if (active === 'true') {
       const now = new Date();
       query.validFrom = { $lte: now };
@@ -29,7 +27,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get promo by ID
 router.get('/:id', async (req, res) => {
   try {
     const { Promo } = req.app.locals;
@@ -46,7 +43,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Verify promo code
 router.post('/verify', async (req, res) => {
   try {
     const { Promo } = req.app.locals;
@@ -80,7 +76,6 @@ router.post('/verify', async (req, res) => {
       });
     }
     
-    // Calculate discount
     let discountAmount = 0;
     if (promo.discountType === 'percentage') {
       discountAmount = (bookingAmount * promo.discountValue) / 100;
@@ -104,13 +99,11 @@ router.post('/verify', async (req, res) => {
   }
 });
 
-// Create new promo
 router.post('/', async (req, res) => {
   try {
     const { Promo } = req.app.locals;
     const promoData = req.body;
     
-    // Convert promo code to uppercase if provided
     if (promoData.promoCode) {
       promoData.promoCode = promoData.promoCode.toUpperCase();
     }
@@ -132,13 +125,11 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Update promo
 router.put('/:id', async (req, res) => {
   try {
     const { Promo } = req.app.locals;
     const promoData = req.body;
     
-    // Convert promo code to uppercase if provided
     if (promoData.promoCode) {
       promoData.promoCode = promoData.promoCode.toUpperCase();
     }
@@ -167,7 +158,6 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Delete promo
 router.delete('/:id', async (req, res) => {
   try {
     const { Promo } = req.app.locals;
@@ -184,7 +174,6 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// Apply promo (increment usage count)
 router.post('/:id/apply', async (req, res) => {
   try {
     const { Promo } = req.app.locals;

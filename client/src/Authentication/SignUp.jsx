@@ -56,12 +56,12 @@ const SignUp = () => {
     setType(accountType);
     if (accountType === "supplier") {
       setForm((prev) => ({ ...prev, role: undefined, companyName: "" }));
-      // Fetch available event types
+      
       fetch('/api/event-types')
         .then(res => res.json())
         .then(data => setAvailableEventTypes(data))
         .catch(err => console.error('Failed to fetch event types:', err));
-      // Fetch available categories
+      
       fetch('/api/categories')
         .then(res => res.json())
         .then(data => {
@@ -74,7 +74,6 @@ const SignUp = () => {
     }
   }, [accountType]);
 
-  // Restore form data if coming back from policy page
   useEffect(() => {
     if (location.state?.formData) {
       setForm(location.state.formData);
@@ -119,10 +118,8 @@ const SignUp = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Reset error state
     setError("");
 
-    // Validate required fields
     const requiredFields = {
       firstName: "First Name",
       lastName: "Last Name",
@@ -142,7 +139,6 @@ const SignUp = () => {
       }
     }
 
-    // Validate name fields (letters and spaces only)
     const nameRegex = /^[a-zA-Z\s]+$/;
     if (!nameRegex.test(form.firstName.trim())) {
       setError("First name should only contain letters");
@@ -157,39 +153,33 @@ const SignUp = () => {
       return;
     }
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(form.email.trim())) {
       setError("Please enter a valid email address");
       return;
     }
 
-    // Validate phone number (Philippine format: 11 digits starting with 09)
     const phoneRegex = /^09\d{9}$/;
     if (!phoneRegex.test(form.phone.trim())) {
       setError("Phone number must be 11 digits starting with 09 (e.g., 09123456789)");
       return;
     }
 
-    // Validate password strength
     if (form.password.length < 6) {
       setError("Password must be at least 6 characters long");
       return;
     }
 
-    // Validate passwords match
     if (form.password !== form.confirmPassword) {
       setError("Passwords don't match!");
       return;
     }
 
-    // Validate terms agreement
     if (!form.agree) {
       setError("Please agree to the terms and policy");
       return;
     }
 
-    // Show privacy modal instead of submitting directly
     setShowPrivacyModal(true);
   };
 
@@ -202,7 +192,7 @@ const SignUp = () => {
     setShowPrivacyModal(false);
     setLoading(true);
     try {
-      // Clean and prepare payload
+      
       const payload = {
         firstName: form.firstName.trim(),
         lastName: form.lastName.trim(),
@@ -237,11 +227,11 @@ const SignUp = () => {
       const data = await response.json();
 
       if (response.ok) {
-        // Show success message from server (includes pending approval for suppliers)
+        
         window.alert(data.message || 'Sign up successful! Please log in.');
         navigate('/login');
       } else {
-        // Show specific error from server
+        
         setError(data.error || data.message || 'Registration failed');
       }
     } catch (error) {
@@ -569,7 +559,7 @@ const SignUp = () => {
         </Box>
       </Box>
 
-      {/* Data Privacy Modal */}
+      {}
       <Dialog 
         open={showPrivacyModal} 
         onClose={() => setShowPrivacyModal(false)}

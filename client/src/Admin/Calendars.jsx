@@ -14,7 +14,6 @@ import 'rsuite/dist/rsuite.min.css';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-
 function Modal({ open, onClose, children }) {
   if (!open) return null;
   return (
@@ -46,24 +45,20 @@ function Modal({ open, onClose, children }) {
   );
 }
 
-
-
 export default function Calendars() {
-  // RSuite Calendar selected date
+  
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [modalOpen, setModalOpen] = useState(false);
   const [events, setEvents] = useState([]);
-  // For viewing events modal
+  
   const [viewEventsModalOpen, setViewEventsModalOpen] = useState(false);
   const [viewEventsDate, setViewEventsDate] = useState(null);
-  // For viewing event details
+  
   const [eventDetailsModalOpen, setEventDetailsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
 
-  // Bookings state for calendar
   const [bookings, setBookings] = useState([]);
 
-  // Form state
   const [form, setForm] = useState({
     title: '',
     type: 'Supplier',
@@ -73,16 +68,14 @@ export default function Calendars() {
     description: ''
   });
 
-    // Customer and Supplier lists
     const [customers, setCustomers] = useState([]);
     const [suppliers, setSuppliers] = useState([]);
 
-    // Fetch customers and suppliers when modal opens
     useEffect(() => {
       if (!modalOpen) return;
       async function fetchLists() {
         try {
-          // Fetch customers from /api/customers (matches backend)
+          
           const [custRes, suppRes] = await Promise.all([
             fetch('/api/customers'),
             fetch('/api/suppliers')
@@ -99,7 +92,6 @@ export default function Calendars() {
       fetchLists();
     }, [modalOpen]);
 
-  // Load events from backend API and bookings
   useEffect(() => {
     async function fetchEventsAndBookings() {
       try {
@@ -121,7 +113,6 @@ export default function Calendars() {
         const notifications = notificationsRes.ok ? await notificationsRes.json() : [];
         setBookings([...pending, ...approved, ...finished]);
 
-        // Map bookings to calendar event format
         const bookingEvents = [...pending, ...approved, ...finished]
           .filter(b => b.date)
           .map(b => {
@@ -129,7 +120,7 @@ export default function Calendars() {
             if (typeof b.date === 'string') {
               dateStr = b.date.slice(0, 10);
             } else {
-              // Convert Date to YYYY-MM-DD without timezone conversion
+              
               const d = new Date(b.date);
               dateStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
             }
@@ -145,13 +136,12 @@ export default function Calendars() {
             };
           });
 
-        // Map appointments to calendar event format
         const appointmentEvents = appointments.map(a => {
           let dateStr = '';
           if (typeof a.date === 'string') {
             dateStr = a.date;
           } else {
-            // Convert Date to YYYY-MM-DD without timezone conversion
+            
             const d = new Date(a.date);
             dateStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
           }
@@ -161,33 +151,29 @@ export default function Calendars() {
             type: 'Appointment',
             person: a.clientName || a.clientEmail,
             date: dateStr,
-            location: a.branchLocation || a.location || '', // Use branchLocation for color coding
+            location: a.branchLocation || a.location || '', 
             description: a.description || '',
             status: a.status || '',
           };
         })
-        .filter(a => a.status === 'upcoming'); // Only show upcoming appointments on calendar
+        .filter(a => a.status === 'upcoming'); 
 
-        // Map accepted schedules to ensure branchLocation is used for location field (for color coding)
         const acceptedScheduleEvents = (Array.isArray(acceptedSchedules) ? acceptedSchedules : []).map(s => ({
           ...s,
           location: s.branchLocation || s.location || ''
         }));
 
-        // Map regular schedules to ensure branchLocation is used for location field (for color coding)
         const scheduleEvents = (Array.isArray(schedules) ? schedules : []).map(s => ({
           ...s,
           location: s.branchLocation || s.location || ''
         }));
 
-        // Map notifications to ensure location field is present and mark with type
         const notificationEvents = (Array.isArray(notifications) ? notifications : []).map(n => ({
           ...n,
           type: 'Notification',
           location: n.location || ''
         }));
 
-        // Merge all events: schedules, accepted schedules, booking events, appointment events, and notifications
         const allEvents = [
           ...scheduleEvents,
           ...acceptedScheduleEvents,
@@ -203,9 +189,6 @@ export default function Calendars() {
     fetchEventsAndBookings();
   }, []);
 
-  // Optionally, remove localStorage saving logic
-
-  // Add notification handler (update to POST to notifications endpoint)
   const handleAddEvent = async (e) => {
     e.preventDefault();
     const newEvent = { ...form };
@@ -222,48 +205,44 @@ export default function Calendars() {
       setForm({ title: '', type: 'Supplier', person: '', date: dayjs().format('YYYY-MM-DD'), location: '', description: '' });
     } catch (err) {
       console.error('Error adding notification:', err);
-      // Optionally show error to user
+      
     }
   };
 
-  // Get events for a specific date (compare as string)
   const getEventsForDate = (date) => {
-    // date can be Date or string
+    
     let d;
     if (typeof date === 'string') {
       d = date;
     } else {
-      // Use local date string, not UTC
+      
       d = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
     }
     return events.filter(ev => ev.date === d);
   };
 
-    // Helper to get color based on branch location
     function getLocationColor(location) {
-      if (!location) return '#ffe082'; // default yellow
+      if (!location) return '#ffe082'; 
       const loc = location.toLowerCase();
       
-      // Sta Fe, Nueva Vizcaya - Red
       if (loc.includes('sta') && loc.includes('fe') && loc.includes('nueva vizcaya')) {
-        return 'rgba(255, 89, 89, 1)'; // light red
-      }
-      // La Trinidad, Benguet - Green
-      if (loc.includes('la trinidad') && loc.includes('benguet')) {
-        return 'rgba(57, 247, 126, 1)'; // light green
-      }
-      // Maddela, Quirino - Blue
-      if (loc.includes('maddela') && loc.includes('quirino')) {
-        return 'rgba(48, 127, 255, 0.34)'; // light blue
+        return 'rgba(255, 89, 89, 1)'; 
       }
       
-      return '#ffe082'; // default yellow
+      if (loc.includes('la trinidad') && loc.includes('benguet')) {
+        return 'rgba(57, 247, 126, 1)'; 
+      }
+      
+      if (loc.includes('maddela') && loc.includes('quirino')) {
+        return 'rgba(48, 127, 255, 0.34)'; 
+      }
+      
+      return '#ffe082'; 
     }
 
-    // Delete event handler - handles both notifications and schedules
     const handleDeleteEvent = async (eventId, eventType) => {
       try {
-        // Determine which endpoint to use based on event type
+        
         const endpoint = eventType === 'Notification' ? `/api/notifications/${eventId}` : `/api/schedules/${eventId}`;
         const res = await fetch(endpoint, {
           method: 'DELETE',
@@ -272,11 +251,10 @@ export default function Calendars() {
         setEvents(evts => evts.filter(ev => ev._id !== eventId));
       } catch (err) {
         console.error('Error deleting event:', err);
-        // Optionally show error to user
+        
       }
     };
 
-  // Custom render cell for calendar with double-click
   const renderCell = (date) => {
     const dayEvents = getEventsForDate(date);
     if (dayEvents.length === 0) return null;
@@ -369,7 +347,7 @@ export default function Calendars() {
               />
             </div>
           </div>
-          {/* Modal for adding event */}
+          {}
           <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
             <h4 style={{ marginTop: 0 }}>Add Notification/ Reminder</h4>
             <form onSubmit={handleAddEvent} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -395,7 +373,7 @@ export default function Calendars() {
                   options={form.type === 'Customer'
                     ? customers.map(c => ({
                         label: `${c.firstName || ''} ${c.lastName || ''}`.trim(),
-                        value: c.email // Use email for customer person field
+                        value: c.email 
                       })
                     )
                     : suppliers.map(s => {
@@ -404,7 +382,7 @@ export default function Calendars() {
                         const last = s.lastName || '';
                         return {
                           label: `${company}${first || last ? ` (${first} ${last})` : ''}`.trim(),
-                          value: s.email // Use email for supplier person field
+                          value: s.email 
                         };
                       })
                   }
@@ -420,7 +398,7 @@ export default function Calendars() {
                       InputProps={{
                         ...params.InputProps,
                         style: {
-                          fontSize: '1rem', // increased font size for input
+                          fontSize: '1rem', 
                           fontWeight: 500,
                           width: '100%',
                           padding: 0,
@@ -435,7 +413,7 @@ export default function Calendars() {
                       inputProps={{
                         ...params.inputProps,
                         style: {
-                          fontSize: '1rem', // increased font size for placeholder
+                          fontSize: '1rem', 
                           fontWeight: 500,
                           color: '#111',
                         }
@@ -449,12 +427,12 @@ export default function Calendars() {
                   )}
                   sx={{
                     '& .MuiAutocomplete-listbox': {
-                      fontSize: '1rem', // increased font size for dropdown
+                      fontSize: '1rem', 
                       fontWeight: 500,
                       color: '#111',
                     },
                     '& .MuiAutocomplete-option': {
-                      fontSize: '1rem', // increased font size for dropdown options
+                      fontSize: '1rem', 
                       fontWeight: 500,
                       color: '#111',
                     },
@@ -495,7 +473,7 @@ export default function Calendars() {
               <button type="submit" style={{ background: 'linear-gradient(90deg, #e6b800 0%, #ffbe2e 100%)', color: '#fff', border: 'none', borderRadius: 7, fontWeight: 700, fontSize: '1rem', padding: '0.45rem 1.2rem', cursor: 'pointer', marginTop: 8 }}>Set Notification/ Reminder</button>
             </form>
           </Modal>
-          {/* Modal for viewing events on a day */}
+          {}
           <Modal open={viewEventsModalOpen} onClose={() => setViewEventsModalOpen(false)}>
             <h2 style={{ marginTop: 0, marginBottom: 14, fontWeight: 800, fontSize: '1.25rem', color: '#222', letterSpacing: 1 }}>
               Schedule for {viewEventsDate ? (typeof viewEventsDate === 'string' ? viewEventsDate : `${viewEventsDate.getFullYear()}-${String(viewEventsDate.getMonth()+1).padStart(2,'0')}-${String(viewEventsDate.getDate()).padStart(2,'0')}`) : ''}
@@ -547,7 +525,7 @@ export default function Calendars() {
                           </div>
                           <div style={{ color: '#000', fontSize: 12 }}>{ev.location}</div>
                         </div>
-                        {/* Only show delete button for Notification type */}
+                        {}
                         {ev.type === 'Notification' && (
                           <IconButton aria-label="delete" size="small" onClick={() => handleDeleteEvent(ev._id, 'Notification')} style={{ marginLeft: 4 }}>
                             <DeleteIcon fontSize="small" />
@@ -559,7 +537,7 @@ export default function Calendars() {
               ) : (
                 <div style={{ color: '#888', fontSize: 14, textAlign: 'center', marginTop: 18 }}>No schedule for this day.</div>
               )}
-          {/* Modal for event details */}
+          {}
           <Modal open={eventDetailsModalOpen} onClose={() => setEventDetailsModalOpen(false)}>
             {selectedEvent && (
               <div
@@ -568,7 +546,7 @@ export default function Calendars() {
                   maxWidth: 400,
                   background: '#fff',
                   borderRadius: 16,
-                  /* boxShadow removed */
+                  
                   padding: '32px 28px 28px 0',
                   position: 'relative',
                   display: 'flex',
@@ -577,7 +555,7 @@ export default function Calendars() {
                   gap: 0
                 }}
               >
-                {/* Accent bar */}
+                {}
                 <div style={{
                   width: 10,
                   height: '100%',
@@ -622,7 +600,6 @@ export default function Calendars() {
         </div>
       </main>
     </div>
-
 
   );
 }

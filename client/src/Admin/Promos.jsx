@@ -1,5 +1,4 @@
 
-
 import React, { useRef, useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import './promos.css';
@@ -11,7 +10,6 @@ import dayjs from 'dayjs';
 import api from '../services/api';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-
 
 export default function Promos() {
 
@@ -25,15 +23,14 @@ export default function Promos() {
 		const [showForm, setShowForm] = useState(false);
 		const [editingPromoId, setEditingPromoId] = useState(null);
 		const [promos, setPromos] = useState([]);
-		const [promoFilter, setPromoFilter] = useState('active'); // 'active' or 'inactive'
-	// Helper to check promo status
+		const [promoFilter, setPromoFilter] = useState('active'); 
+	
 	const isPromoActive = (promo) => {
 		const now = dayjs();
 		const start = promo.validFrom ? dayjs(promo.validFrom) : null;
 		const end = promo.validUntil ? dayjs(promo.validUntil) : null;
 		return start && end && now.isAfter(start) && now.isBefore(end.add(1, 'day'));
 	};
-
 
 	useEffect(() => {
 		fetchPromos();
@@ -44,11 +41,10 @@ export default function Promos() {
 			const res = await api.get('/promos');
 			setPromos(res.data);
 		} catch (err) {
-			// Optionally handle error
+			
 		}
 	};
 
-		// Delete promo handler
 		const handleDeletePromo = async (promoId) => {
 			if (!window.confirm('Are you sure you want to delete this promotion?')) return;
 			try {
@@ -125,7 +121,7 @@ export default function Promos() {
 							</button>
 						)}
 					</div>
-					{/* Promo Filter UI */}
+					{}
 					<div style={{ margin: '1rem 0' }}>
 						<label style={{ fontWeight: 500, marginRight: '1rem' }}>Show:</label>
 						<select value={promoFilter} onChange={e => setPromoFilter(e.target.value)} style={{ padding: '0.3rem 0.7rem', borderRadius: '5px', background: '#fff', color: '#222' }}>
@@ -133,7 +129,7 @@ export default function Promos() {
 							<option value="inactive">Inactive Promos</option>
 						</select>
 					</div>
-					{/* Removed: <p>Manage your current promotions here.</p> */}
+					{}
 					{showForm && (
 						<div className="promo-modal-overlay">
 							<form className="promo-modal-container promo-form" onSubmit={handleSubmit}>
@@ -187,7 +183,7 @@ export default function Promos() {
 						</div>
 					)}
 
-					{/* Promo Cards List */}
+					{}
 					<div style={{ width: '100%', display: 'flex', flexWrap: 'wrap', gap: '1.5rem', marginTop: '2rem' }}>
 						{promos
 							.filter(promo => promoFilter === 'active' ? isPromoActive(promo) : !isPromoActive(promo))
@@ -196,7 +192,7 @@ export default function Promos() {
 									key={promo._id}
 									className="promo-card"
 								>
-									{/* Edit Icon */}
+									{}
 									<button
 										style={{
 											position: 'absolute',
@@ -213,7 +209,7 @@ export default function Promos() {
 									>
 										<EditIcon />
 									</button>
-									{/* Delete Icon */}
+									{}
 									<button
 										style={{
 											position: 'absolute',

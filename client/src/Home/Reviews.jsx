@@ -3,10 +3,6 @@ import TopBar from "./TopBar";
 import "./review.css";
 import Footer from "./Footer";
 
-
-
-
-
 const Reviews = () => {
   const [userReviews, setUserReviews] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
@@ -16,7 +12,7 @@ const Reviews = () => {
   const [showReviewModal, setShowReviewModal] = useState(false);
 
   useEffect(() => {
-    // Fetch reviews from backend
+    
     import('../services/api').then(({ default: api }) => {
       api.get('/reviews')
         .then(res => setUserReviews(res.data))
@@ -58,13 +54,12 @@ const Reviews = () => {
     );
   };
 
-  // Show only first name if available, otherwise 'Anonymous'
   const getDisplayName = (review) => {
     if (review.name && review.name !== 'Anonymous') {
       const parts = review.name.trim().split(' ');
       return parts[0];
     }
-    // Try to get from localStorage user
+    
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     if (user.name && typeof user.name === 'string') {
       const parts = user.name.trim().split(' ');
@@ -148,7 +143,7 @@ const Reviews = () => {
         </div>
       </div>
       
-      {/* Review Images Modal */}
+      {}
       {showImageModal && (
         <div className="review-image-modal-overlay" onClick={closeImageModal}>
           <div className="review-image-modal" onClick={(e) => e.stopPropagation()}>
@@ -197,7 +192,7 @@ const Reviews = () => {
         </div>
       )}
 
-      {/* Review Details Modal */}
+      {}
       {showReviewModal && selectedReview && (
         <div className="review-details-modal-overlay" onClick={closeReviewModal}>
           <div className="review-details-modal" onClick={(e) => e.stopPropagation()}>

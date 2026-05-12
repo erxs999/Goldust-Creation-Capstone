@@ -11,7 +11,6 @@ export default function ForgotPasswordFlow() {
   const [loading, setLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   
-  // Check if navigated from client profile page
   const fromClientProfile = sessionStorage.getItem('fromClientProfile') === 'true';
 
   const handleSubmit = async () => {

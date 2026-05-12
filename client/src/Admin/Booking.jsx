@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import { formatPHTime, parsePHTime } from '../utils/date';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-// Simple modal for approve action
+
 function ApproveModal({ open, onClose, onApprove, booking }) {
   const [date, setDate] = useState(null);
   const [desc, setDesc] = useState('');
@@ -12,9 +12,9 @@ function ApproveModal({ open, onClose, onApprove, booking }) {
   
   React.useEffect(() => {
     if (open && booking) {
-      setDate(null); // Always blank for admin to pick
+      setDate(null); 
       setDesc('');
-      // Pre-populate location with booking's branch location
+      
       setLocation(booking.branchLocation || '');
     }
   }, [open, booking]);
@@ -76,7 +76,7 @@ import BookingDescription from './BookingDescription';
 import './booking.css';
 
 export default function AdminBooking() {
-  // Bookings state from database
+  
   const [bookings, setBookings] = useState([]);
   const [cancellationRequests, setCancellationRequests] = useState([]);
   const [cancelledBookings, setCancelledBookings] = useState([]);
@@ -84,12 +84,10 @@ export default function AdminBooking() {
   const [selectedCancellation, setSelectedCancellation] = useState(null);
   const [adminNotes, setAdminNotes] = useState('');
   
-  // Reschedule states
   const [rescheduleRequests, setRescheduleRequests] = useState([]);
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
   const [selectedReschedule, setSelectedReschedule] = useState(null);
 
-  // Fetch bookings from backend
   const fetchBookings = async () => {
     try {
       const [pendingRes, approvedRes, finishedRes, cancelRequestsRes, cancelledRes, rescheduleRequestsRes] = await Promise.all([
@@ -108,7 +106,7 @@ export default function AdminBooking() {
         cancelledRes.json(),
         rescheduleRequestsRes.json(),
       ]);
-      // Add status to each booking
+      
       const pendingWithStatus = pending.map(b => ({ ...b, status: 'pending' }));
       const approvedWithStatus = approved.map(b => ({ ...b, status: 'approved' }));
       const finishedWithStatus = finished.map(b => ({ ...b, status: 'finished' }));
@@ -124,16 +122,15 @@ export default function AdminBooking() {
     }
   };
 
-  // Fetch on mount
   React.useEffect(() => {
     fetchBookings();
   }, []);
-  // Delete booking handler
+  
   const handleDeleteBooking = async (id) => {
     if (!window.confirm('Are you sure you want to delete this booking? This action cannot be undone.')) {
       return;
     }
-    // Find booking to get its status
+    
     const booking = bookings.find(b => b._id === id);
     let endpoint = '';
     if (!booking) return;
@@ -145,13 +142,12 @@ export default function AdminBooking() {
       endpoint = `/api/bookings/finished/${id}`;
     }
     try {
-      // 1. Delete the booking
+      
       await fetch(endpoint, { method: 'DELETE' });
       
-      // 2. If approved or finished, also delete the associated appointment
       if (booking.status === 'approved' || booking.status === 'finished') {
         try {
-          // Find and delete appointment by bookingId
+          
           const appointmentsRes = await fetch('/api/appointments');
           const appointments = await appointmentsRes.json();
           const relatedAppointment = appointments.find(a => a.bookingId === id);
@@ -162,7 +158,7 @@ export default function AdminBooking() {
           }
         } catch (err) {
           console.error('Error deleting associated appointment:', err);
-          // Continue anyway - booking is already deleted
+          
         }
       }
       
@@ -173,15 +169,14 @@ export default function AdminBooking() {
     }
   };
 
-  // Approve modal state
   const [approveModal, setApproveModal] = useState({ open: false, booking: null });
   const openApproveModal = (booking) => setApproveModal({ open: true, booking });
   const closeApproveModal = () => setApproveModal({ open: false, booking: null });
   const handleApprove = async (date, desc, location) => {
-    // Move booking to approved in backend
+    
     const booking = approveModal.booking;
     try {
-      // Generate reference number: GC-YYYYMMDD-XXXXX (e.g., GC-20251205-A3F9K)
+      
       const generateReferenceNumber = () => {
         const now = new Date();
         const dateStr = now.getFullYear().toString() + 
@@ -198,8 +193,6 @@ export default function AdminBooking() {
       const referenceNumber = generateReferenceNumber();
       console.log('Generated reference number:', referenceNumber);
       
-      // 1. Add to approved bookings in backend with reference number
-      // Remove _id so MongoDB generates a new one for approved collection
       const { _id, ...bookingWithoutId } = booking;
       const approvalPayload = {
         ...bookingWithoutId,
@@ -228,29 +221,29 @@ export default function AdminBooking() {
       console.log('✅ Response from server:', savedBooking);
       console.log('✅ Reference number in response:', savedBooking.referenceNumber);
       console.log('✅ New booking ID:', savedBooking._id);
-      // 2. Remove from pending bookings in backend
+      
       await fetch(`/api/bookings/pending/${_id}`, {
         method: 'DELETE'
       });
-      // 3. Save appointment to calendar DB with meeting location and branch
+      
       const appointmentRes = await fetch('/api/appointments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          bookingId: savedBooking._id, // Use the new approved booking ID, not the old pending ID
+          bookingId: savedBooking._id, 
           clientEmail: booking.email,
           clientName: booking.name,
           date: typeof date === 'string' ? date : formatPHTime(date, 'YYYY-MM-DD'),
           description: desc,
-          location: location, // Meeting location from admin input
-          branchLocation: booking.branchLocation // Branch from booking
+          location: location, 
+          branchLocation: booking.branchLocation 
         })
       });
       if (!appointmentRes.ok) {
         throw new Error('Failed to create appointment');
       }
       console.log('Appointment created for client:', booking.email, 'at location:', location);
-      // 4. Update frontend state with the saved booking from server (includes new _id and reference number)
+      
       setBookings(prev => prev.map(b =>
         b._id === _id ? { ...savedBooking, status: 'approved' } : b
       ));
@@ -260,7 +253,6 @@ export default function AdminBooking() {
     closeApproveModal();
   };
 
-  // Cancellation request handlers
   const handleReviewCancellation = (booking) => {
     setSelectedCancellation(booking);
     setAdminNotes('');
@@ -323,7 +315,6 @@ export default function AdminBooking() {
     }
   };
 
-  // Reschedule request handlers
   const handleReviewReschedule = (booking) => {
     setSelectedReschedule(booking);
     setAdminNotes('');
@@ -387,9 +378,9 @@ export default function AdminBooking() {
   };
 
   const [selectedBooking, setSelectedBooking] = useState(null);
-  const [filter, setFilter] = useState('all'); // 'all', 'pending', 'approved'
-    const [branchFilter, setBranchFilter] = useState('all'); // 'all', 'maddela', 'latrinidad', 'stafe'
-  const [paymentFilter, setPaymentFilter] = useState('all'); // 'all', 'with-proof', 'without-proof'
+  const [filter, setFilter] = useState('all'); 
+    const [branchFilter, setBranchFilter] = useState('all'); 
+  const [paymentFilter, setPaymentFilter] = useState('all'); 
   const [search, setSearch] = useState('');
   const [refSearch, setRefSearch] = useState('');
 
@@ -400,8 +391,6 @@ export default function AdminBooking() {
     setSelectedBooking(null);
   };
 
-
-  // Filter bookings by status
   let filteredPending = bookings.filter(b => b.status === 'pending');
   let filteredApproved = bookings.filter(b => b.status === 'approved');
   let filteredFinished = bookings.filter(b => b.status === 'finished');
@@ -423,7 +412,7 @@ export default function AdminBooking() {
     filteredApproved = [];
     filteredFinished = [];
   }
-  // Branch filter
+  
   const branchMatch = (branch, branchFilt) => {
     if (branchFilt === 'all') return true;
     const b = (branch || '').toLowerCase();
@@ -437,7 +426,6 @@ export default function AdminBooking() {
   filteredFinished = filteredFinished.filter(b => branchMatch(b.branchLocation, branchFilter));
   filteredCancelled = filteredCancelled.filter(b => branchMatch(b.branchLocation, branchFilter));
   
-  // Filter by payment proof
   if (paymentFilter === 'with-proof') {
     const hasProof = b => {
       if (!b.paymentDetails) return false;
@@ -460,7 +448,6 @@ export default function AdminBooking() {
     filteredCancelled = filteredCancelled.filter(noProof);
   }
   
-  // Filter by reference number search (exact or partial match)
   const refSearchTrimmed = refSearch.trim().toUpperCase();
   if (refSearchTrimmed) {
     const matchesRef = b => {
@@ -473,7 +460,6 @@ export default function AdminBooking() {
     filteredCancelled = filteredCancelled.filter(matchesRef);
   }
   
-  // Further filter by search (booking type or booker name)
   const searchLower = search.trim().toLowerCase();
   if (searchLower) {
     const matchesBooking = b => {
@@ -487,17 +473,14 @@ export default function AdminBooking() {
     filteredCancelled = filteredCancelled.filter(matchesBooking);
   }
 
-  // Handler to mark an approved booking as finished
   const handleDoneBooking = async (booking) => {
     try {
       console.log('Moving to finished - original booking:', booking);
       console.log('Reference number being preserved:', booking.referenceNumber);
       const currentId = booking._id;
       
-      // Remove _id so MongoDB generates a new one for finished collection
       const { _id, ...bookingWithoutId } = booking;
       
-      // 1. Add to finished bookings in backend
       const finishedRes = await fetch('/api/bookings/finished', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -506,12 +489,10 @@ export default function AdminBooking() {
       const savedFinished = await finishedRes.json();
       console.log('✅ Finished booking saved with reference:', savedFinished.referenceNumber);
       
-      // 2. Remove from approved bookings in backend
       await fetch(`/api/bookings/approved/${currentId}`, {
         method: 'DELETE'
       });
       
-      // 3. Update frontend state with saved booking from server
       setBookings(prev => prev.map(b =>
         b._id === currentId ? { ...savedFinished, status: 'finished' } : b
       ));
@@ -525,7 +506,7 @@ export default function AdminBooking() {
       <Sidebar />
       <main className="admin-dashboard-main">
         <div className="admin-booking-root">
-          {/* Header Row: Title, Search, and Filter */}
+          {}
           <div className="admin-booking-header-row">
             <h2 className="admin-booking-title" style={{marginBottom: '-12px'}}>Admin Booking</h2>
             <div className="admin-booking-header-controls">
@@ -588,7 +569,7 @@ export default function AdminBooking() {
             </div>
           </div>
 
-          {/* Cancellation Requests Section */}
+          {}
           {cancellationRequests.length > 0 && (
             <div style={{ marginBottom: 36, padding: 20, background: '#fff3e0', borderRadius: 12, border: '2px solid #ff9800' }}>
               <h3 style={{ fontWeight: 700, fontSize: 22, marginBottom: 16, color: '#e65100', display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -668,7 +649,7 @@ export default function AdminBooking() {
             </div>
           )}
 
-          {/* Reschedule Requests Section */}
+          {}
           {rescheduleRequests.length > 0 && (
             <div style={{ marginBottom: 36, padding: 20, background: '#e3f2fd', borderRadius: 12, border: '2px solid #2196f3' }}>
               <h3 style={{ fontWeight: 700, fontSize: 22, marginBottom: 16, color: '#0d47a1', display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -751,7 +732,7 @@ export default function AdminBooking() {
             </div>
           )}
 
-          {/* Cancelled Bookings Section */}
+          {}
           {filteredCancelled.length > 0 && (
             <div style={{ marginBottom: 36 }}>
               <h3 style={{ fontWeight: 700, fontSize: 22, marginBottom: 16, color: '#c62828' }}>🚫 Cancelled Bookings</h3>
@@ -831,7 +812,7 @@ export default function AdminBooking() {
             </div>
           )}
 
-          {/* Pending Bookings Section */}
+          {}
           {filteredPending.length > 0 && (
             <div style={{ marginBottom: 36 }}>
               <h3 style={{ fontWeight: 700, fontSize: 22, marginBottom: 16 }}>Pending Bookings</h3>
@@ -904,7 +885,7 @@ export default function AdminBooking() {
                     </div>
                   </li>
                 ))}
-        {/* Approve Modal */}
+        {}
         <ApproveModal
           open={approveModal.open}
           onClose={closeApproveModal}
@@ -914,7 +895,7 @@ export default function AdminBooking() {
               </ul>
             </div>
           )}
-          {/* Approved Bookings Section */}
+          {}
           {filteredApproved.length > 0 && (
             <div>
               <h3 style={{ fontWeight: 700, fontSize: 22, marginBottom: 16 }}>Approved Bookings</h3>
@@ -995,7 +976,7 @@ export default function AdminBooking() {
               </ul>
             </div>
           )}
-          {/* Finished Bookings Section */}
+          {}
           {filteredFinished.length > 0 && (
             <div style={{ marginBottom: 36 }}>
               <h3 style={{ fontWeight: 700, fontSize: 22, marginBottom: 16 }}>Finished Bookings</h3>
@@ -1055,7 +1036,7 @@ export default function AdminBooking() {
               </ul>
             </div>
           )}
-          {/* No bookings message if all are empty */}
+          {}
           {filteredPending.length === 0 && filteredApproved.length === 0 && filteredFinished.length === 0 && filteredCancelled.length === 0 && (
             <div style={{ color: '#888', marginBottom: 16 }}>No bookings to show.</div>
           )}
@@ -1065,7 +1046,7 @@ export default function AdminBooking() {
             booking={selectedBooking}
             onSave={() => {
               fetchBookings();
-              // Update selected booking with fresh data
+              
               if (selectedBooking) {
                 setTimeout(async () => {
                   try {
@@ -1082,7 +1063,7 @@ export default function AdminBooking() {
             }}
           />
 
-          {/* Cancellation Review Modal */}
+          {}
           {showCancellationModal && selectedCancellation && (
             <div style={{
               position: 'fixed',

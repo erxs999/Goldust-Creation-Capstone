@@ -11,9 +11,9 @@ const scheduleSchema = new mongoose.Schema({
 	supplierName: { type: String },
 	eventType: { type: String },
 	branchLocation: { type: String },
-	status: { type: String, default: 'pending' }, // pending, accepted, declined, cancelled
+	status: { type: String, default: 'pending' }, 
 	cancellationRequest: {
-		status: { type: String, default: 'none' }, // 'none', 'pending', 'approved', 'rejected'
+		status: { type: String, default: 'none' }, 
 		reason: { type: String },
 		description: { type: String },
 		requestedBy: { type: String },

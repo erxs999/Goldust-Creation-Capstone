@@ -11,7 +11,6 @@ export default function UserClients() {
   const [locationSearch, setLocationSearch] = useState('');
   const [visiblePasswords, setVisiblePasswords] = useState({});
   
-  // Edit customer state
   const [editOpen, setEditOpen] = useState(false);
   const [editCustomer, setEditCustomer] = useState(null);
   const [editForm, setEditForm] = useState({
@@ -29,7 +28,6 @@ export default function UserClients() {
     fetchCustomers();
   }, []);
 
-  // Filter customers by name and location
   const filteredUsers = customers.filter(user => {
     const q = search.trim().toLowerCase();
     const locQ = locationSearch.trim().toLowerCase();
@@ -65,7 +63,6 @@ export default function UserClients() {
       });
   };
 
-  // Handler to show password after admin authentication
   const handleShowPassword = async (userId) => {
     const adminPassword = window.prompt('Enter admin password to view user password:');
     if (adminPassword === 'admin123') {
@@ -256,7 +253,7 @@ export default function UserClients() {
             </Table>
           </TableContainer>
           
-          {/* Edit Customer Dialog */}
+          {}
           <Dialog open={editOpen} onClose={handleCloseEdit} maxWidth="sm" fullWidth>
             <DialogTitle>Edit Customer Details</DialogTitle>
             <form onSubmit={handleEditSubmit}>

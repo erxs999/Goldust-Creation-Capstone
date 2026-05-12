@@ -5,7 +5,6 @@ const { Customer } = require('../config/database');
 const { Supplier } = require('../config/database');
 const { sendMFACode, verifyMFACode } = require('../services/mfaService');
 
-// Helper function to find user in both collections
 const findUserByEmail = async (email) => {
     let user = await Customer.findOne({ email });
     if (!user) {
@@ -14,10 +13,9 @@ const findUserByEmail = async (email) => {
     return user;
 };
 
-// Toggle MFA status
 router.post('/toggle-mfa', auth, async (req, res) => {
     try {
-        // 1. Find current user and get their MFA state
+        
         const userEmail = req.user.email;
         console.log('Finding user:', userEmail);
         
@@ -34,7 +32,6 @@ router.post('/toggle-mfa', auth, async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        // 2. Get current state and calculate new state
         const currentState = Boolean(user.mfaEnabled);
         const newState = !currentState;
 
@@ -44,9 +41,8 @@ router.post('/toggle-mfa', auth, async (req, res) => {
             newState
         });
 
-        // 3. Update user with new MFA state
         try {
-            // First verify the user exists and get their current state
+            
             const existingUser = await Model.findOne({ email: userEmail });
             if (!existingUser) {
                 console.error('User not found before update');
@@ -59,14 +55,13 @@ router.post('/toggle-mfa', auth, async (req, res) => {
                 currentMfaState: existingUser.mfaEnabled
             });
 
-            // Perform the update with explicit Boolean conversion
             const result = await Model.findOneAndUpdate(
                 { email: userEmail },
                 { $set: { mfaEnabled: Boolean(newState) } },
                 { 
-                    new: true,  // Return the updated document
-                    runValidators: true,  // Run schema validations
-                    upsert: false  // Don't create if doesn't exist
+                    new: true,  
+                    runValidators: true,  
+                    upsert: false  
                 }
             );
 
@@ -90,7 +85,6 @@ router.post('/toggle-mfa', auth, async (req, res) => {
             });
         }
 
-        // 4. Verify the update with a fresh query
         const updatedUser = await Model.findOne({ email: userEmail });
         
         console.log('Final verification:', {
@@ -108,7 +102,6 @@ router.post('/toggle-mfa', auth, async (req, res) => {
             return res.status(500).json({ error: 'MFA state verification failed' });
         }
 
-        // 5. Send response
         res.json({
             success: true,
             mfaEnabled: updatedUser.mfaEnabled,
@@ -124,7 +117,6 @@ router.post('/toggle-mfa', auth, async (req, res) => {
     }
 });
 
-// Request MFA code during login
 router.post('/request-mfa', async (req, res) => {
     try {
         const { email } = req.body;
@@ -143,8 +135,6 @@ router.post('/request-mfa', async (req, res) => {
         }
 
         console.log('Found user, checking MFA status:', { email, mfaEnabled: user.mfaEnabled });
-        // When enabling MFA for the first time, user.mfaEnabled will be false, which is what we want
-        // Only check mfaEnabled when verifying an existing MFA setup
         
         await sendMFACode(email);
         res.json({ 
@@ -158,7 +148,6 @@ router.post('/request-mfa', async (req, res) => {
     }
 });
 
-// Verify MFA code during login
 router.post('/verify-mfa', async (req, res) => {
     try {
         const { email, code } = req.body;

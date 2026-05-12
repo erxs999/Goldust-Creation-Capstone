@@ -10,13 +10,11 @@ const otpStore = {};
 
 const app = express();
 
-// Configure CORS for production and local network access
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
+    
     if (!origin) return callback(null, true);
     
-    // Allow localhost, 127.0.0.1, and local network IPs
     const allowedOrigins = [
       'http://localhost:5173',
       'http://127.0.0.1:5173',
@@ -24,7 +22,6 @@ const corsOptions = {
       process.env.CLIENT_URL
     ].filter(Boolean);
     
-    // Allow any origin in development, or check allowedOrigins list
     if (allowedOrigins.includes(origin) || origin.startsWith('http://192.168.') || origin.startsWith('http://localhost')) {
       callback(null, true);
     } else {
@@ -55,22 +52,17 @@ app.use('/api/bookings', bookingsRouter);
 const categoriesRouter = require('./routes/categories');
 app.use('/api/categories', categoriesRouter);
 
-// Backup routes
 const backupRouter = require('./routes/backup');
 app.use('/api/backup', backupRouter);
 
-// Gallery routes
 const galleryRouter = require('./routes/gallery');
 app.use('/api/gallery', galleryRouter);
 
-// Serve gallery images statically
 const path = require('path');
 app.use('/gallery', express.static(path.join(__dirname, 'public/gallery')));
 
-// Serve review uploads statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Create a separate connection for promos database
 const promoConnection = mongoose.createConnection(`${process.env.MONGODB_URI}/promosDatabase`, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -78,18 +70,14 @@ const promoConnection = mongoose.createConnection(`${process.env.MONGODB_URI}/pr
 promoConnection.on('connected', () => console.log('MongoDB promosDatabase connected!'));
 promoConnection.on('error', err => console.error('MongoDB promosDatabase connection error:', err));
 
-// Load Promo model using the promo connection
 const promoSchema = require('./models/Promo');
 const Promo = promoConnection.model('Promo', promoSchema);
 
-// Make Promo model available to routes
 app.locals.Promo = Promo;
 
-// Register promo routes
 const promosRouter = require('./routes/promos');
 app.use('/api/promos', promosRouter);
 
-// Create a separate connection for schedules/calendar
 const scheduleConnection = mongoose.createConnection(`${process.env.MONGODB_URI}/scheduleCalendar`, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -97,12 +85,10 @@ const scheduleConnection = mongoose.createConnection(`${process.env.MONGODB_URI}
 scheduleConnection.on('connected', () => console.log('MongoDB scheduleCalendar connected!'));
 scheduleConnection.on('error', err => console.error('MongoDB scheduleCalendar connection error:', err));
 
-// Load Schedule model using the new connection
 const scheduleSchema = require('./models/Schedule').schema;
 const Schedule = scheduleConnection.model('Schedule', scheduleSchema);
 const { SupplierAcceptedSchedule, SupplierDeclinedSchedule, SupplierUpcomingSchedule } = require('./models/SupplierSchedule');
 
-// Create a separate connection for notifications
 const notificationConnection = mongoose.createConnection(`${process.env.MONGODB_URI}/notification`, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -110,24 +96,20 @@ const notificationConnection = mongoose.createConnection(`${process.env.MONGODB_
 notificationConnection.on('connected', () => console.log('MongoDB notification database connected!'));
 notificationConnection.on('error', err => console.error('MongoDB notification connection error:', err));
 
-// Load Notification model using the notification connection
 const notificationSchema = require('./models/Notification').schema;
 const Notification = notificationConnection.model('Notification', notificationSchema);
 
-// Load Appointment model using scheduleConnection
 const appointmentSchema = require('./models/Appointment').schema;
 const Appointment = scheduleConnection.model('Appointment', appointmentSchema);
-// Register appointments API route with correct model
+
 const appointmentsRouter = require('./routes/appointments')(Appointment);
 app.use('/api/appointments', appointmentsRouter);
 
-// Initialize models for accepted, declined, cancelled, and upcoming schedules
 const SupplierAccepted = scheduleConnection.model('SupplierAcceptedSchedule', require('./models/SupplierSchedule').SupplierAcceptedSchedule.schema);
 const SupplierDeclined = scheduleConnection.model('SupplierDeclinedSchedule', require('./models/SupplierSchedule').SupplierDeclinedSchedule.schema);
 const SupplierUpcoming = scheduleConnection.model('SupplierUpcomingSchedule', require('./models/SupplierSchedule').SupplierUpcomingSchedule.schema);
 const SupplierCancelled = scheduleConnection.model('SupplierCancelledSchedule', scheduleSchema);
 
-// Schedules API endpoints now use the scheduleConnection
 app.get('/api/schedules', async (req, res) => {
   try {
     const schedules = await Schedule.find();
@@ -140,7 +122,6 @@ app.get('/api/schedules', async (req, res) => {
   }
 });
 
-
 app.post('/api/schedules', async (req, res) => {
   try {
     const schedule = new Schedule(req.body);
@@ -151,23 +132,19 @@ app.post('/api/schedules', async (req, res) => {
   }
 });
 
-// DELETE endpoint for schedules (checks all collections)
 app.delete('/api/schedules/:id', async (req, res) => {
   try {
-    // Try deleting from regular schedules first
+    
     let deleted = await Schedule.findByIdAndDelete(req.params.id);
     
-    // If not found, try accepted schedules
     if (!deleted) {
       deleted = await SupplierAccepted.findByIdAndDelete(req.params.id);
     }
     
-    // If still not found, try declined schedules
     if (!deleted) {
       deleted = await SupplierDeclined.findByIdAndDelete(req.params.id);
     }
     
-    // If still not found, try cancelled schedules
     if (!deleted) {
       deleted = await SupplierCancelled.findByIdAndDelete(req.params.id);
     }
@@ -180,26 +157,23 @@ app.delete('/api/schedules/:id', async (req, res) => {
   }
 });
 
-// Update schedule status (accept/decline)
 app.put('/api/schedules/:id/status', async (req, res) => {
   try {
     const { id } = req.params;
     const { status, supplierId, supplierName } = req.body;
 
-    // Find the original schedule
     const schedule = await Schedule.findById(id);
     if (!schedule) {
       return res.status(404).json({ error: 'Schedule not found' });
     }
 
-    // Create the schedule entry in the appropriate collection
     const scheduleData = {
       ...schedule.toObject(),
       supplierId,
       supplierName,
       status,
       actionDate: new Date(),
-      _id: undefined // Allow MongoDB to generate a new ID
+      _id: undefined 
     };
 
     if (status === 'accepted') {
@@ -210,7 +184,6 @@ app.put('/api/schedules/:id/status', async (req, res) => {
       return res.status(400).json({ error: 'Invalid status' });
     }
 
-    // Delete from original schedules
     await Schedule.findByIdAndDelete(id);
 
     res.json({ success: true, message: `Schedule ${status} successfully` });
@@ -220,9 +193,6 @@ app.put('/api/schedules/:id/status', async (req, res) => {
   }
 });
 
-// Move these routes before the generic schedules/:id route to prevent path conflicts
-
-// Get accepted schedules for a supplier
 app.get('/api/schedules/status/accepted', async (req, res) => {
   try {
     const { supplierId } = req.query;
@@ -238,7 +208,6 @@ app.get('/api/schedules/status/accepted', async (req, res) => {
   }
 });
 
-// Get declined schedules for a supplier
 app.get('/api/schedules/status/declined', async (req, res) => {
   try {
     const { supplierId } = req.query;
@@ -254,7 +223,6 @@ app.get('/api/schedules/status/declined', async (req, res) => {
   }
 });
 
-// Get cancelled schedules for a supplier
 app.get('/api/schedules/status/cancelled', async (req, res) => {
   try {
     const { supplierId } = req.query;
@@ -270,7 +238,6 @@ app.get('/api/schedules/status/cancelled', async (req, res) => {
   }
 });
 
-// Get upcoming schedules for a supplier
 app.get('/api/schedules/status/upcoming', async (req, res) => {
   try {
     const { supplierId } = req.query;
@@ -286,7 +253,6 @@ app.get('/api/schedules/status/upcoming', async (req, res) => {
   }
 });
 
-// Get all upcoming schedules (for checking which bookings have been scheduled)
 app.get('/api/schedules/all/upcoming', async (req, res) => {
   try {
     const schedules = await SupplierUpcoming.find();
@@ -297,7 +263,6 @@ app.get('/api/schedules/all/upcoming', async (req, res) => {
   }
 });
 
-// Get all accepted schedules (for notification system)
 app.get('/api/schedules/all/accepted', async (req, res) => {
   try {
     const schedules = await SupplierAccepted.find();
@@ -308,7 +273,6 @@ app.get('/api/schedules/all/accepted', async (req, res) => {
   }
 });
 
-// Get all declined schedules (for notification system)
 app.get('/api/schedules/all/declined', async (req, res) => {
   try {
     const schedules = await SupplierDeclined.find();
@@ -319,21 +283,18 @@ app.get('/api/schedules/all/declined', async (req, res) => {
   }
 });
 
-// Create upcoming schedules for suppliers (sent from admin dashboard)
 app.post('/api/schedules/upcoming/notify', async (req, res) => {
   try {
     const { bookingId, eventType, eventDate, branch, venue, suppliers } = req.body;
     console.log('Creating upcoming schedules for suppliers:', suppliers);
     
-    // Get User model from authentication connection
     const User = mongoose.connection.useDb('authentication').model('User', require('./models/User').schema);
     
     const createdSchedules = [];
     for (const supplier of suppliers) {
-      // Look up supplier by ID to get their email
+      
       let supplierEmail = supplier.supplierId;
       
-      // If supplierId looks like a MongoDB ObjectId (24 hex chars), look up the user
       if (supplier.supplierId.match(/^[0-9a-fA-F]{24}$/)) {
         try {
           const supplierUser = await User.findById(supplier.supplierId);
@@ -371,19 +332,16 @@ app.post('/api/schedules/upcoming/notify', async (req, res) => {
   }
 });
 
-// Accept an upcoming schedule
 app.put('/api/schedules/upcoming/:id/accept', async (req, res) => {
   try {
     const { id } = req.params;
     const { supplierId, supplierName } = req.body;
     
-    // Find the upcoming schedule
     const upcomingSchedule = await SupplierUpcoming.findById(id);
     if (!upcomingSchedule) {
       return res.status(404).json({ error: 'Schedule not found' });
     }
     
-    // Create accepted schedule
     const acceptedScheduleData = {
       bookingId: upcomingSchedule.bookingId,
       title: `${upcomingSchedule.eventType} - ${supplierName}`,
@@ -403,7 +361,6 @@ app.put('/api/schedules/upcoming/:id/accept', async (req, res) => {
     
     await SupplierAccepted.create(acceptedScheduleData);
     
-    // Delete the upcoming schedule
     await SupplierUpcoming.findByIdAndDelete(id);
     
     console.log(`Schedule ${id} accepted by ${supplierName}`);
@@ -414,19 +371,16 @@ app.put('/api/schedules/upcoming/:id/accept', async (req, res) => {
   }
 });
 
-// Decline an upcoming schedule
 app.put('/api/schedules/upcoming/:id/decline', async (req, res) => {
   try {
     const { id } = req.params;
     const { supplierId, supplierName } = req.body;
     
-    // Find the upcoming schedule
     const upcomingSchedule = await SupplierUpcoming.findById(id);
     if (!upcomingSchedule) {
       return res.status(404).json({ error: 'Schedule not found' });
     }
     
-    // Create declined schedule
     const declinedScheduleData = {
       bookingId: upcomingSchedule.bookingId,
       title: `${upcomingSchedule.eventType} - ${supplierName}`,
@@ -446,7 +400,6 @@ app.put('/api/schedules/upcoming/:id/decline', async (req, res) => {
     
     await SupplierDeclined.create(declinedScheduleData);
     
-    // Delete the upcoming schedule
     await SupplierUpcoming.findByIdAndDelete(id);
     
     console.log(`Schedule ${id} declined by ${supplierName}`);
@@ -457,7 +410,6 @@ app.put('/api/schedules/upcoming/:id/decline', async (req, res) => {
   }
 });
 
-// Request schedule cancellation (for accepted schedules)
 app.post('/api/schedules/:id/cancel-request', async (req, res) => {
   try {
     const { id } = req.params;
@@ -467,14 +419,12 @@ app.post('/api/schedules/:id/cancel-request', async (req, res) => {
       return res.status(400).json({ error: 'Reason and description are required' });
     }
 
-    // Find the schedule in accepted schedules
     const schedule = await SupplierAccepted.findById(id);
     
     if (!schedule) {
       return res.status(404).json({ error: 'Accepted schedule not found' });
     }
 
-    // Update with cancellation request
     schedule.cancellationRequest = {
       status: 'pending',
       reason,
@@ -492,7 +442,6 @@ app.post('/api/schedules/:id/cancel-request', async (req, res) => {
   }
 });
 
-// Get schedules with pending cancellation requests (for admin)
 app.get('/api/schedules/cancellation-requests/pending', async (req, res) => {
   try {
     const pendingCancellations = await SupplierAccepted.find({ 'cancellationRequest.status': 'pending' });
@@ -503,31 +452,26 @@ app.get('/api/schedules/cancellation-requests/pending', async (req, res) => {
   }
 });
 
-// Approve schedule cancellation (moves to cancelled collection)
 app.put('/api/schedules/:id/cancel-approve', async (req, res) => {
   try {
     const { id } = req.params;
     const { adminEmail, adminNotes } = req.body;
 
-    // Find the schedule in accepted schedules
     const schedule = await SupplierAccepted.findById(id);
     
     if (!schedule) {
       return res.status(404).json({ error: 'Schedule not found' });
     }
 
-    // Update cancellation request
     schedule.cancellationRequest.status = 'approved';
     schedule.cancellationRequest.processedBy = adminEmail;
     schedule.cancellationRequest.processedAt = new Date();
     schedule.cancellationRequest.adminNotes = adminNotes || '';
     schedule.status = 'cancelled';
 
-    // Move to cancelled collection
     const cancelledSchedule = new SupplierCancelled(schedule.toObject());
     await cancelledSchedule.save();
 
-    // Remove from accepted collection
     await SupplierAccepted.findByIdAndDelete(id);
 
     res.json({ message: 'Cancellation approved and schedule moved to cancelled', schedule: cancelledSchedule });
@@ -537,13 +481,11 @@ app.put('/api/schedules/:id/cancel-approve', async (req, res) => {
   }
 });
 
-// Reject schedule cancellation
 app.put('/api/schedules/:id/cancel-reject', async (req, res) => {
   try {
     const { id } = req.params;
     const { adminEmail, adminNotes } = req.body;
 
-    // Find and update the schedule
     const schedule = await SupplierAccepted.findById(id);
     
     if (!schedule) {
@@ -564,7 +506,6 @@ app.put('/api/schedules/:id/cancel-reject', async (req, res) => {
   }
 });
 
-// Notifications API endpoints
 app.get('/api/notifications', async (req, res) => {
   try {
     const notifications = await Notification.find().sort({ createdAt: -1 });
@@ -599,16 +540,10 @@ app.delete('/api/notifications/:id', async (req, res) => {
   }
 });
 
-
-// Import database configuration
 const { authConnection, Customer, Supplier } = require('./config/database');
 
 authConnection.on('connected', () => console.log('MongoDB authentication connected!'));
 authConnection.on('error', err => console.error('MongoDB authentication connection error:', err));
-
-
-// Password reset routes are now handled in passwordReset.js
-
 
 app.get('/api/background-images', async (req, res) => {
   try {
@@ -618,7 +553,6 @@ app.get('/api/background-images', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch images' });
   }
 });
-
 
 app.post('/api/background-images', async (req, res) => {
   try {
@@ -633,7 +567,6 @@ app.post('/api/background-images', async (req, res) => {
   }
 });
 
-
 app.delete('/api/background-images/:id', async (req, res) => {
   try {
     await BackgroundImage.findByIdAndDelete(req.params.id);
@@ -644,7 +577,6 @@ app.delete('/api/background-images/:id', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5051;
-
 
 app.post('/api/auth/login-supplier', async (req, res) => {
   try {
@@ -657,7 +589,6 @@ app.post('/api/auth/login-supplier', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Check if supplier is approved
     if (!supplier.isApproved) {
       return res.status(403).json({ 
         error: 'Account pending approval', 
@@ -665,17 +596,16 @@ app.post('/api/auth/login-supplier', async (req, res) => {
       });
     }
 
-    // If MFA is enabled, handle MFA verification
     if (supplier.mfaEnabled) {
       if (!mfaCode) {
-        // First login attempt without MFA code
+        
         await sendMFACode(email);
         return res.json({
           requireMFA: true,
           message: 'MFA code sent to email'
         });
       } else {
-        // Verify MFA code
+        
         const isValid = verifyMFACode(email, mfaCode);
         if (!isValid) {
           return res.status(401).json({ error: 'Invalid MFA code' });
@@ -683,7 +613,6 @@ app.post('/api/auth/login-supplier', async (req, res) => {
       }
     }
 
-    // If we get here, either MFA is not enabled or it was validated successfully
     const token = jwt.sign(
       { id: supplier._id, email: supplier.email, role: 'supplier' },
       process.env.JWT_SECRET || 'your-secret-key'
@@ -698,7 +627,6 @@ app.post('/api/auth/login-supplier', async (req, res) => {
   }
 });
 
-
 app.post('/api/auth/login-customer', async (req, res) => {
   try {
     const { email, password, mfaCode } = req.body;
@@ -710,17 +638,16 @@ app.post('/api/auth/login-customer', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // If MFA is enabled, handle MFA verification
     if (customer.mfaEnabled) {
       if (!mfaCode) {
-        // First login attempt without MFA code
+        
         await sendMFACode(email);
         return res.json({
           requireMFA: true,
           message: 'MFA code sent to email'
         });
       } else {
-        // Verify MFA code
+        
         const isValid = verifyMFACode(email, mfaCode);
         if (!isValid) {
           return res.status(401).json({ error: 'Invalid MFA code' });
@@ -728,7 +655,6 @@ app.post('/api/auth/login-customer', async (req, res) => {
       }
     }
 
-    // If we get here, either MFA is not enabled or it was validated successfully
     const token = jwt.sign(
       { id: customer._id, email: customer.email, role: 'customer' },
       process.env.JWT_SECRET || 'your-secret-key'
@@ -743,7 +669,6 @@ app.post('/api/auth/login-customer', async (req, res) => {
   }
 });
 
-// Verify admin password
 app.post('/api/auth/verify-admin', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -751,7 +676,6 @@ app.post('/api/auth/verify-admin', async (req, res) => {
       return res.status(400).json({ error: 'Missing password' });
     }
     
-    // Check if password matches admin password
     if (password === 'admin123') {
       res.json({ success: true, message: 'Admin verified' });
     } else {
@@ -762,7 +686,6 @@ app.post('/api/auth/verify-admin', async (req, res) => {
   }
 });
 
-// Verify user password
 app.post('/api/auth/verify-password', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -771,11 +694,9 @@ app.post('/api/auth/verify-password', async (req, res) => {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    // Try to find user in Customer collection
     let user = await Customer.findOne({ email });
     let userType = 'customer';
 
-    // If not found in Customer, try Supplier collection
     if (!user) {
       user = await Supplier.findOne({ email });
       userType = 'supplier';
@@ -785,7 +706,6 @@ app.post('/api/auth/verify-password', async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Compare the provided password with stored password
     if (password === user.password) {
       res.json({ success: true, message: 'Password verified', userType });
     } else {
@@ -802,14 +722,12 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('MongoDB ProductsAndServices connected!'))
   .catch(err => console.error('MongoDB ProductsAndServices connection error:', err));
 
-
 const bgImageConnection = mongoose.createConnection(`${process.env.MONGODB_URI}/backgroundImages`, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
 bgImageConnection.on('connected', () => console.log('MongoDB backgroundImages connected!'));
 bgImageConnection.on('error', err => console.error('MongoDB backgroundImages connection error:', err));
-
 
 const bookingConnection = mongoose.createConnection(`${process.env.MONGODB_URI}/booking`, {
   useNewUrlParser: true,
@@ -818,20 +736,15 @@ const bookingConnection = mongoose.createConnection(`${process.env.MONGODB_URI}/
 bookingConnection.on('connected', () => console.log('MongoDB booking connected!'));
 bookingConnection.on('error', err => console.error('MongoDB booking connection error:', err));
 
-
-
-
-
-
 const productSchema = new mongoose.Schema({
-  images: [String], // Changed to array of strings for multiple images
+  images: [String], 
   title: { type: String, required: true },
   description: String,
   price: String,
   additionals: [{ title: String, price: String, description: String }],
-  categoryTitle: String, // reference to category title
-  available: { type: Boolean, default: true }, // availability status
-  branches: [{ type: String }], // Available in branches
+  categoryTitle: String, 
+  available: { type: Boolean, default: true }, 
+  branches: [{ type: String }], 
 });
 const Product = mongoose.model('Product', productSchema);
 
@@ -842,7 +755,6 @@ const backgroundImageSchema = new mongoose.Schema({
 });
 const BackgroundImage = bgImageConnection.model('BackgroundImage', backgroundImageSchema);
 
-
 const cartItemSchema = new mongoose.Schema({
   product: Object,
   additionals: { type: [Object], default: [] },
@@ -850,7 +762,6 @@ const cartItemSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 const CartItem = mongoose.model('CartItem', cartItemSchema);
-
 
 const bookingBaseSchema = new mongoose.Schema({
   userId: String,
@@ -863,12 +774,12 @@ const bookingBaseSchema = new mongoose.Schema({
   branchLocation: String,
   theme: String,
   guestCount: Number,
-  subTotal: Number, // undiscounted price
-  promoId: String, // reference to the promo
-  promoTitle: String, // name of the promo
-  discountType: String, // percent discount (e.g., "15")
-  discount: Number, // calculated discount amount
-  totalPrice: Number, // discounted price
+  subTotal: Number, 
+  promoId: String, 
+  promoTitle: String, 
+  discountType: String, 
+  discount: Number, 
+  totalPrice: Number, 
   products: [
     {
       image: String,
@@ -881,15 +792,14 @@ const bookingBaseSchema = new mongoose.Schema({
   service: String,
   details: Object,
   outsidePH: String,
-  contractPicture: String, // base64 image string
+  contractPicture: String, 
   suppliers: [{ type: mongoose.Schema.Types.ObjectId }],
-  referenceNumber: String, // Reference number for approved bookings (e.g., GC-20251206-2YYKB)
+  referenceNumber: String, 
   createdAt: { type: Date, default: Date.now }
 }, { strict: false });
 const PendingBooking = bookingConnection.model('PendingBooking', bookingBaseSchema);
 const ApprovedBooking = bookingConnection.model('ApprovedBooking', bookingBaseSchema);
 const FinishedBooking = bookingConnection.model('FinishedBooking', bookingBaseSchema);
-
 
 app.get('/api/cart', async (req, res) => {
   const userEmail = req.query.userEmail;
@@ -898,12 +808,10 @@ app.get('/api/cart', async (req, res) => {
   res.json(items);
 });
 
-
 app.post('/api/cart', async (req, res) => {
   const { product, userEmail, additionals } = req.body;
   if (!userEmail || !product) return res.status(400).json({ error: 'Missing userEmail or product' });
   
-  // Check if product is available before adding to cart
   if (product.available === false) {
     return res.status(400).json({ error: 'This product/service is currently unavailable and cannot be added to cart.' });
   }
@@ -912,7 +820,6 @@ app.post('/api/cart', async (req, res) => {
   await item.save();
   res.status(201).json(item);
 });
-
 
 app.delete('/api/cart/:id', async (req, res) => {
   const userEmail = req.query.userEmail;
@@ -923,14 +830,12 @@ app.delete('/api/cart/:id', async (req, res) => {
   res.json({ success: true });
 });
 
-// Get most availed products/services
 app.get('/api/bookings/most-availed', async (req, res) => {
   try {
     const filter = req.query.filter;
     const year = req.query.year ? parseInt(req.query.year) : new Date().getFullYear();
     const branch = req.query.branch || 'all';
     
-    // Fetch all bookings
     const [pending, approved, finished] = await Promise.all([
       PendingBooking.find(),
       ApprovedBooking.find(),
@@ -939,7 +844,6 @@ app.get('/api/bookings/most-availed', async (req, res) => {
     
     const allBookings = [...pending, ...approved, ...finished];
     
-    // Filter by date if specified
     let filteredBookings = allBookings;
     if (filter && filter !== 'all') {
       const filterMonth = parseInt(filter);
@@ -950,7 +854,7 @@ app.get('/api/bookings/most-availed', async (req, res) => {
                bookingDate.getMonth() === filterMonth;
       });
     } else {
-      // If 'all', filter by year only
+      
       filteredBookings = allBookings.filter(b => {
         if (!b.createdAt) return false;
         const bookingDate = new Date(b.createdAt);
@@ -958,7 +862,6 @@ app.get('/api/bookings/most-availed', async (req, res) => {
       });
     }
     
-    // Filter by branch
     if (branch !== 'all') {
       filteredBookings = filteredBookings.filter(b => {
         const branchLocation = (b.branchLocation || '').toLowerCase();
@@ -975,7 +878,6 @@ app.get('/api/bookings/most-availed', async (req, res) => {
       });
     }
     
-    // Count products by title
     const productCounts = {};
     filteredBookings.forEach(booking => {
       if (booking.products && Array.isArray(booking.products)) {
@@ -989,10 +891,9 @@ app.get('/api/bookings/most-availed', async (req, res) => {
       }
     });
     
-    // Convert to array and sort by count
     const result = Object.values(productCounts)
       .sort((a, b) => b.count - a.count)
-      .slice(0, 20); // Return top 20
+      .slice(0, 20); 
     
     res.json(result);
   } catch (error) {
@@ -1008,7 +909,6 @@ app.get('/api/bookings/pending', async (req, res) => {
 app.post('/api/bookings/pending', async (req, res) => {
   const bookingData = { ...req.body };
   
-  // Validate that all products in the booking are available
   if (bookingData.products && Array.isArray(bookingData.products)) {
     const unavailableProducts = bookingData.products.filter(p => p.available === false);
     if (unavailableProducts.length > 0) {
@@ -1019,7 +919,6 @@ app.post('/api/bookings/pending', async (req, res) => {
     }
   }
   
-  // Normalize field names: handle both 'subtotal' and 'subTotal'
   if (bookingData.subtotal !== undefined && bookingData.subTotal === undefined) {
     bookingData.subTotal = bookingData.subtotal;
     delete bookingData.subtotal;
@@ -1033,11 +932,10 @@ app.delete('/api/bookings/pending/:id', async (req, res) => {
   res.json({ success: true });
 });
 
-
 app.get('/api/bookings/approved', async (req, res) => {
   try {
     const bookings = await ApprovedBooking.find();
-    // Manually populate suppliers since they're in different DB
+    
     const bookingsWithSuppliers = await Promise.all(bookings.map(async (booking) => {
       const bookingObj = booking.toObject();
       if (bookingObj.suppliers && bookingObj.suppliers.length > 0) {
@@ -1059,7 +957,6 @@ app.post('/api/bookings/approved', async (req, res) => {
     console.log('📝 Reference number received:', bookingData.referenceNumber);
     console.log('📝 Status received:', bookingData.status);
     
-    // Normalize field names: handle both 'subtotal' and 'subTotal'
     if (bookingData.subtotal !== undefined && bookingData.subTotal === undefined) {
       bookingData.subTotal = bookingData.subtotal;
       delete bookingData.subtotal;
@@ -1080,7 +977,6 @@ app.delete('/api/bookings/approved/:id', async (req, res) => {
   res.json({ success: true });
 });
 
-
 app.get('/api/bookings/finished', async (req, res) => {
   const bookings = await FinishedBooking.find();
   res.json(bookings);
@@ -1088,7 +984,7 @@ app.get('/api/bookings/finished', async (req, res) => {
 app.post('/api/bookings/finished', async (req, res) => {
   const bookingData = { ...req.body };
   console.log('🏁 Finished booking POST - Reference number received:', bookingData.referenceNumber);
-  // Normalize field names: handle both 'subtotal' and 'subTotal'
+  
   if (bookingData.subtotal !== undefined && bookingData.subTotal === undefined) {
     bookingData.subTotal = bookingData.subtotal;
     delete bookingData.subtotal;
@@ -1103,9 +999,7 @@ app.delete('/api/bookings/finished/:id', async (req, res) => {
   res.json({ success: true });
 });
 
-
 app.get('/', (req, res) => res.send('Server running with MongoDB!'));
-
 
 app.get('/api/categories', async (req, res) => {
   const categories = await Category.find();
@@ -1128,7 +1022,6 @@ app.delete('/api/categories/:id', async (req, res) => {
   res.json({ success: true });
 });
 
-
 app.delete('/api/products/category/:categoryTitle', async (req, res) => {
   try {
     const result = await Product.deleteMany({ categoryTitle: req.params.categoryTitle });
@@ -1142,15 +1035,14 @@ app.get('/api/products/:categoryTitle', async (req, res) => {
   try {
     const products = await Product.find({ categoryTitle: req.params.categoryTitle });
     
-    // Ensure backward compatibility
     const formattedProducts = products.map(product => {
       const prod = product.toObject();
-      // If it's an old product with single image, convert to images array
+      
       if (prod.image && !prod.images) {
         prod.images = [prod.image];
         delete prod.image;
       }
-      // Ensure images is always an array
+      
       if (!Array.isArray(prod.images)) {
         prod.images = prod.images ? [prod.images] : [];
       }
@@ -1167,7 +1059,7 @@ app.get('/api/products/:categoryTitle', async (req, res) => {
 app.post('/api/products', async (req, res) => {
   try {
     const data = req.body;
-    // Ensure images is an array
+    
     if (data.image && !data.images) {
       data.images = [data.image];
       delete data.image;
@@ -1187,7 +1079,7 @@ app.post('/api/products', async (req, res) => {
 app.put('/api/products/:id', async (req, res) => {
   try {
     const data = req.body;
-    // Ensure images is an array
+    
     if (data.image && !data.images) {
       data.images = [data.image];
       delete data.image;
@@ -1208,7 +1100,6 @@ app.delete('/api/products/:id', async (req, res) => {
   res.json({ success: true });
 });
 
-// Admin endpoints for supplier approval management
 app.get('/api/admin/suppliers/pending', async (req, res) => {
   try {
     const pendingSuppliers = await Supplier.find({ isApproved: false })
@@ -1220,7 +1111,6 @@ app.get('/api/admin/suppliers/pending', async (req, res) => {
       eventTypes: s.eventTypes 
     })));
     
-    // Manually populate eventTypes and categories to handle older records without these fields
     for (let supplier of pendingSuppliers) {
       if (supplier.eventTypes && supplier.eventTypes.length > 0) {
         const EventType = require('./models/EventType');
@@ -1257,7 +1147,6 @@ app.get('/api/admin/suppliers/approved', async (req, res) => {
       isAvailable: s.isAvailable 
     })));
     
-    // Manually populate eventTypes and categories to handle older records without these fields
     for (let supplier of approvedSuppliers) {
       if (supplier.eventTypes && supplier.eventTypes.length > 0) {
         const EventType = require('./models/EventType');
@@ -1299,7 +1188,6 @@ app.post('/api/admin/suppliers/:id/approve', async (req, res) => {
       return res.status(404).json({ error: 'Supplier not found' });
     }
 
-    // Send approval email
     const { sendSupplierApprovedEmail } = require('./services/emailService');
     try {
       await sendSupplierApprovedEmail(
@@ -1311,7 +1199,7 @@ app.post('/api/admin/suppliers/:id/approve', async (req, res) => {
       console.log('Approval email sent to:', supplier.email);
     } catch (emailError) {
       console.error('Failed to send approval email:', emailError);
-      // Don't fail approval if email fails
+      
     }
 
     res.json({ 
@@ -1333,7 +1221,6 @@ app.delete('/api/admin/suppliers/:id/reject', async (req, res) => {
       return res.status(404).json({ error: 'Supplier not found' });
     }
 
-    // Send rejection email before deleting
     const { sendSupplierRejectedEmail } = require('./services/emailService');
     try {
       await sendSupplierRejectedEmail(
@@ -1345,10 +1232,9 @@ app.delete('/api/admin/suppliers/:id/reject', async (req, res) => {
       console.log('Rejection email sent to:', supplier.email);
     } catch (emailError) {
       console.error('Failed to send rejection email:', emailError);
-      // Don't fail rejection if email fails
+      
     }
 
-    // Now delete the supplier
     await Supplier.findByIdAndDelete(id);
 
     res.json({ message: 'Supplier rejected and removed successfully' });
@@ -1358,7 +1244,6 @@ app.delete('/api/admin/suppliers/:id/reject', async (req, res) => {
   }
 });
 
-// Update supplier details
 app.put('/api/admin/suppliers/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -1369,7 +1254,6 @@ app.put('/api/admin/suppliers/:id', async (req, res) => {
       return res.status(404).json({ error: 'Supplier not found' });
     }
 
-    // Update supplier fields
     supplier.firstName = firstName;
     supplier.lastName = lastName;
     supplier.middleName = middleName;
@@ -1390,7 +1274,6 @@ app.put('/api/admin/suppliers/:id', async (req, res) => {
   }
 });
 
-// Delete supplier permanently
 app.delete('/api/admin/suppliers/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -1407,7 +1290,6 @@ app.delete('/api/admin/suppliers/:id', async (req, res) => {
   }
 });
 
-// Update customer details
 app.put('/api/admin/customers/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -1418,7 +1300,6 @@ app.put('/api/admin/customers/:id', async (req, res) => {
       return res.status(404).json({ error: 'Customer not found' });
     }
 
-    // Update customer fields
     customer.firstName = firstName;
     customer.lastName = lastName;
     customer.middleName = middleName;
@@ -1437,7 +1318,6 @@ app.put('/api/admin/customers/:id', async (req, res) => {
   }
 });
 
-// Delete customer permanently
 app.delete('/api/admin/customers/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -1454,46 +1334,40 @@ app.delete('/api/admin/customers/:id', async (req, res) => {
   }
 });
 
-// Notify supplier - creates a schedule entry
 app.post('/api/admin/suppliers/:id/notify', async (req, res) => {
   try {
     const { id } = req.params;
     const { eventType, description, date, location, time } = req.body;
 
-    // Validate required fields
     if (!eventType || !date || !location) {
       return res.status(400).json({ error: 'Event type, date, and location are required' });
     }
 
-    // Find the supplier
     const supplier = await Supplier.findById(id);
     if (!supplier) {
       return res.status(404).json({ error: 'Supplier not found' });
     }
 
-    // Get branch location from supplier's branchContacts (use first one if multiple)
     const branchLocation = supplier.branchContacts && supplier.branchContacts.length > 0
       ? supplier.branchContacts[0]
       : null;
 
-    // Create a schedule entry in the scheduleCalendar database
     const schedule = new Schedule({
       title: `${eventType}${supplier.companyName ? ' - ' + supplier.companyName : ''}`,
-      type: 'Supplier', // Set type to 'Supplier' so it appears in supplier notifications
-      person: supplier.email, // Use email so filtering works correctly
+      type: 'Supplier', 
+      person: supplier.email, 
       date: date,
       location: location,
       description: `${description || ''}${time ? '\nTime: ' + time : ''}`,
       supplierId: supplier.email,
       supplierName: `${supplier.firstName} ${supplier.lastName}`,
-      eventType: eventType, // Store the actual event type separately
+      eventType: eventType, 
       branchLocation: branchLocation,
-      status: 'pending' // Initial status is pending
+      status: 'pending' 
     });
 
     await schedule.save();
 
-    // Optional: Send email notification to supplier
     const { sendSupplierNotificationEmail } = require('./services/emailService');
     try {
       await sendSupplierNotificationEmail(
@@ -1509,7 +1383,7 @@ app.post('/api/admin/suppliers/:id/notify', async (req, res) => {
       console.log('Notification email sent to:', supplier.email);
     } catch (emailError) {
       console.error('Failed to send notification email:', emailError);
-      // Don't fail if email fails - schedule is already saved
+      
     }
 
     res.json({ 
@@ -1522,10 +1396,9 @@ app.post('/api/admin/suppliers/:id/notify', async (req, res) => {
   }
 });
 
-
 app.get('/api/suppliers', async (req, res) => {
   try {
-    // Only return approved suppliers for dashboard counts
+    
     const suppliers = await Supplier.find({ isApproved: true });
     console.log('Found approved suppliers:', suppliers.length);
     res.json(suppliers);
@@ -1535,17 +1408,15 @@ app.get('/api/suppliers', async (req, res) => {
   }
 });
 
-// Get most active suppliers based on accepted schedules
 app.get('/api/suppliers/most-active', async (req, res) => {
   try {
     const { filter, year, branch } = req.query;
     const selectedYear = year ? parseInt(year) : new Date().getFullYear();
     const branchFilter = branch || 'all';
     
-    // Build date filter
     let dateFilter = {};
     if (filter === 'all') {
-      // All months in the selected year
+      
       dateFilter = {
         date: {
           $gte: new Date(selectedYear, 0, 1).toISOString(),
@@ -1553,7 +1424,7 @@ app.get('/api/suppliers/most-active', async (req, res) => {
         }
       };
     } else if (filter !== undefined && filter !== null) {
-      // Specific month (0-11)
+      
       const month = parseInt(filter);
       const startDate = new Date(selectedYear, month, 1);
       const endDate = new Date(selectedYear, month + 1, 0, 23, 59, 59);
@@ -1565,10 +1436,8 @@ app.get('/api/suppliers/most-active', async (req, res) => {
       };
     }
 
-    // Aggregate accepted schedules by supplier
     let acceptedSchedules = await SupplierAccepted.find(dateFilter);
     
-    // Filter by branch if specified
     if (branchFilter !== 'all') {
       acceptedSchedules = acceptedSchedules.filter(schedule => {
         const branchLocation = (schedule.branchLocation || '').toLowerCase();
@@ -1585,7 +1454,6 @@ app.get('/api/suppliers/most-active', async (req, res) => {
       });
     }
     
-    // Count schedules per supplier
     const supplierCounts = {};
     acceptedSchedules.forEach(schedule => {
       const supplierId = schedule.supplierId || schedule.person;
@@ -1605,7 +1473,6 @@ app.get('/api/suppliers/most-active', async (req, res) => {
       }
     });
 
-    // Fetch supplier details for phone numbers and branch contacts
     const supplierIds = Object.keys(supplierCounts);
     const suppliers = await Supplier.find({ email: { $in: supplierIds } });
     
@@ -1617,12 +1484,11 @@ app.get('/api/suppliers/most-active', async (req, res) => {
       }
     });
 
-    // Filter suppliers by their branchContacts if branch filter is specified
     let filteredSupplierCounts = Object.values(supplierCounts);
     if (branchFilter !== 'all') {
       filteredSupplierCounts = filteredSupplierCounts.filter(supplierCount => {
         const branchContacts = supplierCount.branchContacts || [];
-        // Check if any of the supplier's branchContacts matches the selected branch
+        
         return branchContacts.some(contact => {
           const contactLower = (contact || '').toLowerCase();
           if (branchFilter === 'santafe') {
@@ -1639,7 +1505,6 @@ app.get('/api/suppliers/most-active', async (req, res) => {
       });
     }
 
-    // Sort by count
     const result = filteredSupplierCounts.sort((a, b) => b.count - a.count);
     
     res.json(result);
@@ -1649,7 +1514,6 @@ app.get('/api/suppliers/most-active', async (req, res) => {
   }
 });
 
-// Update supplier availability status
 app.put('/api/suppliers/availability', async (req, res) => {
   try {
     const { email, isAvailable } = req.body;
@@ -1689,7 +1553,6 @@ app.post('/api/auth/register-supplier', async (req, res) => {
     
     const { email, password, companyName, firstName, lastName, middleName, phone, eventTypes, categories, branchContacts } = req.body;
     
-    // Validate required fields
     if (!email || !password || !companyName || !firstName || !lastName || !phone) {
       console.log('Missing fields:', { 
         hasEmail: !!email, 
@@ -1702,28 +1565,26 @@ app.post('/api/auth/register-supplier', async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
  
-    // Check for existing supplier
     const existing = await Supplier.findOne({ email });
     if (existing) {
       console.log('Supplier already exists:', email);
       return res.status(409).json({ error: 'Email address is already registered' });
     }
   
-    // Create new supplier with correct field mappings
     const supplier = new Supplier({ 
       email, 
       password, 
-      companyName: companyName,  // Use companyName directly
+      companyName: companyName,  
       firstName, 
       lastName, 
       middleName, 
-      phone: phone,  // Use phone directly
+      phone: phone,  
       contact: phone,
       mfaEnabled: false,
-      isApproved: false,  // New suppliers need admin approval
-      eventTypes: eventTypes || [],  // Save selected event types
-      categories: categories || [],  // Save selected categories
-      branchContacts: branchContacts || []  // Save selected branch locations
+      isApproved: false,  
+      eventTypes: eventTypes || [],  
+      categories: categories || [],  
+      branchContacts: branchContacts || []  
     });
     
     console.log('Attempting to save supplier:', {
@@ -1741,14 +1602,13 @@ app.post('/api/auth/register-supplier', async (req, res) => {
       isApproved: supplier.isApproved
     });
 
-    // Send pending approval email
     const { sendSupplierPendingEmail } = require('./services/emailService');
     try {
       await sendSupplierPendingEmail(email, firstName, lastName, companyName);
       console.log('Pending approval email sent to:', email);
     } catch (emailError) {
       console.error('Failed to send pending email:', emailError);
-      // Don't fail registration if email fails
+      
     }
     
     res.status(201).json({ 
@@ -1756,12 +1616,12 @@ app.post('/api/auth/register-supplier', async (req, res) => {
       requiresApproval: true,
       user: {
         ...supplier.toObject(),
-        password: undefined // Don't send password back
+        password: undefined 
       }
     });
   } catch (err) {
     console.error('Supplier registration error:', err);
-    // Send more descriptive error message
+    
     if (err.name === 'ValidationError') {
       return res.status(400).json({ 
         error: 'Validation error',
@@ -1774,7 +1634,6 @@ app.post('/api/auth/register-supplier', async (req, res) => {
     });
   }
 });
-
 
 app.post('/api/auth/register-customer', async (req, res) => {
   try {
@@ -1828,8 +1687,6 @@ app.post('/api/auth/register-customer', async (req, res) => {
   }
 });
 
-
-
 app.get('/api/customers', async (req, res) => {
   try {
     const customers = await Customer.find();
@@ -1839,7 +1696,6 @@ app.get('/api/customers', async (req, res) => {
   }
 });
 
-// Revenue endpoint
 app.get('/api/revenue', async (req, res) => {
   try {
     const filter = req.query.filter || 'thisMonth';
@@ -1849,17 +1705,16 @@ app.get('/api/revenue', async (req, res) => {
     let startDate;
     let endDate;
 
-    // Determine start date based on filter - handle 'all' and month numbers
     if (filter === 'all') {
-      // For 'all months', get the entire year
+      
       startDate = new Date(year, 0, 1);
       endDate = new Date(year, 11, 31, 23, 59, 59);
     } else if (!isNaN(filter) && parseInt(filter) >= 0 && parseInt(filter) < 12) {
-      // If filter is a month number (0-11), get that specific month in the selected year
+      
       startDate = new Date(year, parseInt(filter), 1);
       endDate = new Date(year, parseInt(filter) + 1, 0, 23, 59, 59);
     } else {
-      // Handle string filters like 'thisWeek', 'thisMonth', etc.
+      
       switch (filter) {
         case 'thisWeek':
           const day = now.getDay();
@@ -1885,19 +1740,15 @@ app.get('/api/revenue', async (req, res) => {
       }
     }
 
-    // Build query with optional branch filter
     const dateQuery = { date: { $gte: startDate, $lte: endDate } };
     
-    // Get all relevant bookings for the selected year
     const [finishedBookings, approvedBookings] = await Promise.all([
       FinishedBooking.find(dateQuery),
       ApprovedBooking.find(dateQuery)
     ]);
 
-    // Combine and process bookings
     let allBookings = [...finishedBookings, ...approvedBookings];
     
-    // Filter by branch if specified
     if (branch !== 'all') {
       allBookings = allBookings.filter(booking => {
         const branchLocation = (booking.branchLocation || '').toLowerCase();
@@ -1919,18 +1770,15 @@ app.get('/api/revenue', async (req, res) => {
       branch: branch
     });
     
-    // Initialize array for all months
     const revenueData = Array(12).fill(0).map((_, i) => ({
       month: i,
       value: 0
     }));
 
-    // Calculate revenue for each month
     allBookings.forEach(booking => {
-      // Use booking.date (event date) instead of createdAt for proper month categorization
+      
       const bookingDate = booking.date ? new Date(booking.date) : null;
       
-      // Check totalPrice or subTotal (fallback to subTotal if totalPrice is 0 or missing)
       const revenue = booking.totalPrice || booking.subTotal || 0;
       
       if (revenue > 0 && bookingDate && bookingDate.getFullYear() === year) {
@@ -1955,7 +1803,7 @@ app.get('/api/revenue', async (req, res) => {
     res.json(revenueData);
   } catch (err) {
     console.error('Revenue calculation error:', err);
-    // Return empty data instead of error
+    
     const emptyData = Array(12).fill(0).map((_, i) => ({
       month: i,
       value: 0
@@ -1964,7 +1812,6 @@ app.get('/api/revenue', async (req, res) => {
   }
 });
 
-// Centralize MongoDB connections
 Promise.all([
   mongoose.connect(`${process.env.MONGODB_URI}/ProductsAndServices`, { useNewUrlParser: true, useUnifiedTopology: true }),
   authConnection.asPromise(),
@@ -1981,6 +1828,5 @@ Promise.all([
   console.error('Failed to connect to MongoDB:', err);
 });
 
-// Register eventTypes route so frontend can fetch and update event types from the database.
 const eventTypesRouter = require('./routes/eventTypes');
 app.use('/api/event-types', eventTypesRouter);

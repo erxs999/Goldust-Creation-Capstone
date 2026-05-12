@@ -1,13 +1,9 @@
 
-
 import React, { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
 import api from '../services/api';
 import ClientSidebar from './ClientSidebar';
 import './BookingInformation.css';
-
-
-
 
 const BookingInformation = () => {
   const [showModal, setShowModal] = useState(false);
@@ -21,14 +17,12 @@ const BookingInformation = () => {
   const [loading, setLoading] = useState(true);
   const [userReviews, setUserReviews] = useState([]);
   
-  // Cancellation modal states
   const [showCancellationModal, setShowCancellationModal] = useState(false);
   const [cancellationForm, setCancellationForm] = useState({
     reason: '',
     description: ''
   });
 
-  // Reschedule modal states
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
   const [rescheduleForm, setRescheduleForm] = useState({
     reason: '',
@@ -36,7 +30,6 @@ const BookingInformation = () => {
     description: ''
   });
   
-  // Payment modal states
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentForm, setPaymentForm] = useState({
     paymentMode: '',
@@ -49,11 +42,9 @@ const BookingInformation = () => {
   });
   const [paymentProofPreview, setPaymentProofPreview] = useState('');
 
-  // Get user info (match Login.jsx logic)
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const userEmail = user.email;
 
-  // Cancellation reasons
   const cancellationReasons = [
     'Change of Plans',
     'Financial Constraints',
@@ -65,7 +56,6 @@ const BookingInformation = () => {
     'Other'
   ];
 
-  // Reschedule reasons
   const rescheduleReasons = [
     'Venue Conflict',
     'Weather Concerns',
@@ -79,7 +69,7 @@ const BookingInformation = () => {
 
   const fetchBookings = async () => {
     try {
-      // Fetch all bookings including cancelled and filter by user email
+      
       const [pendingRes, approvedRes, finishedRes, cancelledRes, reviewsRes] = await Promise.all([
         api.get('/bookings/pending'),
         api.get('/bookings/approved'),
@@ -105,13 +95,12 @@ const BookingInformation = () => {
     if (userEmail) fetchBookings();
   }, [userEmail]);
 
-
   const handleCardClick = (booking) => {
-    // Only open booking details if not currently opening review modal
+    
     if (!showReviewModal) {
-      // Refetch bookings to get fresh data
+      
       fetchBookings().then(() => {
-        // Find the updated booking
+        
         const updatedBooking = bookings.find(b => b._id === booking._id) || booking;
         setSelectedBooking(updatedBooking);
         setShowModal(true);
@@ -162,12 +151,10 @@ const BookingInformation = () => {
     if (!reviewRating || !reviewText.trim()) return;
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     
-    // Get user's full name from different possible fields
     const userName = user.firstName && user.lastName 
       ? `${user.firstName} ${user.lastName}`.trim()
       : user.name || user.firstName || user.lastName || 'User';
     
-    // Convert images to base64
     const base64Images = [];
     for (const file of reviewImages) {
       try {
@@ -219,7 +206,6 @@ const BookingInformation = () => {
     setSelectedBooking(null);
   };
 
-  // Payment modal handlers
   const handlePaymentProofUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -244,7 +230,6 @@ const BookingInformation = () => {
       return;
     }
 
-    // Auto-calculate payment status before submitting
     const amountPaid = parseFloat(paymentForm.amountPaid) || 0;
     const totalPrice = selectedBooking?.totalPrice || 0;
     let finalStatus = 'Pending';
@@ -262,14 +247,14 @@ const BookingInformation = () => {
         paymentDetails: {
           ...paymentForm,
           paymentStatus: finalStatus,
-          bookingReference: selectedBooking.referenceNumber // Include booking reference
+          bookingReference: selectedBooking.referenceNumber 
         }
       });
       
       if (response.status === 200) {
         alert('Payment details saved successfully!');
         setShowPaymentModal(false);
-        // Reset form
+        
         setPaymentForm({
           paymentMode: '',
           paymentStatus: '',
@@ -280,9 +265,9 @@ const BookingInformation = () => {
           paymentNotes: ''
         });
         setPaymentProofPreview('');
-        // Refresh bookings to get updated data
+        
         await fetchBookings();
-        // Update selected booking with the new payment details immediately
+        
         const updatedBookings = await Promise.all([
           api.get('/bookings/pending'),
           api.get('/bookings/approved'),
@@ -380,7 +365,7 @@ const BookingInformation = () => {
               <div>No bookings found.</div>
             ) : (
               bookings.map((booking, idx) => {
-                // Check if a review exists for this booking
+                
                 const hasReview = userReviews.some(r => r.bookingId === booking._id);
                 return (
                   <div
@@ -467,7 +452,7 @@ const BookingInformation = () => {
             )}
           </div>
         )}
-        {/* Modal */}
+        {}
         {showModal && selectedBooking && (
           <div style={{position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden'}}>
             <div className="booking-modal-content" style={{
@@ -484,7 +469,7 @@ const BookingInformation = () => {
               <button onClick={handleCloseModal} style={{position: 'absolute', top: 18, right: 18, background: 'none', border: 'none', fontSize: 28, cursor: 'pointer'}}>&times;</button>
               <h2 style={{fontWeight: 800, fontSize: '1.8rem', marginBottom: 24}}>Booking Details</h2>
               
-              {/* Reference Number Banner */}
+              {}
               {selectedBooking.referenceNumber && (
                 <div style={{
                   background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
@@ -550,7 +535,7 @@ const BookingInformation = () => {
                 </div>
               </div>
               
-              {/* Assigned Suppliers Section */}
+              {}
               {selectedBooking.suppliers && selectedBooking.suppliers.length > 0 && (
                 <div style={{marginBottom: 24}}>
                   <h3 style={{fontWeight: 700, fontSize: '1.2rem', marginBottom: 16}}>Assigned Suppliers</h3>
@@ -642,7 +627,7 @@ const BookingInformation = () => {
                 {selectedBooking.specialRequest || 'None'}
               </div>
 
-              {/* Payment Section */}
+              {}
               <div style={{marginBottom: 24}}>
                 <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16}}>
                   <h3 style={{fontWeight: 700, fontSize: '1.2rem', margin: 0}}>Payment</h3>
@@ -682,7 +667,7 @@ const BookingInformation = () => {
                     <h3 style={{fontWeight: 700, fontSize: '1.2rem', margin: 0}}>Payment Details</h3>
                     <button
                       onClick={() => {
-                        // Pre-populate form with existing payment data
+                        
                         setPaymentForm({
                           paymentMode: selectedBooking.paymentDetails.paymentMode || '',
                           paymentStatus: selectedBooking.paymentDetails.paymentStatus || '',
@@ -842,7 +827,7 @@ const BookingInformation = () => {
                 )}
               </div>
 
-              {/* Contract Picture Section */}
+              {}
               {selectedBooking.contractPicture && (
                 <div style={{ marginBottom: 24 }}>
                   <h3 style={{ fontWeight: 700, fontSize: '1.2rem', marginBottom: 16, color: '#222' }}>
@@ -877,14 +862,14 @@ const BookingInformation = () => {
                 </div>
               )}
 
-              {/* Reschedule & Cancellation Section */}
+              {}
               {selectedBooking && (
                 <div style={{ marginTop: 24, paddingTop: 24, borderTop: '2px dashed #ddd' }}>
                   <div style={{ fontSize: '0.85rem', color: '#999', marginBottom: 12, padding: 10, background: '#f5f5f5', borderRadius: 6 }}>
                     Debug Info - Status: {selectedBooking.status}, Cancellation Status: {selectedBooking.cancellationRequest?.status || 'none'}, Reschedule Status: {selectedBooking.rescheduleRequest?.status || 'none'}
                   </div>
 
-                  {/* Reschedule Button */}
+                  {}
                   {(selectedBooking.status === 'Pending' || selectedBooking.status === 'Approved') && 
                    selectedBooking.rescheduleRequest?.status !== 'pending' && 
                    selectedBooking.rescheduleRequest?.status !== 'approved' && (
@@ -917,7 +902,7 @@ const BookingInformation = () => {
                     </button>
                   )}
 
-                  {/* Cancellation Button */}
+                  {}
                   {(selectedBooking.status === 'Pending' || selectedBooking.status === 'Approved') && 
                    selectedBooking.cancellationRequest?.status !== 'pending' && 
                    selectedBooking.cancellationRequest?.status !== 'approved' ? (
@@ -990,7 +975,7 @@ const BookingInformation = () => {
                 </div>
               )}
 
-              {/* Show cancellation request details if exists */}
+              {}
               {selectedBooking?.cancellationRequest?.status === 'pending' && (
                 <div style={{ 
                   marginTop: 24, 
@@ -1036,7 +1021,7 @@ const BookingInformation = () => {
                 </div>
               )}
 
-              {/* Show reschedule request details if exists */}
+              {}
               {selectedBooking?.rescheduleRequest?.status === 'pending' && (
                 <div style={{ 
                   marginTop: 24, 
@@ -1116,7 +1101,7 @@ const BookingInformation = () => {
           </div>
         )}
 
-        {/* Cancellation Modal */}
+        {}
         {showCancellationModal && (
           <div style={{
             position: 'fixed',
@@ -1164,7 +1149,7 @@ const BookingInformation = () => {
                 Please provide the reason for your cancellation request. This will be reviewed by our admin team.
               </p>
 
-              {/* Warning Message */}
+              {}
               <div style={{
                 background: '#fff3e0',
                 border: '2px solid #ff9800',
@@ -1180,7 +1165,7 @@ const BookingInformation = () => {
                 </ul>
               </div>
               
-              {/* Reason Dropdown */}
+              {}
               <div style={{marginBottom: 20}}>
                 <label style={{display: 'block', marginBottom: 8, fontWeight: 600, color: '#555'}}>
                   Reason for Cancellation <span style={{color: '#e53935'}}>*</span>
@@ -1205,7 +1190,7 @@ const BookingInformation = () => {
                 </select>
               </div>
 
-              {/* Description Textarea */}
+              {}
               <div style={{marginBottom: 24}}>
                 <label style={{display: 'block', marginBottom: 8, fontWeight: 600, color: '#555'}}>
                   Additional Details <span style={{color: '#e53935'}}>*</span>
@@ -1253,7 +1238,7 @@ const BookingInformation = () => {
           </div>
         )}
 
-        {/* Reschedule Modal */}
+        {}
         {showRescheduleModal && (
           <div style={{
             position: 'fixed',
@@ -1277,7 +1262,7 @@ const BookingInformation = () => {
               maxHeight: '90vh',
               overflow: 'auto'
             }}>
-              {/* Header */}
+              {}
               <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24}}>
                 <h2 style={{fontSize: '1.5rem', fontWeight: 700, color: '#1976d2', margin: 0}}>
                   📅 Request Booking Reschedule
@@ -1298,12 +1283,12 @@ const BookingInformation = () => {
                 </button>
               </div>
 
-              {/* Info Text */}
+              {}
               <p style={{color: '#666', marginBottom: 24, fontSize: '15px'}}>
                 Please provide a reason for rescheduling your booking and propose a new date. Our admin team will review your request.
               </p>
 
-              {/* Reason Dropdown */}
+              {}
               <div style={{marginBottom: 20}}>
                 <label style={{display: 'block', marginBottom: 8, fontWeight: 600, color: '#555'}}>
                   Reason for Rescheduling <span style={{color: '#1976d2'}}>*</span>
@@ -1328,7 +1313,7 @@ const BookingInformation = () => {
                 </select>
               </div>
 
-              {/* Proposed Date Picker */}
+              {}
               <div style={{marginBottom: 20}}>
                 <label style={{display: 'block', marginBottom: 8, fontWeight: 600, color: '#555'}}>
                   Proposed New Date <span style={{color: '#1976d2'}}>*</span>
@@ -1350,7 +1335,7 @@ const BookingInformation = () => {
                 />
               </div>
 
-              {/* Description Textarea */}
+              {}
               <div style={{marginBottom: 24}}>
                 <label style={{display: 'block', marginBottom: 8, fontWeight: 600, color: '#555'}}>
                   Additional Details <span style={{color: '#1976d2'}}>*</span>
@@ -1398,7 +1383,7 @@ const BookingInformation = () => {
           </div>
         )}
 
-        {/* Review Modal */}
+        {}
         {showReviewModal && (
           <div style={{
             position: 'fixed',
@@ -1604,7 +1589,7 @@ const BookingInformation = () => {
           </div>
         )}
 
-        {/* Payment Modal */}
+        {}
         {showPaymentModal && (
           <div style={{
             position: 'fixed',
@@ -1659,7 +1644,7 @@ const BookingInformation = () => {
               
               <h2 style={{fontWeight: 800, fontSize: '1.5rem', marginBottom: 8, color: '#333'}}>Payment Details</h2>
               
-              {/* Booking Reference Number */}
+              {}
               {selectedBooking?.referenceNumber && (
                 <div style={{
                   background: 'linear-gradient(90deg, #3b82f6 0%, #2563eb 100%)',
@@ -1687,7 +1672,7 @@ const BookingInformation = () => {
                 </div>
               )}
               
-              {/* Mode of Payment */}
+              {}
               <div style={{marginBottom: 20}}>
                 <label style={{display: 'block', marginBottom: 8, fontWeight: 600, color: '#555'}}>
                   Mode of Payment <span style={{color: '#e53935'}}>*</span>
@@ -1714,7 +1699,7 @@ const BookingInformation = () => {
                 </select>
               </div>
 
-              {/* Payment Status - Auto-calculated */}
+              {}
               <div style={{marginBottom: 20}}>
                 <label style={{display: 'block', marginBottom: 8, fontWeight: 600, color: '#555'}}>
                   Payment Status (Auto-calculated)
@@ -1739,7 +1724,7 @@ const BookingInformation = () => {
                 </div>
               </div>
 
-              {/* Amount Paid */}
+              {}
               <div style={{marginBottom: 20}}>
                 <label style={{display: 'block', marginBottom: 8, fontWeight: 600, color: '#555'}}>
                   Amount Paid (PHP) <span style={{color: '#e53935'}}>*</span>
@@ -1784,7 +1769,7 @@ const BookingInformation = () => {
                 )}
               </div>
 
-              {/* Payment Date */}
+              {}
               <div style={{marginBottom: 20}}>
                 <label style={{display: 'block', marginBottom: 8, fontWeight: 600, color: '#555'}}>
                   Payment Date <span style={{color: '#e53935'}}>*</span>
@@ -1805,7 +1790,7 @@ const BookingInformation = () => {
                 />
               </div>
 
-              {/* Transaction Reference */}
+              {}
               <div style={{marginBottom: 20}}>
                 <label style={{display: 'block', marginBottom: 8, fontWeight: 600, color: '#555'}}>
                   Transaction Reference Number
@@ -1827,7 +1812,7 @@ const BookingInformation = () => {
                 />
               </div>
 
-              {/* Payment Proof */}
+              {}
               <div style={{marginBottom: 20}}>
                 <label style={{display: 'block', marginBottom: 8, fontWeight: 600, color: '#555'}}>
                   Payment Proof (Receipt/Screenshot)
@@ -1882,7 +1867,7 @@ const BookingInformation = () => {
                 )}
               </div>
 
-              {/* Additional Notes */}
+              {}
               <div style={{marginBottom: 24}}>
                 <label style={{display: 'block', marginBottom: 8, fontWeight: 600, color: '#555'}}>
                   Additional Notes

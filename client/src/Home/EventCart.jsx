@@ -47,7 +47,7 @@ const EventCart = () => {
       <div className="event-cart-root">
         <h2 className="event-cart-title">Event Cart</h2>
         <div className="event-cart-main">
-          {/* Left: Cart Items */}
+          {}
           <div className="event-cart-items">
             {cart.length === 0 ? (
               <p>Your selected events and services will appear here.</p>
@@ -75,7 +75,7 @@ const EventCart = () => {
                       )}
                     </div>
                     {item.product && item.product.price && <div className="event-cart-item-price">PHP {item.product.price}</div>}
-                    {/* Show additionals if any */}
+                    {}
                     {Array.isArray(item.additionals) && item.additionals.length > 0 && (
                       <div style={{ marginTop: 8, marginLeft: 8 }}>
                         <div style={{ fontWeight: 500, fontSize: 14, color: '#888' }}>Additionals:</div>
@@ -96,7 +96,7 @@ const EventCart = () => {
               ))
             )}
           </div>
-          {/* Right: Summary */}
+          {}
           <div className="event-cart-summary">
             <div className="event-cart-summary-title">Summary</div>
             <div className="event-cart-summary-list">
@@ -111,7 +111,7 @@ const EventCart = () => {
                       <span>{item.product ? item.product.title : ''}</span>
                       <span style={{ fontWeight: 600 }}>PHP {item.product && item.product.price ? item.product.price : 0}</span>
                     </div>
-                    {/* Additionals in summary */}
+                    {}
                     {Array.isArray(item.additionals) && item.additionals.length > 0 && item.additionals.map((add, aidx) => (
                       <div key={add._id || add.title || aidx} className="event-cart-summary-row" style={{ paddingLeft: 18, fontSize: 14, color: '#555' }}>
                         <span>+ {add.title}</span>
@@ -134,7 +134,7 @@ const EventCart = () => {
               className="event-cart-book-btn"
               disabled={cart.length === 0 || cart.some(item => item.product?.available === false)}
               onClick={() => {
-                // Check for unavailable items before proceeding
+                
                 const unavailableItems = cart.filter(item => item.product?.available === false);
                 if (unavailableItems.length > 0) {
                   alert('Please remove unavailable items from your cart before booking.');

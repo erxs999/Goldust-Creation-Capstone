@@ -8,31 +8,27 @@ import './dashboard.css';
 import * as XLSX from 'xlsx';
 
 export default function Dashboard() {
-  // Push notification state
+  
   const [showNotification, setShowNotification] = useState(true);
   const [notificationList, setNotificationList] = useState([]);
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
 
-  // Branch filter for revenue chart (UI only)
   const [branchFilter, setBranchFilter] = useState('all');
-  // Most availed products/services
+  
   const [mostAvailedProducts, setMostAvailedProducts] = useState([]);
-  // Expand state for tables
+  
   const [showAllCustomers, setShowAllCustomers] = useState(false);
   const [showAllSuppliers, setShowAllSuppliers] = useState(false);
-  // Appointment counts
-    // For calendar events
+  
     const [calendarEvents, setCalendarEvents] = useState([]);
     const navigate = typeof useNavigate === 'function' ? useNavigate() : null;
   
-  // Backup/Restore state
   const [backupLoading, setBackupLoading] = useState(false);
   const [restoreLoading, setRestoreLoading] = useState(false);
   const [backupMessage, setBackupMessage] = useState('');
   const [exportLoading, setExportLoading] = useState(false);
 
-  // Backup function - exports all databases as JSON
   const handleBackup = async () => {
     try {
       setBackupLoading(true);
@@ -65,7 +61,6 @@ export default function Dashboard() {
     }
   };
 
-  // Restore function - imports JSON backup
   const handleRestore = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -116,13 +111,12 @@ export default function Dashboard() {
     }
   };
 
-  // Export function - generates Excel file with all dashboard data
   const handleExport = async () => {
     setExportLoading(true);
     setBackupMessage('');
     
     try {
-      // Fetch all booking data
+      
       const [pendingRes, approvedRes, finishedRes] = await Promise.all([
         fetch('/api/bookings/pending'),
         fetch('/api/bookings/approved'),
@@ -137,18 +131,14 @@ export default function Dashboard() {
       
       const allBookings = [...pendingBookingsData, ...approvedBookingsData, ...finishedBookingsData];
       
-      // Filter bookings by current filter
       const filteredBookings = allBookings.filter(booking => matchesFilter(booking.date, filter, selectedYear));
       
-      // Count filtered bookings by status
       const pendingCount = filteredBookings.filter(b => b.status === 'pending').length;
       const approvedCount = filteredBookings.filter(b => b.status === 'approved').length;
       const finishedCount = filteredBookings.filter(b => b.status === 'finished').length;
       
-      // Create workbook
       const wb = XLSX.utils.book_new();
       
-      // Sheet 1: Overview Summary
       const overviewData = [
         ['GOLDUST CREATIONS - DASHBOARD OVERVIEW'],
         ['Generated:', new Date().toLocaleString()],
@@ -191,11 +181,9 @@ export default function Dashboard() {
       
       const ws1 = XLSX.utils.aoa_to_sheet(overviewData);
       
-      // Auto-size columns and set left alignment for Overview sheet
       const maxWidth1 = overviewData.reduce((w, r) => Math.max(w, r[0] ? r[0].toString().length : 0), 10);
       ws1['!cols'] = [{ wch: maxWidth1 + 5 }, { wch: 15 }];
       
-      // Apply left alignment to all cells
       const range1 = XLSX.utils.decode_range(ws1['!ref']);
       for (let R = range1.s.r; R <= range1.e.r; ++R) {
         for (let C = range1.s.c; C <= range1.e.c; ++C) {
@@ -208,7 +196,6 @@ export default function Dashboard() {
       
       XLSX.utils.book_append_sheet(wb, ws1, 'Overview');
       
-      // Sheet 2: Revenue Data
       const revenueSheetData = [
         ['MONTHLY REVENUE - ' + selectedYear],
         ['Branch Filter:', branchFilter === 'all' ? 'All Branches' : branchFilter],
@@ -221,7 +208,6 @@ export default function Dashboard() {
           revenueSheetData.push([months[item.month] || item.month, String(item.value || 0)]);
         });
         
-        // Add total
         const totalRevenue = revenueData.reduce((sum, item) => sum + (item.value || 0), 0);
         revenueSheetData.push(['', '']);
         revenueSheetData.push(['TOTAL REVENUE', String(totalRevenue)]);
@@ -231,10 +217,8 @@ export default function Dashboard() {
       
       const ws2 = XLSX.utils.aoa_to_sheet(revenueSheetData);
       
-      // Auto-size columns and set left alignment for Revenue sheet
       ws2['!cols'] = [{ wch: 20 }, { wch: 20 }];
       
-      // Apply left alignment to all cells
       const range2 = XLSX.utils.decode_range(ws2['!ref']);
       for (let R = range2.s.r; R <= range2.e.r; ++R) {
         for (let C = range2.s.c; C <= range2.e.c; ++C) {
@@ -247,7 +231,6 @@ export default function Dashboard() {
       
       XLSX.utils.book_append_sheet(wb, ws2, 'Revenue');
       
-      // Sheet 3: Detailed Bookings (Filtered by selected month/year)
       const bookingDetails = [
         ['BOOKING DETAILS - ' + (filter === 'all' ? 'All Months' : months[filter]) + ' ' + selectedYear],
         ['Total Bookings:', String(filteredBookings.length)],
@@ -274,7 +257,6 @@ export default function Dashboard() {
           ]);
         });
         
-        // Add summary at the bottom
         bookingDetails.push([]);
         bookingDetails.push(['SUMMARY', '', '', '', '', '', '', '', '', '', '', '', '']);
         bookingDetails.push(['Total Bookings:', String(filteredBookings.length), '', '', '', '', '', '', '', '', '', '', '']);
@@ -286,24 +268,22 @@ export default function Dashboard() {
       
       const ws3 = XLSX.utils.aoa_to_sheet(bookingDetails);
       
-      // Auto-size columns and set left alignment for Bookings sheet
       ws3['!cols'] = [
-        { wch: 25 }, // Booking ID
-        { wch: 12 }, // Status
-        { wch: 20 }, // Client Name
-        { wch: 25 }, // Email
-        { wch: 15 }, // Contact
-        { wch: 20 }, // Event Type
-        { wch: 25 }, // Event Venue
-        { wch: 25 }, // Branch Location
-        { wch: 15 }, // Date
-        { wch: 15 }, // Number of Pax
-        { wch: 20 }, // Theme
-        { wch: 18 }, // Total Price
-        { wch: 30 }  // Special Request
+        { wch: 25 }, 
+        { wch: 12 }, 
+        { wch: 20 }, 
+        { wch: 25 }, 
+        { wch: 15 }, 
+        { wch: 20 }, 
+        { wch: 25 }, 
+        { wch: 25 }, 
+        { wch: 15 }, 
+        { wch: 15 }, 
+        { wch: 20 }, 
+        { wch: 18 }, 
+        { wch: 30 }  
       ];
       
-      // Apply left alignment to all cells
       const range3 = XLSX.utils.decode_range(ws3['!ref']);
       for (let R = range3.s.r; R <= range3.e.r; ++R) {
         for (let C = range3.s.c; C <= range3.e.c; ++C) {
@@ -316,7 +296,6 @@ export default function Dashboard() {
       
       XLSX.utils.book_append_sheet(wb, ws3, 'Bookings');
       
-      // Sheet 4: Active Customers
       const customerData = [
         ['CUSTOMERS WHO BOOKED'],
         [],
@@ -332,7 +311,6 @@ export default function Dashboard() {
           ]);
         });
         
-        // Add total
         const totalBookings = activeCustomers.reduce((sum, c) => sum + (c.count || 0), 0);
         customerData.push([]);
         customerData.push(['TOTAL', '', String(totalBookings)]);
@@ -342,14 +320,12 @@ export default function Dashboard() {
       
       const ws4 = XLSX.utils.aoa_to_sheet(customerData);
       
-      // Auto-size columns and set left alignment for Customers sheet
       ws4['!cols'] = [
-        { wch: 30 }, // Name
-        { wch: 30 }, // Email
-        { wch: 20 }  // Number of Bookings
+        { wch: 30 }, 
+        { wch: 30 }, 
+        { wch: 20 }  
       ];
       
-      // Apply left alignment to all cells
       const range4 = XLSX.utils.decode_range(ws4['!ref']);
       for (let R = range4.s.r; R <= range4.e.r; ++R) {
         for (let C = range4.s.c; C <= range4.e.c; ++C) {
@@ -362,7 +338,6 @@ export default function Dashboard() {
       
       XLSX.utils.book_append_sheet(wb, ws4, 'Customers');
       
-      // Sheet 5: Active Suppliers
       const supplierData = [
         ['MOST ACTIVE SUPPLIERS'],
         [],
@@ -379,7 +354,6 @@ export default function Dashboard() {
           ]);
         });
         
-        // Add total
         const totalBookings = activeSuppliers.reduce((sum, s) => sum + (s.count || 0), 0);
         supplierData.push([]);
         supplierData.push(['TOTAL', '', '', String(totalBookings)]);
@@ -389,15 +363,13 @@ export default function Dashboard() {
       
       const ws5 = XLSX.utils.aoa_to_sheet(supplierData);
       
-      // Auto-size columns and set left alignment for Suppliers sheet
       ws5['!cols'] = [
-        { wch: 30 }, // Company Name
-        { wch: 18 }, // Phone
-        { wch: 30 }, // Email
-        { wch: 20 }  // Number of Bookings
+        { wch: 30 }, 
+        { wch: 18 }, 
+        { wch: 30 }, 
+        { wch: 20 }  
       ];
       
-      // Apply left alignment to all cells
       const range5 = XLSX.utils.decode_range(ws5['!ref']);
       for (let R = range5.s.r; R <= range5.e.r; ++R) {
         for (let C = range5.s.c; C <= range5.e.c; ++C) {
@@ -410,7 +382,6 @@ export default function Dashboard() {
       
       XLSX.utils.book_append_sheet(wb, ws5, 'Suppliers');
       
-      // Sheet 6: Most Availed Products/Services
       const productsData = [
         ['MOST AVAILED PRODUCTS/SERVICES'],
         [],
@@ -425,7 +396,6 @@ export default function Dashboard() {
           ]);
         });
         
-        // Add total
         const totalAvailed = mostAvailedProducts.reduce((sum, p) => sum + (p.count || 0), 0);
         productsData.push([]);
         productsData.push(['TOTAL', String(totalAvailed)]);
@@ -435,13 +405,11 @@ export default function Dashboard() {
       
       const ws6 = XLSX.utils.aoa_to_sheet(productsData);
       
-      // Auto-size columns and set left alignment for Products sheet
       ws6['!cols'] = [
-        { wch: 40 }, // Product/Service Name
-        { wch: 18 }  // Times Availed
+        { wch: 40 }, 
+        { wch: 18 }  
       ];
       
-      // Apply left alignment to all cells
       const range6 = XLSX.utils.decode_range(ws6['!ref']);
       for (let R = range6.s.r; R <= range6.e.r; ++R) {
         for (let C = range6.s.c; C <= range6.e.c; ++C) {
@@ -454,12 +422,10 @@ export default function Dashboard() {
       
       XLSX.utils.book_append_sheet(wb, ws6, 'Products & Services');
       
-      // Generate filename with date and filter
       const filterText = filter === 'all' ? 'All_Months' : months[filter];
       const branchText = branchFilter === 'all' ? 'All_Branches' : branchFilter;
       const filename = `Goldust_Dashboard_${filterText}_${selectedYear}_${branchText}_${new Date().toISOString().split('T')[0]}.xlsx`;
       
-      // Write file
       XLSX.writeFile(wb, filename);
       
       setBackupMessage('✓ Dashboard exported successfully!');
@@ -473,7 +439,6 @@ export default function Dashboard() {
     }
   };
 
-    // Fetch calendar events (same logic as Calendars.jsx)
     useEffect(() => {
       async function fetchEventsAndBookings() {
         try {
@@ -493,7 +458,7 @@ export default function Dashboard() {
           const finished = finishedRes.ok ? await finishedRes.json() : [];
           const notifications = notificationsRes.ok ? await notificationsRes.json() : [];
           const appointments = appointmentsRes.ok ? await appointmentsRes.json() : [];
-          // Map bookings to calendar event format
+          
           const bookingEvents = [...pending, ...approved, ...finished]
             .filter(b => b.date)
             .map(b => {
@@ -516,7 +481,7 @@ export default function Dashboard() {
               };
             });
           const appointmentEvents = appointments
-            .filter(a => a.status === 'upcoming') // Only show upcoming appointments on calendar
+            .filter(a => a.status === 'upcoming') 
             .map(a => {
               let dateStr = '';
               if (typeof a.date === 'string') {
@@ -531,25 +496,22 @@ export default function Dashboard() {
                 type: 'Appointment',
                 person: a.clientName || a.clientEmail,
                 date: dateStr,
-                location: a.branchLocation || a.location || '', // Use branchLocation for color coding
+                location: a.branchLocation || a.location || '', 
                 description: a.description || '',
                 status: a.status || '',
               };
             });
           
-          // Map accepted schedules to ensure branchLocation is used for location field (for color coding)
           const acceptedScheduleEvents = (Array.isArray(acceptedSchedules) ? acceptedSchedules : []).map(s => ({
             ...s,
             location: s.branchLocation || s.location || ''
           }));
 
-          // Map regular schedules to ensure branchLocation is used for location field (for color coding)
           const scheduleEvents = (Array.isArray(schedules) ? schedules : []).map(s => ({
             ...s,
             location: s.branchLocation || s.location || ''
           }));
 
-          // Map notifications to ensure location field is present
           const notificationEvents = (Array.isArray(notifications) ? notifications : []).map(n => ({
             ...n,
             location: n.location || ''
@@ -569,36 +531,33 @@ export default function Dashboard() {
       }
       fetchEventsAndBookings();
     }, []);
-    // Helper to get color based on branch location
+    
     function getLocationColor(location) {
-      if (!location) return '#ffe082'; // default yellow
+      if (!location) return '#ffe082'; 
       const loc = location.toLowerCase();
       
-      // Sta Fe, Nueva Vizcaya - Red
       if (loc.includes('sta') && loc.includes('fe') && loc.includes('nueva vizcaya')) {
-        return 'rgba(255, 89, 89, 1)'; // light red
-      }
-      // La Trinidad, Benguet - Green
-      if (loc.includes('la trinidad') && loc.includes('benguet')) {
-        return 'rgba(57, 247, 126, 1)'; // light green
-      }
-      // Maddela, Quirino - Blue
-      if (loc.includes('maddela') && loc.includes('quirino')) {
-        return 'rgba(48, 127, 255, 0.34)'; // light blue
+        return 'rgba(255, 89, 89, 1)'; 
       }
       
-      return '#ffe082'; // default yellow
+      if (loc.includes('la trinidad') && loc.includes('benguet')) {
+        return 'rgba(57, 247, 126, 1)'; 
+      }
+      
+      if (loc.includes('maddela') && loc.includes('quirino')) {
+        return 'rgba(48, 127, 255, 0.34)'; 
+      }
+      
+      return '#ffe082'; 
     }
 
-    // Render cell for dashboard calendar (show up to 2 events, then 'more')
     function renderDashboardCell(date) {
-      // Show calendar cells numbered 1 through 30 (inclusive).
-      // This forces the dashboard calendar to render days 1..30.
+      
       const dayOfMonth = date.getDate();
       if (dayOfMonth < 1 || dayOfMonth > 30) {
         return null;
       }
-      // Always render the cell, even if no events
+      
       const d = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
       const dayEvents = calendarEvents.filter(ev => ev.date === d);
       const maxToShow = 2;
@@ -632,11 +591,11 @@ export default function Dashboard() {
     }
   const [upcomingAppointments, setUpcomingAppointments] = useState(null);
   const [finishedAppointments, setFinishedAppointments] = useState(null);
-  // Reviews summary
+  
   const [reviewSummary, setReviewSummary] = useState({ avg: 0, total: 0 });
-  // Months for chart labels
+  
   const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-  // Helper to get filter label for cards
+  
   function getFilterLabel(filter) {
     if (filter === 'all') return `| all months ${selectedYear}`;
     if (typeof filter === 'number' && filter >= 0 && filter < 12) return `| ${months[filter]} ${selectedYear}`;
@@ -649,13 +608,13 @@ export default function Dashboard() {
   const [totalSuppliers, setTotalSuppliers] = useState(null);
   const [activeCustomers, setActiveCustomers] = useState([]);
   const [activeSuppliers, setActiveSuppliers] = useState([]);
-  // Location-based booking counts
+  
   const [bookingsByLocation, setBookingsByLocation] = useState({
     'La Trinidad, Benguet': 0,
     'Sta. Fe, Nueva Vizcaya': 0,
     'Maddela, Quirino': 0,
   });
-    // Helper to standardize location names from booking details
+    
     function getStandardLocation(rawLocation) {
       if (!rawLocation) return '';
       const loc = rawLocation.toLowerCase();
@@ -664,13 +623,12 @@ export default function Dashboard() {
       if (loc.includes('maddela') || loc.includes('quirino')) return 'Maddela, Quirino';
       return rawLocation;
     }
-  // Default filter is current month (0-based) and current year
+  
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [filter, setFilter] = useState(new Date().getMonth());
   const [revenueData, setRevenueData] = useState([]);
   const [urgentReminders, setUrgentReminders] = useState(0);
 
-  // Helper to get start date based on filter
   function getStartDate(filter) {
     if (filter === 'all') {
       return new Date(selectedYear, 0, 1);
@@ -681,20 +639,16 @@ export default function Dashboard() {
     return new Date(selectedYear, new Date().getMonth(), 1);
   }
 
-  // Helper to check if a date matches the selected year and month filter
   function matchesFilter(dateString, filter, selectedYear) {
     if (!dateString) return false;
     const date = new Date(dateString);
     const dateYear = date.getFullYear();
     const dateMonth = date.getMonth();
     
-    // Check year first
     if (dateYear !== selectedYear) return false;
     
-    // If filter is 'all', any date in the selected year matches
     if (filter === 'all') return true;
     
-    // Otherwise, check if the month matches
     if (typeof filter === 'number' && filter >= 0 && filter < 12) {
       return dateMonth === filter;
     }
@@ -702,16 +656,15 @@ export default function Dashboard() {
     return false;
   }
 
-  // Separate useEffect for revenue data - refetch when year or branch changes
   useEffect(() => {
-    // Fetch revenue data (all months for the selected year - chart shows annual data)
+    
     console.log('Fetching revenue data for year:', selectedYear, 'branch:', branchFilter);
     fetch(`/api/revenue?filter=all&year=${selectedYear}&branch=${branchFilter}`, {
       cache: 'no-store'
     })
       .then(res => res.json())
       .then(data => {
-        // Ensure data is an array
+        
         if (Array.isArray(data)) {
           console.log('Revenue data received for year', selectedYear, 'branch', branchFilter, ':', data);
           setRevenueData(data);
@@ -724,28 +677,23 @@ export default function Dashboard() {
         console.error('Error fetching revenue data:', error);
         setRevenueData([]);
       });
-  }, [selectedYear, branchFilter]); // Depends on selectedYear and branchFilter
+  }, [selectedYear, branchFilter]); 
 
-  // Fetch bookings and generate notifications for upcoming events
   const fetchNotifications = async () => {
     try {
-      // Fetch approved bookings
+      
       const approvedRes = await fetch('/api/bookings/approved');
       const approved = await approvedRes.json();
 
-      // Fetch current supplier availability
       const suppliersRes = await fetch('/api/admin/suppliers/approved');
       const currentSuppliers = await suppliersRes.json();
 
-      // Fetch all upcoming schedules to check which bookings have been scheduled
       const upcomingSchedulesRes = await fetch('/api/schedules/all/upcoming');
       const allUpcomingSchedules = await upcomingSchedulesRes.json();
 
-      // Fetch accepted schedules to check responses
       const acceptedSchedulesRes = await fetch('/api/schedules/all/accepted');
       const allAcceptedSchedules = await acceptedSchedulesRes.json();
 
-      // Fetch declined schedules to check who declined
       const declinedSchedulesRes = await fetch('/api/schedules/all/declined');
       const allDeclinedSchedules = await declinedSchedulesRes.json();
 
@@ -773,13 +721,11 @@ export default function Dashboard() {
           
           console.log('Booking:', booking._id, 'Date:', booking.date, 'Days until:', daysUntil);
 
-          // Create notifications for bookings within the next 7 days
           if (daysUntil > 0 && daysUntil <= 7) {
-            // Get suppliers from various possible field names
+            
             const suppliersData = booking.selectedProducts || booking.suppliers || booking.products || [];
             console.log('Booking', booking._id, '- Suppliers data:', suppliersData);
             
-            // Check schedules for this booking
             const bookingUpcomingSchedules = allUpcomingSchedules.filter(schedule => 
               schedule.bookingId === booking._id || schedule.bookingId === booking._id.toString()
             );
@@ -798,16 +744,12 @@ export default function Dashboard() {
               declinedSchedules: bookingDeclinedSchedules
             });
 
-            // Check if booking was rescheduled (but only relevant if suppliers haven't reset schedules yet)
             const wasRescheduled = booking.rescheduleRequest && 
               booking.rescheduleRequest.status === 'approved' &&
               booking.rescheduleRequest.originalDate;
 
-            // Determine notification status flags
             const noSuppliersAssigned = !suppliersData || suppliersData.length === 0;
             
-            // IMPORTANT: For rescheduled bookings, check if schedules match CURRENT date
-            // Old schedules with old dates shouldn't count as "already sent"
             const bookingDateStr = new Date(booking.date).toISOString().split('T')[0];
             const schedulesMatchCurrentDate = 
               bookingUpcomingSchedules.some(s => {
@@ -827,20 +769,14 @@ export default function Dashboard() {
                 }
               });
             
-            // If rescheduled, only count schedules that match the NEW date
-            // Otherwise, any existing schedules count
             const schedulesAlreadySent = wasRescheduled 
               ? schedulesMatchCurrentDate 
               : (bookingUpcomingSchedules.length > 0 || bookingAcceptedSchedules.length > 0);
             
-            // Declined suppliers only matter if no new schedules have been sent yet
-            // If admin resent schedules after decline, hide notification (they handled it)
             const hasUnhandledDeclines = bookingDeclinedSchedules.length > 0 && !schedulesAlreadySent;
             
-            // Need to send schedules: suppliers assigned but no schedules sent yet
             const needToSendSchedules = suppliersData.length > 0 && !schedulesAlreadySent;
             
-            // If rescheduled but schedules already resent, hide notification (they handled it)
             const needsRescheduleAction = wasRescheduled && !schedulesAlreadySent;
             
             console.log('Booking', booking._id, 'Status:', {
@@ -856,13 +792,6 @@ export default function Dashboard() {
               supplierCount: suppliersData.length
             });
             
-            // SIMPLE NOTIFICATION LOGIC:
-            // Show if: 
-            // 1. No suppliers assigned yet (need to assign)
-            // 2. Suppliers assigned but "Send" not clicked yet (need to send schedules)
-            // 3. Supplier declined/cancelled AND no new schedules sent yet (need to resend)
-            // 4. Booker rescheduled AND no new schedules sent yet (need to resend)
-            // Hide if: "Send" button clicked (schedules sent) - admin handled the decline/reschedule
             const shouldShowNotification = noSuppliersAssigned || needToSendSchedules || hasUnhandledDeclines || needsRescheduleAction;
 
             console.log('Booking', booking._id, 'shouldShowNotification:', shouldShowNotification);
@@ -872,10 +801,8 @@ export default function Dashboard() {
               return;
             }
 
-            // Build notification notes based on status
             const notificationNotes = [];
             
-            // Priority 1: Rescheduled by customer (most urgent) - only show if suppliers haven't reset schedules
             if (needsRescheduleAction) {
               const originalDate = new Date(booking.rescheduleRequest.originalDate);
               const newDate = new Date(booking.date);
@@ -884,7 +811,6 @@ export default function Dashboard() {
               );
             }
 
-            // Priority 2: Supplier declined/cancelled (needs reassignment) - only if not handled yet
             if (hasUnhandledDeclines) {
               const declinedSupplierNames = bookingDeclinedSchedules.map(s => s.supplierName).join(', ');
               notificationNotes.push(
@@ -892,13 +818,12 @@ export default function Dashboard() {
               );
             }
 
-            // Priority 3: No suppliers assigned yet
             if (noSuppliersAssigned) {
               notificationNotes.push(
                 `📋 No suppliers assigned yet - Assign suppliers to this booking`
               );
             }
-            // Priority 4: Suppliers assigned but "Send" not clicked yet
+            
             else if (needToSendSchedules) {
               notificationNotes.push(
                 `⏰ Set schedules and click Send to notify suppliers`
@@ -918,9 +843,8 @@ export default function Dashboard() {
             else if (daysUntil === 2) timeText = '2 days before';
             else if (daysUntil === 1) timeText = '1 day before';
 
-            console.log('Booking suppliers:', booking._id, suppliersData); // Debug log
+            console.log('Booking suppliers:', booking._id, suppliersData); 
 
-            // Update supplier data with current availability and schedule status
             const suppliersWithAvailability = Array.isArray(suppliersData) ? suppliersData.map(supplier => {
               const currentSupplier = currentSuppliers.find(s => 
                 s._id === supplier._id || 
@@ -928,7 +852,6 @@ export default function Dashboard() {
                 s.email === supplier.supplierEmail
               );
               
-              // Check if this supplier has accepted, declined, or still pending
               const supplierName = supplier.supplierName || supplier.supplier || supplier.name;
               const hasAccepted = bookingAcceptedSchedules.some(s => s.supplierName === supplierName);
               const hasDeclined = bookingDeclinedSchedules.some(s => s.supplierName === supplierName);
@@ -963,7 +886,7 @@ export default function Dashboard() {
               hasDeclinedSuppliers: hasUnhandledDeclines,
               needToSendSchedules: needToSendSchedules,
               noSuppliersAssigned: noSuppliersAssigned,
-              // Full booking details
+              
               bookingDetails: {
                 eventType: booking.eventType || 'N/A',
                 bookerName: booking.name || 'N/A',
@@ -993,7 +916,6 @@ export default function Dashboard() {
           }
         });
 
-        // Sort by days until event (closest first)
         notifications.sort((a, b) => a.daysUntil - b.daysUntil);
 
         setNotificationList(notifications);
@@ -1008,7 +930,7 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-            // Fetch reviews summary
+            
             fetch('/api/reviews')
               .then(res => res.json())
               .then(data => {
@@ -1017,7 +939,7 @@ export default function Dashboard() {
                 setReviewSummary({ avg, total });
               })
               .catch(() => setReviewSummary({ avg: 0, total: 0 }));
-        // Fetch appointments for upcoming/finished count
+        
         fetch('/api/appointments')
           .then(res => res.json())
           .then(data => {
@@ -1049,7 +971,7 @@ export default function Dashboard() {
             setUpcomingAppointments(0);
             setFinishedAppointments(0);
           });
-    // Fetch urgent reminders (all events due today, tomorrow, or in 2 days: schedules, accepted schedules, bookings, appointments)
+    
     Promise.all([
       fetch('/api/schedules'),
       fetch('/api/schedules/status/accepted'),
@@ -1071,7 +993,6 @@ export default function Dashboard() {
         
         let count = 0;
         
-        // Helper to check if date is urgent (today, tomorrow, or in 2 days)
         const isUrgent = (dateStr) => {
           if (!dateStr) return false;
           const d = new Date(dateStr);
@@ -1079,7 +1000,6 @@ export default function Dashboard() {
           return d.getTime() === today.getTime() || d.getTime() === tomorrow.getTime() || d.getTime() === dayAfterTomorrow.getTime();
         };
         
-        // Helper to check branch for schedules
         const matchesScheduleBranch = (schedule) => {
           if (branchFilter === 'all') return true;
           const branch = (schedule.branchLocation || '').toLowerCase();
@@ -1095,7 +1015,6 @@ export default function Dashboard() {
           return true;
         };
         
-        // Helper to check branch for bookings
         const matchesBookingBranch = (booking) => {
           if (branchFilter === 'all') return true;
           const branch = (booking.branchLocation || '').toLowerCase();
@@ -1111,7 +1030,6 @@ export default function Dashboard() {
           return true;
         };
         
-        // Helper to check branch for appointments
         const matchesAppointmentBranch = (appointment) => {
           if (branchFilter === 'all') return true;
           const branch = (appointment.branchLocation || '').toLowerCase();
@@ -1127,17 +1045,14 @@ export default function Dashboard() {
           return true;
         };
         
-        // Count urgent schedules (both regular and accepted)
         [...schedules, ...acceptedSchedules].forEach(s => {
           if (isUrgent(s.date) && matchesScheduleBranch(s)) count++;
         });
         
-        // Count urgent bookings (all statuses: pending, approved, finished)
         [...pendingBookings, ...approvedBookings, ...finishedBookings].forEach(b => {
           if (isUrgent(b.date) && matchesBookingBranch(b)) count++;
         });
         
-        // Count urgent appointments
         appointments.forEach(a => {
           if (isUrgent(a.date) && matchesAppointmentBranch(a)) count++;
         });
@@ -1145,7 +1060,7 @@ export default function Dashboard() {
         setUrgentReminders(count);
       })
       .catch(() => setUrgentReminders(0));
-    // Helper to match branch filter
+    
     const matchesBranchFilter = (booking) => {
       if (branchFilter === 'all') return true;
       const branch = (booking.branchLocation || '').toLowerCase();
@@ -1161,7 +1076,6 @@ export default function Dashboard() {
       return true;
     };
 
-    // Fetch pending events
     fetch('/api/bookings/pending')
       .then(res => res.json())
       .then(data => {
@@ -1173,7 +1087,6 @@ export default function Dashboard() {
       })
       .catch(() => setPendingEvents(0));
 
-    // Fetch approved bookings
     fetch('/api/bookings/approved')
       .then(res => res.json())
       .then(data => {
@@ -1185,7 +1098,6 @@ export default function Dashboard() {
       })
       .catch(() => setApprovedBookings(0));
 
-    // Fetch finished bookings
     fetch('/api/bookings/finished')
       .then(res => res.json())
       .then(data => {
@@ -1197,7 +1109,6 @@ export default function Dashboard() {
       })
       .catch(() => setFinishedBookings(0));
 
-    // Fetch most active customers (booked within the selected month)
     Promise.all([
       fetch('/api/bookings/pending'),
       fetch('/api/bookings/approved'),
@@ -1207,16 +1118,15 @@ export default function Dashboard() {
       .then(([pending, approved, finished]) => {
         const allBookings = [...pending, ...approved, ...finished];
         
-        // Only include bookings created within the filter month and matching branch
         const filteredBookings = allBookings.filter(b => {
-          // Bookings have userId, name, email directly (not nested in customer object)
-          if (!b.userId && !b.email) return false; // Need at least userId or email
+          
+          if (!b.userId && !b.email) return false; 
           return matchesFilter(b.createdAt, filter, selectedYear) && matchesBranchFilter(b);
         });
-        // Count bookings per customer
+        
         const customerCounts = {};
         filteredBookings.forEach(b => {
-          // Use userId or email as unique identifier
+          
           const customerId = b.userId || b.email;
           const customerName = b.name || b.email || 'Unknown';
           const customerEmail = b.email || '';
@@ -1231,7 +1141,7 @@ export default function Dashboard() {
           }
           customerCounts[customerId].count++;
         });
-        // Convert to array and sort by count desc
+        
         const activeList = Object.values(customerCounts).sort((a, b) => b.count - a.count);
         setActiveCustomers(activeList);
         setTotalCustomers(activeList.length);
@@ -1241,7 +1151,6 @@ export default function Dashboard() {
         setActiveCustomers([]);
       });
 
-    // Fetch most active suppliers based on accepted schedules
     fetch(`/api/suppliers/most-active?filter=${filter}&year=${selectedYear}&branch=${branchFilter}`)
       .then(res => res.json())
       .then(data => {
@@ -1253,7 +1162,6 @@ export default function Dashboard() {
         setActiveSuppliers([]);
       });
 
-    // Fetch bookings by branch location (which branch they selected in the booking form)
     Promise.all([
       fetch('/api/bookings/pending'),
       fetch('/api/bookings/approved'),
@@ -1270,21 +1178,20 @@ export default function Dashboard() {
         };
 
         allBookings.forEach(booking => {
-          // Check if booking matches the selected year and month filter AND branch filter
+          
           if (!matchesFilter(booking.date || booking.createdAt, filter, selectedYear)) return;
           if (!matchesBranchFilter(booking)) return;
           
           const branch = (booking.branchLocation || '').toLowerCase().trim();
           
-          // Match Santa Fe / Sta. Fe, Nueva Vizcaya
           if (branch.includes('sta') && branch.includes('fe') && branch.includes('nueva vizcaya')) {
             branchCounts['sta fe nueva vizcaya']++;
           }
-          // Match La Trinidad, Benguet
+          
           else if (branch.includes('la trinidad') && branch.includes('benguet')) {
             branchCounts['la trinidad benguet']++;
           }
-          // Match Maddela, Quirino
+          
           else if (branch.includes('maddela') && branch.includes('quirino')) {
             branchCounts['maddela quirino']++;
           }
@@ -1298,7 +1205,6 @@ export default function Dashboard() {
         'maddela quirino': 0,
       }));
 
-    // Fetch most availed products/services
     fetch(`/api/bookings/most-availed?filter=${filter}&year=${selectedYear}&branch=${branchFilter}`)
       .then(res => res.json())
       .then(data => {
@@ -1311,7 +1217,7 @@ export default function Dashboard() {
     <div className="admin-dashboard-layout">
       <Sidebar />
       <main className="admin-dashboard-main">
-        {/* Push Notification Popup */}
+        {}
         {showNotification && (
           <div style={{
             position: 'fixed',
@@ -1326,7 +1232,7 @@ export default function Dashboard() {
             overflow: 'hidden',
             animation: 'slideIn 0.3s ease-out'
           }}>
-            {/* Header */}
+            {}
             <div style={{
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               padding: '16px 20px',
@@ -1367,7 +1273,7 @@ export default function Dashboard() {
               </button>
             </div>
 
-            {/* Notification List */}
+            {}
             <div style={{
               maxHeight: '70vh',
               overflowY: 'auto',
@@ -1473,7 +1379,7 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Notification Details Modal */}
+        {}
         {showNotificationModal && selectedNotification && (
           <div style={{
             position: 'fixed',
@@ -1502,7 +1408,7 @@ export default function Dashboard() {
             }}
             onClick={(e) => e.stopPropagation()}
             >
-              {/* Modal Header */}
+              {}
               <div style={{
                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 padding: '24px 28px',
@@ -1541,9 +1447,9 @@ export default function Dashboard() {
                 </p>
               </div>
 
-              {/* Modal Content */}
+              {}
               <div style={{ padding: '28px' }}>
-                {/* Alert Banners */}
+                {}
                 {(selectedNotification.wasRescheduled || selectedNotification.hasDeclinedSuppliers || selectedNotification.hasUnsetSuppliers) && (
                   <div style={{ marginBottom: 24 }}>
                     {selectedNotification.wasRescheduled && selectedNotification.bookingDetails.rescheduleInfo && (
@@ -1613,7 +1519,7 @@ export default function Dashboard() {
                     )}
                   </div>
                 )}
-                {/* Booking Information */}
+                {}
                 <div style={{ marginBottom: 24 }}>
                   <h3 style={{ 
                     margin: '0 0 16px 0', 
@@ -1670,7 +1576,7 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                {/* Booker Information */}
+                {}
                 <div style={{ marginBottom: 24 }}>
                   <h3 style={{ 
                     margin: '0 0 16px 0', 
@@ -1713,7 +1619,7 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                {/* Location & Venue */}
+                {}
                 <div style={{ marginBottom: 24 }}>
                   <h3 style={{ 
                     margin: '0 0 16px 0', 
@@ -1765,7 +1671,7 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                {/* Suppliers List */}
+                {}
                 <div style={{ marginBottom: 24 }}>
                   <h3 style={{ 
                     margin: '0 0 16px 0', 
@@ -1862,7 +1768,7 @@ export default function Dashboard() {
                                 cursor: 'pointer'
                               }}
                               onChange={(e) => {
-                                // Store time for this supplier
+                                
                                 supplier.scheduledTime = e.target.value;
                               }}
                             />
@@ -1877,7 +1783,7 @@ export default function Dashboard() {
                   )}
                 </div>
 
-                {/* Special Requests */}
+                {}
                 {selectedNotification.bookingDetails.specialRequest && selectedNotification.bookingDetails.specialRequest !== 'None' && (
                   <div>
                     <h3 style={{ 
@@ -1906,7 +1812,7 @@ export default function Dashboard() {
                 )}
               </div>
 
-              {/* Modal Footer */}
+              {}
               <div style={{
                 padding: '20px 28px',
                 borderTop: '1px solid #e5e7eb',
@@ -1931,7 +1837,7 @@ export default function Dashboard() {
                 </button>
                 <button
                   onClick={async () => {
-                    // Validate all suppliers have scheduled times
+                    
                     const suppliers = selectedNotification.bookingDetails.suppliers;
                     const missingTimes = suppliers.filter(s => !s.scheduledTime);
                     
@@ -1941,7 +1847,7 @@ export default function Dashboard() {
                     }
                     
                     try {
-                      // Send notifications to all suppliers
+                      
                       const notificationData = {
                         bookingId: selectedNotification.bookingId || 'unknown',
                         eventType: selectedNotification.bookingDetails.eventType,
@@ -1973,7 +1879,6 @@ export default function Dashboard() {
                       alert('Notifications sent to all suppliers successfully!');
                       setShowNotificationModal(false);
                       
-                      // Refetch notifications to update the list
                       await fetchNotifications();
                     } catch (error) {
                       console.error('Error sending notifications:', error);
@@ -2013,7 +1918,7 @@ export default function Dashboard() {
             )}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            {/* Export to Excel button */}
+            {}
             <button
               onClick={handleExport}
               disabled={exportLoading || backupLoading || restoreLoading}
@@ -2043,7 +1948,7 @@ export default function Dashboard() {
             >
               {exportLoading ? '⏳ Exporting...' : '📊 Export to Excel'}
             </button>
-            {/* Backup/Restore buttons */}
+            {}
             <button
               onClick={handleBackup}
               disabled={backupLoading || restoreLoading || exportLoading}
@@ -2125,9 +2030,9 @@ export default function Dashboard() {
               style={{ padding: '6px 16px', borderRadius: 4, border: '1px solid #ccc', fontSize: '1rem', color: '#222', background: '#fff', outline: 'none', boxShadow: 'none' }}
             >
               {(() => {
-                const startYear = 2025; // Fixed starting year
+                const startYear = 2025; 
                 const currentYear = new Date().getFullYear();
-                const yearsToShow = Math.max(4, (currentYear - startYear) + 4); // At least 4 years, or more as time passes
+                const yearsToShow = Math.max(4, (currentYear - startYear) + 4); 
                 return Array.from({ length: yearsToShow }, (_, i) => startYear + i).map(year => (
                   <option key={year} value={year}>{year}</option>
                 ));
@@ -2149,7 +2054,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Reviews and Reminders cards above calendar */}
+        {}
         <div className="admin-dashboard-cards-row" style={{ marginBottom: 18 }}>
           <div className="admin-dashboard-card" style={{ background: 'linear-gradient(90deg, #f59e42 60%, #f43f5e 100%)', color: '#fff' }}>
             <div className="admin-dashboard-card-title" style={{ color: '#fff', fontWeight: 700 }}>Reviews Summary</div>
@@ -2164,10 +2069,10 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Calendar container and three empty cards in a row */}
+        {}
         <div style={{ display: 'flex', flexDirection: 'row', gap: 18, marginBottom: 18 }}>
           <div className="dashboard-calendar-container" style={{ flex: '3 1 0', maxWidth: '75%', background: '#fff', borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.12)', color: '#111', padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'flex-start', position: 'relative', overflow: 'hidden', minHeight: 540, height: 'auto' }}>
-            {/* Removed Go to Calendar button, calendar will use the space above */}
+            {}
             <div style={{ width: '100%', minHeight: 420, height: 'auto', background: '#fff', borderRadius: 8, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
               <RsuiteCalendar
                 bordered
@@ -2177,7 +2082,7 @@ export default function Dashboard() {
               />
             </div>
           </div>
-          {/* Three empty cards */}
+          {}
           <div style={{ flex: '1 1 0', display: 'flex', flexDirection: 'column', gap: 18 }}>
             <div className="admin-dashboard-card" style={{ height: 200, background: '#fff', borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.12)', marginBottom: 0, padding: 16, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', textAlign: 'center' }}>
               <div className="admin-dashboard-card-title">Sta Fe, Nueva Vizcaya <span style={{ color: '#888', fontWeight: 400 }}>{getFilterLabel(filter)}</span></div>
@@ -2194,8 +2099,6 @@ export default function Dashboard() {
           </div>
         </div>
     
-        
-        
         <div className="admin-dashboard-cards-row">
           <div className="admin-dashboard-card">
             <div className="admin-dashboard-card-title">Pending bookings <span style={{ color: '#888', fontWeight: 400 }}>{getFilterLabel(filter)}</span></div>
@@ -2229,7 +2132,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Customers who booked (filtered) - table format */}
+        {}
         <div className="admin-dashboard-list-container" style={{ marginTop: 18, marginBottom: 18, background: '#fff', borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.12)', padding: 16 }}>
           <div className="admin-dashboard-card-title" style={{ color: '#222', fontWeight: 700, fontSize: '1.15rem', margin: '0 0 12px 0', display: 'flex', alignItems: 'center' }}>
             Customers Who Booked
@@ -2271,7 +2174,7 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Most Active Suppliers (filtered) - table format */}
+        {}
         <div className="admin-dashboard-list-container" style={{ marginBottom: 18, background: '#fff', borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.12)', padding: 16 }}>
           <div className="admin-dashboard-card-title" style={{ color: '#222', fontWeight: 700, fontSize: '1.15rem', margin: '0 0 12px 0', display: 'flex', alignItems: 'center' }}>
             Most Active Suppliers
@@ -2315,7 +2218,7 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Most Availed Products/Services (filtered) - table format */}
+        {}
         <div className="admin-dashboard-list-container" style={{ marginBottom: 18, background: '#fff', borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.12)', padding: 16 }}>
           <div className="admin-dashboard-card-title" style={{ color: '#222', fontWeight: 700, fontSize: '1.15rem', margin: '0 0 12px 0', display: 'flex', alignItems: 'center' }}>
             Most Availed Products/Services
@@ -2345,7 +2248,6 @@ export default function Dashboard() {
           </table>
         </div>
         
-
         <div className="admin-dashboard-revenue-card">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
             <div className="admin-dashboard-card-title">Annual Revenue Chart <span style={{ color: '#888', fontWeight: 400 }}>| {selectedYear}</span></div>
@@ -2368,12 +2270,12 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Revenue summary cards (filtered by filter selection) */}
+        {}
         {Array.isArray(revenueData) && revenueData.length > 0 && (() => {
           let filteredData = revenueData;
           if (typeof filter === 'number' && filter >= 0 && filter < 12) {
             filteredData = revenueData.filter(d => d.month === filter);
-          } // 'all' shows all months
+          } 
           const totalRevenue = filteredData.reduce((sum, d) => sum + (d.value || 0), 0);
           const tax = totalRevenue * 0.12;
           const profit = totalRevenue - tax;

@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const EventType = require('../models/EventType');
 
-// Get all event types
 router.get('/', async (req, res) => {
   try {
     const eventTypes = await EventType.find();
@@ -12,7 +11,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Add new event type
 router.post('/', async (req, res) => {
   try {
     const { name, description } = req.body;
@@ -24,7 +22,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Update event type
 router.put('/:id', async (req, res) => {
   try {
     const { name, description } = req.body;
@@ -35,7 +32,6 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Delete event type
 router.delete('/:id', async (req, res) => {
   try {
     await EventType.findByIdAndDelete(req.params.id);

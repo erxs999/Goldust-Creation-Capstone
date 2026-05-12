@@ -46,27 +46,27 @@ function App() {
   return (
     <Router>
   <Routes>
-    {/* Public routes - accessible to everyone */}
+    {}
     <Route path="/" element={<Home />} />
     <Route path="/home" element={<Home />} />
     <Route path="/policy" element={<Policy />} />
     <Route path="/reviews" element={<Reviews />} />
       <Route path="/gallery" element={<Gallery />} />
     
-    {/* Auth routes - only accessible when NOT logged in */}
+    {}
     <Route path="/login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
     <Route path="/signup" element={<PublicOnlyRoute><SignUp /></PublicOnlyRoute>} />
     <Route path="/forgot-password" element={<ForgotPasswordFlow />} />
     <Route path="/reset-password" element={<ResetPassword />} />
     
-    {/* Authenticated user routes - requires login */}
+    {}
     <Route path="/booking" element={<AuthenticatedRoute><Booking /></AuthenticatedRoute>} />
     <Route path="/booking-summary" element={<AuthenticatedRoute><BookSummary /></AuthenticatedRoute>} />
     <Route path="/book-appointment" element={<AuthenticatedRoute><BookAppointment /></AuthenticatedRoute>} />
     <Route path="/pns-details" element={<AuthenticatedRoute><PnSDetails /></AuthenticatedRoute>} />
     <Route path="/event-cart" element={<AuthenticatedRoute><EventCart /></AuthenticatedRoute>} />
     
-    {/* Admin routes - requires admin role */}
+    {}
     <Route path="/admin/dashboard" element={<AdminRoute><Dashboard /></AdminRoute>} />
     <Route path="/admin/booking" element={<AdminRoute><AdminBooking /></AdminRoute>} />
     <Route path="/admin/products-services" element={<AdminRoute><ProductsAndServices /></AdminRoute>} />
@@ -81,7 +81,7 @@ function App() {
     <Route path="/admin/supplier-schedules" element={<AdminRoute><AdminSupplierSchedules /></AdminRoute>} />
     <Route path="/admin/promos" element={<AdminRoute><Promos /></AdminRoute>} />
     
-    {/* Client routes - requires customer/supplier role (not admin) */}
+    {}
     <Route path="/client/home" element={<ClientRoute><Home /></ClientRoute>} />
     <Route path="/client/personal-information" element={<ClientRoute><PersonalInformation /></ClientRoute>} />
     <Route path="/client/profile" element={<ClientRoute><PersonalInformation /></ClientRoute>} />
@@ -89,7 +89,7 @@ function App() {
     <Route path="/client/notification" element={<ClientRoute><Notification /></ClientRoute>} />
     <Route path="/client/calendar" element={<ClientRoute><UserCalendar /></ClientRoute>} />
     
-    {/* Logout */}
+    {}
     <Route path="/logout" element={<Navigate to="/login" replace />} />
   </Routes>
       <ToastContainer

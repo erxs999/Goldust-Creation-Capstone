@@ -14,7 +14,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 
 export default function Suppliers() {
-  // Edit supplier state
+  
   const [editOpen, setEditOpen] = useState(false);
   const [editSupplier, setEditSupplier] = useState(null);
   const [editForm, setEditForm] = useState({
@@ -29,9 +29,8 @@ export default function Suppliers() {
     branchContacts: []
   });
   
-  // Password visibility state for suppliers
   const [visiblePasswords, setVisiblePasswords] = useState({});
-    // Handler to show password after admin authentication
+    
     const handleShowPassword = async (supplierId, supplierObj) => {
       const adminPassword = window.prompt('Enter admin password to view supplier password:');
       if (!adminPassword) return;
@@ -53,7 +52,7 @@ export default function Suppliers() {
         window.alert('Error verifying admin password.');
       }
     };
-  // Notification dialog state
+  
   const [notifyOpen, setNotifyOpen] = useState(false);
   const [notifySupplierId, setNotifySupplierId] = useState(null);
   const [notifyForm, setNotifyForm] = useState({
@@ -64,7 +63,7 @@ export default function Suppliers() {
     time: '',
   });
   const [notifyLoading, setNotifyLoading] = useState(false);
-    // Handle notify button click
+    
     const handleOpenNotify = (supplierId) => {
       setNotifySupplierId(supplierId);
       setNotifyForm({ eventType: '', description: '', date: '', location: '', time: '' });
@@ -78,7 +77,6 @@ export default function Suppliers() {
       setNotifyLoading(false);
     };
 
-    // Handle notify form submit
     const handleNotifySubmit = async (e) => {
       e.preventDefault();
       setNotifyLoading(true);
@@ -132,12 +130,12 @@ export default function Suppliers() {
 
   useEffect(() => {
     fetchSuppliers();
-    // Fetch available event types
+    
     fetch('/api/event-types')
       .then(res => res.json())
       .then(data => setAvailableEventTypes(data))
       .catch(err => console.error('Failed to fetch event types:', err));
-    // Fetch available categories
+    
     fetch('/api/categories')
       .then(res => res.json())
       .then(data => setAvailableCategories(data))
@@ -256,7 +254,6 @@ export default function Suppliers() {
     }
   };
 
-  // Filter suppliers by search, event type, category, and branch
   const currentSuppliers = activeTab === 0 ? pendingSuppliers : approvedSuppliers;
   const filteredSuppliers = currentSuppliers.filter(supplier => {
     const q = search.trim().toLowerCase();
@@ -494,7 +491,7 @@ export default function Suppliers() {
                             </Button>
                           </TableCell>
                         )}
-                              {/* Notify Supplier Dialog */}
+                              {}
                               <Dialog open={notifyOpen} onClose={handleCloseNotify} maxWidth="xs" fullWidth>
                                 <DialogTitle>Notify Supplier for Event</DialogTitle>
                                 <form onSubmit={handleNotifySubmit}>
@@ -556,7 +553,7 @@ export default function Suppliers() {
                                 </form>
                               </Dialog>
                               
-                              {/* Edit Supplier Dialog */}
+                              {}
                               <Dialog open={editOpen} onClose={handleCloseEdit} maxWidth="sm" fullWidth>
                                 <DialogTitle>Edit Supplier Details</DialogTitle>
                                 <form onSubmit={handleEditSubmit}>

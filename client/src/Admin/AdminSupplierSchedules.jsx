@@ -14,7 +14,6 @@ const AdminSupplierSchedules = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [adminNotes, setAdminNotes] = useState('');
   
-  // Get admin email
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const adminEmail = user.email;
 
@@ -49,15 +48,12 @@ const AdminSupplierSchedules = () => {
     fetchSchedules();
   }, []);
 
-
-  // Open approval modal
   function handleReviewCancellation(schedule, isApprove) {
     setSelectedRequest({ schedule, isApprove });
     setAdminNotes('');
     setShowApprovalModal(true);
   }
 
-  // Approve cancellation request
   async function handleApproveCancellation() {
     if (!selectedRequest) return;
     
@@ -77,7 +73,6 @@ const AdminSupplierSchedules = () => {
         setSelectedRequest(null);
         setAdminNotes('');
         
-        // Refresh data
         const [acceptedRes, cancelledRes, pendingRes] = await Promise.all([
           fetch('/api/schedules/status/accepted'),
           fetch('/api/schedules/status/cancelled'),
@@ -95,7 +90,6 @@ const AdminSupplierSchedules = () => {
     }
   }
 
-  // Reject cancellation request
   async function handleRejectCancellation() {
     if (!selectedRequest || !adminNotes.trim()) {
       alert('Please provide a reason for rejection in the admin notes.');
@@ -118,7 +112,6 @@ const AdminSupplierSchedules = () => {
         setSelectedRequest(null);
         setAdminNotes('');
         
-        // Refresh data
         const [acceptedRes, pendingRes] = await Promise.all([
           fetch('/api/schedules/status/accepted'),
           fetch('/api/schedules/cancellation-requests/pending')
@@ -134,7 +127,6 @@ const AdminSupplierSchedules = () => {
     }
   }
 
-  // Delete (admin forcefully cancels)
   async function handleForceCancel(id) {
     if (!window.confirm('Are you sure you want to forcefully cancel this schedule? This will delete it permanently.')) {
       return;
@@ -152,7 +144,6 @@ const AdminSupplierSchedules = () => {
     }
   }
 
-  // Delete accepted schedule
   async function handleDeleteAccepted(id) {
     if (!window.confirm('Are you sure you want to permanently delete this accepted schedule?')) {
       return;
@@ -170,7 +161,6 @@ const AdminSupplierSchedules = () => {
     }
   }
 
-  // Delete declined schedule
   async function handleDeleteDeclined(id) {
     if (!window.confirm('Are you sure you want to delete this declined schedule?')) {
       return;
@@ -281,15 +271,15 @@ const AdminSupplierSchedules = () => {
                     }
                     return true;
                   }).map(sch => {
-                    // Determine border color based on branchLocation
-                    let borderColor = '#FFD700'; // Default yellow
+                    
+                    let borderColor = '#FFD700'; 
                     const branch = (sch.branchLocation || '').toLowerCase();
                     if (branch.includes('sta') && (branch.includes('fe') || branch.includes('nueva vizcaya'))) {
-                      borderColor = '#FF6B6B'; // Red for Sta. Fe
+                      borderColor = '#FF6B6B'; 
                     } else if (branch.includes('la trinidad') || branch.includes('benguet')) {
-                      borderColor = '#4CAF50'; // Green for La Trinidad
+                      borderColor = '#4CAF50'; 
                     } else if (branch.includes('maddela') || branch.includes('quirino')) {
-                      borderColor = '#2196F3'; // Blue for Maddela
+                      borderColor = '#2196F3'; 
                     }
                     return (
                     <div key={sch._id} className="admin-schedule-card accepted" style={{borderLeft: `4px solid ${borderColor}`}}>
@@ -301,7 +291,7 @@ const AdminSupplierSchedules = () => {
                       <div>Supplier: {sch.supplierName || sch.supplierId}</div>
                       <div>Status: <span style={{color:'#4CAF50'}}>Accepted</span></div>
                       
-                      {/* Show cancellation request status if exists */}
+                      {}
                       {sch.cancellationRequest?.status === 'pending' && (
                         <div style={{
                           marginTop: '8px',
@@ -319,7 +309,7 @@ const AdminSupplierSchedules = () => {
                         </div>
                       )}
                       
-                      {/* Note: Delete button removed - accepted schedules cannot be forcefully deleted */}
+                      {}
                     </div>
                   )})}
                 </div>
@@ -503,15 +493,15 @@ const AdminSupplierSchedules = () => {
                     }
                     return true;
                   }).map(sch => {
-                    // Determine border color based on branchLocation
-                    let borderColor = '#FFD700'; // Default yellow
+                    
+                    let borderColor = '#FFD700'; 
                     const branch = (sch.branchLocation || '').toLowerCase();
                     if (branch.includes('sta') && (branch.includes('fe') || branch.includes('nueva vizcaya'))) {
-                      borderColor = '#FF6B6B'; // Red for Sta. Fe
+                      borderColor = '#FF6B6B'; 
                     } else if (branch.includes('la trinidad') || branch.includes('benguet')) {
-                      borderColor = '#4CAF50'; // Green for La Trinidad
+                      borderColor = '#4CAF50'; 
                     } else if (branch.includes('maddela') || branch.includes('quirino')) {
-                      borderColor = '#2196F3'; // Blue for Maddela
+                      borderColor = '#2196F3'; 
                     }
                     return (
                     <div key={sch._id} className="admin-schedule-card declined" style={{borderLeft: `4px solid ${borderColor}`}}>
@@ -531,7 +521,7 @@ const AdminSupplierSchedules = () => {
           </>
         )}
 
-        {/* Approval/Rejection Modal */}
+        {}
         {showApprovalModal && selectedRequest && (
           <div style={{
             position: 'fixed',

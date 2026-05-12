@@ -1,5 +1,4 @@
 
-
 import React, { useRef, useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import './backgroundgallery.css';
@@ -12,7 +11,6 @@ const BackgroundGallery = () => {
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
 
-  // Fetch images from DB
   useEffect(() => {
     setLoading(true);
     fetch(API_URL)
@@ -22,7 +20,6 @@ const BackgroundGallery = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  // Add images to DB
   const handleAddImages = async (e) => {
     const files = Array.from(e.target.files);
     const readers = files.map(file => {
@@ -47,7 +44,6 @@ const BackgroundGallery = () => {
       .finally(() => setLoading(false));
   };
 
-  // Delete image from DB
   const handleDelete = async (id) => {
     setLoading(true);
     await fetch(`${API_URL}/${id}`, { method: 'DELETE' });

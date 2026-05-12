@@ -15,13 +15,12 @@ const PasswordConfirmationModal = ({ open, onClose, onSuccess, email }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   
-  // Decode JWT token to get the actual role (only once using useMemo would be better, but keeping it simple)
   const getIsSupplier = () => {
     const token = localStorage.getItem('token');
     if (!token) return false;
     
     try {
-      // JWT tokens have 3 parts separated by dots: header.payload.signature
+      
       const payload = JSON.parse(atob(token.split('.')[1]));
       return payload.role === 'supplier';
     } catch (e) {
@@ -39,7 +38,6 @@ const PasswordConfirmationModal = ({ open, onClose, onSuccess, email }) => {
         return;
       }
 
-      // Use the appropriate login endpoint based on user role
       const loginFn = isSupplier ? auth.loginSupplier : auth.loginCustomer;
       const response = await loginFn({
         email: email,

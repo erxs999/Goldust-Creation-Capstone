@@ -3,14 +3,14 @@ import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 export default function SecondProductsAndServices(props) {
-  // If navigated via route, get category from location.state
+  
   const location = useLocation();
   const navigate = useNavigate();
   const { categoryId } = useParams();
   const category = location.state?.category || props.category;
 
   if (!category) {
-    // If no category data, go back to products-services
+    
     navigate('/admin/products-services');
     return null;
   }

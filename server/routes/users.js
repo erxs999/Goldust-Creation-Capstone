@@ -3,7 +3,6 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const { Customer, Supplier } = require('../config/database');
 
-// Get user profile
 router.get('/profile', auth, async (req, res) => {
     try {
         const { id, role } = req.user;
@@ -14,14 +13,12 @@ router.get('/profile', auth, async (req, res) => {
         } else if (role === 'supplier') {
             user = await Supplier.findById(id);
             
-            // Ensure isAvailable field exists for older suppliers
             if (user && user.isAvailable === undefined) {
                 console.log('Adding missing isAvailable field for supplier:', user.email);
                 user.isAvailable = true;
                 await user.save();
             }
             
-            // Manually fetch EventTypes from ProductsAndServices database
             if (user && user.eventTypes && user.eventTypes.length > 0) {
                 const EventType = require('../models/EventType');
                 const populatedEventTypes = await EventType.find({ _id: { $in: user.eventTypes } });
@@ -48,7 +45,6 @@ router.get('/profile', auth, async (req, res) => {
     }
 });
 
-// Update user profile
 router.put('/profile', auth, async (req, res) => {
     try {
         const { id, role } = req.user;
@@ -65,7 +61,6 @@ router.put('/profile', auth, async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Update fields
         if (firstName) user.firstName = firstName;
         if (middleName) user.middleName = middleName;
         if (lastName) user.lastName = lastName;
@@ -73,7 +68,6 @@ router.put('/profile', auth, async (req, res) => {
         if (phone) user.phone = phone;
         if (contact) user.contact = contact;
         
-        // Update customer location fields (for customers or non-suppliers)
         if (role === 'customer' || !user.companyName) {
             console.log('Updating customer location fields:', { province, city, barangay });
             if (province !== undefined) {
@@ -90,7 +84,6 @@ router.put('/profile', auth, async (req, res) => {
             }
         }
         
-        // Update supplier-specific fields
         if (role === 'supplier' || user.companyName) {
             if (req.body.companyName !== undefined) {
                 console.log('Updating companyName to:', req.body.companyName);
@@ -118,8 +111,6 @@ router.put('/profile', auth, async (req, res) => {
             updatedUser = await Supplier.findById(id).select('-password');
             console.log('Raw eventTypes in response:', updatedUser.eventTypes);
             
-            // Manually fetch EventTypes from ProductsAndServices database instead of populate
-            // since they're in different databases
             if (updatedUser.eventTypes && updatedUser.eventTypes.length > 0) {
                 const EventType = require('../models/EventType');
                 const populatedEventTypes = await EventType.find({ _id: { $in: updatedUser.eventTypes } });
@@ -136,22 +127,20 @@ router.put('/profile', auth, async (req, res) => {
     }
 });
 
-// Get all approved suppliers (for admin)
 router.get('/admin/suppliers/approved', auth, async (req, res) => {
     try {
-        // You may want to check if req.user is admin here
-        const suppliers = await Supplier.find({ isApproved: true }); // includes password
+        
+        const suppliers = await Supplier.find({ isApproved: true }); 
         res.json(suppliers);
     } catch (error) {
         res.status(500).json({ message: 'Server error' });
     }
 });
 
-// Get all pending suppliers (for admin)
 router.get('/admin/suppliers/pending', auth, async (req, res) => {
     try {
-        // You may want to check if req.user is admin here
-        const suppliers = await Supplier.find({ isApproved: false }); // includes password
+        
+        const suppliers = await Supplier.find({ isApproved: false }); 
         res.json(suppliers);
     } catch (error) {
         res.status(500).json({ message: 'Server error' });

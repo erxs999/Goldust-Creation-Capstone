@@ -3,7 +3,6 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const { EJSON } = require('bson');
 
-// Database connections configuration
 const DB_CONNECTIONS = {
   authentication: 'mongodb+srv://goldust:goldustadmin@goldust.9lkqckv.mongodb.net/authentication',
   ProductsAndServices: 'mongodb+srv://goldust:goldustadmin@goldust.9lkqckv.mongodb.net/ProductsAndServices',
@@ -17,7 +16,6 @@ const DB_CONNECTIONS = {
   scheduleCalendar: 'mongodb+srv://goldust:goldustadmin@goldust.9lkqckv.mongodb.net/scheduleCalendar',
 };
 
-// Export all databases
 router.get('/export', async (req, res) => {
   try {
     console.log('Starting database backup export...');
@@ -27,13 +25,12 @@ router.get('/export', async (req, res) => {
       databases: {}
     };
 
-    // Iterate through each database
     for (const [dbName, connectionString] of Object.entries(DB_CONNECTIONS)) {
       console.log(`Exporting database: ${dbName}`);
       
       let connection;
       try {
-        // Create connection to this database
+        
         connection = await mongoose.createConnection(connectionString, {
           useNewUrlParser: true,
           useUnifiedTopology: true
@@ -44,11 +41,9 @@ router.get('/export', async (req, res) => {
           connection.once('error', reject);
         });
 
-        // Get all collections in this database
         const collections = await connection.db.listCollections().toArray();
         backup.databases[dbName] = {};
 
-        // Export each collection
         for (const collectionInfo of collections) {
           const collectionName = collectionInfo.name;
           console.log(`  Exporting collection: ${collectionName}`);
@@ -56,7 +51,6 @@ router.get('/export', async (req, res) => {
           const collection = connection.db.collection(collectionName);
           const documents = await collection.find({}).toArray();
           
-          // Convert to Extended JSON to preserve ObjectIds
           backup.databases[dbName][collectionName] = EJSON.serialize(documents);
           console.log(`    Exported ${documents.length} documents`);
         }
@@ -73,7 +67,6 @@ router.get('/export', async (req, res) => {
 
     console.log('Backup export completed successfully');
 
-    // Send as JSON download
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Content-Disposition', `attachment; filename=goldust-backup-${Date.now()}.json`);
     res.json(backup);
@@ -87,13 +80,11 @@ router.get('/export', async (req, res) => {
   }
 });
 
-// Import/Restore databases
 router.post('/restore', async (req, res) => {
   try {
     console.log('Starting database restore...');
     const backup = req.body;
 
-    // Validate backup format
     if (!backup.databases || typeof backup.databases !== 'object') {
       return res.status(400).json({ 
         error: 'Invalid backup format',
@@ -107,7 +98,6 @@ router.post('/restore', async (req, res) => {
       databases: {}
     };
 
-    // Iterate through each database in the backup
     for (const [dbName, collections] of Object.entries(backup.databases)) {
       console.log(`Restoring database: ${dbName}`);
       
@@ -120,7 +110,6 @@ router.post('/restore', async (req, res) => {
         continue;
       }
 
-      // Skip if this database had an error during export
       if (collections.error) {
         results.databases[dbName] = { 
           status: 'skipped',
@@ -131,7 +120,7 @@ router.post('/restore', async (req, res) => {
 
       let connection;
       try {
-        // Create connection to this database
+        
         connection = await mongoose.createConnection(DB_CONNECTIONS[dbName], {
           useNewUrlParser: true,
           useUnifiedTopology: true
@@ -144,20 +133,16 @@ router.post('/restore', async (req, res) => {
 
         results.databases[dbName] = { collections: {} };
 
-        // Restore each collection
         for (const [collectionName, documents] of Object.entries(collections)) {
           console.log(`  Restoring collection: ${collectionName}`);
           
           try {
             const collection = connection.db.collection(collectionName);
             
-            // Deserialize Extended JSON to restore ObjectIds properly
             const deserializedDocs = EJSON.deserialize(documents);
             
-            // Clear existing data (optional - comment out if you want to keep existing data)
             await collection.deleteMany({});
             
-            // Insert backed up documents
             if (Array.isArray(deserializedDocs) && deserializedDocs.length > 0) {
               await collection.insertMany(deserializedDocs);
               results.databases[dbName].collections[collectionName] = {

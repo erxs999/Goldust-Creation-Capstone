@@ -5,7 +5,6 @@ const fs = require('fs');
 const mongoose = require('mongoose');
 const GallerySchema = require('../models/GallerySchema');
 
-// Create a separate connection for goldustGallery database
 const galleryConnection = mongoose.createConnection('mongodb+srv://goldust:goldustadmin@goldust.9lkqckv.mongodb.net/goldustGallery', {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -17,8 +16,6 @@ const Gallery = galleryConnection.model('Gallery', GallerySchema);
 
 const router = express.Router();
 
-
-// POST /api/gallery/upload (base64)
 router.post('/upload', async (req, res) => {
   try {
     const { image, name } = req.body;
@@ -31,7 +28,6 @@ router.post('/upload', async (req, res) => {
   }
 });
 
-// GET /api/gallery
 router.get('/', async (req, res) => {
   try {
     const images = await Gallery.find({});
@@ -41,7 +37,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// DELETE /api/gallery/:id
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;

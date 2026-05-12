@@ -10,9 +10,8 @@ const Notification = () => {
   const [upcomingSchedules, setUpcomingSchedules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('notifications');
-  const [timeFilter, setTimeFilter] = useState('1week'); // '1week', '2weeks', '1month'
+  const [timeFilter, setTimeFilter] = useState('1week'); 
 
-  // Cancellation modal states
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [selectedScheduleToCancel, setSelectedScheduleToCancel] = useState(null);
   const [cancelForm, setCancelForm] = useState({
@@ -20,7 +19,6 @@ const Notification = () => {
     description: ''
   });
 
-  // Schedule cancellation reasons
   const scheduleCancellationReasons = [
     'Personal Emergency',
     'Conflicting Schedule',
@@ -31,13 +29,11 @@ const Notification = () => {
     'Other'
   ];
 
-  // Get logged-in user info
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const userEmail = user.email;
-  // Determine role: if user has explicit role use it, if admin then admin, else if has companyName then supplier, else customer
+  
   const userRole = user.role === 'admin' ? 'admin' : (user.companyName ? 'supplier' : 'customer');
 
-  // Helper function to format dates
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
     if (typeof dateStr === 'string' && dateStr.includes('T')) {
@@ -46,7 +42,6 @@ const Notification = () => {
     return dateStr;
   };
 
-  // Helper function to calculate days until event
   const getDaysUntil = (dateStr) => {
     if (!dateStr) return null;
     const eventDate = new Date(dateStr);
@@ -58,7 +53,6 @@ const Notification = () => {
     return diffDays;
   };
 
-  // Helper function to get due message
   const getDueMessage = (dateStr) => {
     const days = getDaysUntil(dateStr);
     if (days === null) return '';
@@ -69,7 +63,6 @@ const Notification = () => {
     return '';
   };
 
-  // Filter function based on time range
   const filterByTimeRange = (items) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -84,7 +77,7 @@ const Notification = () => {
     }
 
     return items.filter(item => {
-      // Skip time filter for pending supplier schedules
+      
       if (item.ignoreTimeFilter) return true;
       
       const itemDate = new Date(item.date);
@@ -101,10 +94,8 @@ const Notification = () => {
         console.log('User email:', userEmail, 'Role:', userRole);
         console.log('Is customer?', userRole === 'customer');
         
-        // Get user's name
         const userName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
         
-        // Fetch all types of events: schedules, accepted schedules, bookings, appointments, and notifications
         const [schedulesRes, acceptedSchedulesRes, declinedSchedulesRes, cancelledSchedulesRes, upcomingSchedulesRes, pendingRes, approvedRes, finishedRes, appointmentsRes, notificationsRes] = await Promise.all([
           fetch('/api/schedules'),
           fetch('/api/schedules/status/accepted'),
@@ -129,7 +120,6 @@ const Notification = () => {
         const appointments = appointmentsRes.ok ? await appointmentsRes.json() : [];
         const notificationsData = notificationsRes.ok ? await notificationsRes.json() : [];
         
-        // Set upcoming schedules
         if (userRole === 'supplier') {
           console.log('Upcoming schedules fetched:', upcomingSchedulesData);
           console.log('Supplier email for query:', userEmail);
@@ -138,7 +128,6 @@ const Notification = () => {
 
         console.log('Fetched data:', { schedules, acceptedSchedules, pending, approved, finished, appointments, notificationsData });
 
-        // Filter notifications for this user (customer or supplier)
         const userNotifications = notificationsData.filter(notif => {
           if (userRole === 'supplier') {
             return notif.type === 'Supplier' && 
@@ -159,35 +148,31 @@ const Notification = () => {
         let filtered = [];
         
         if (userRole === 'supplier') {
-          // For suppliers: show ALL pending schedules assigned to them (no time filter on pending)
+          
           const pendingSchedules = schedules.filter(rem => 
             rem.type === 'Supplier' && 
             (rem.person === userEmail || rem.person === userName || rem.supplierId === userEmail) &&
             (!rem.status || rem.status === 'pending')
           ).map(rem => ({
             ...rem,
-            ignoreTimeFilter: true // Mark to bypass time filter
+            ignoreTimeFilter: true 
           }));
           
           console.log('Pending schedules for supplier:', pendingSchedules);
           
-          // Get accepted schedules for supplier
           const userAcceptedSchedules = acceptedSchedules.filter(ev => 
             ev.type === 'Supplier' && 
             (ev.person === userEmail || ev.person === userName || ev.supplierId === userEmail)
           );
           
-          // Show ALL accepted schedules in notifications (time filter applied later in UI)
           const acceptedSchedulesForNotif = userAcceptedSchedules.map(ev => ({ ...ev, status: 'accepted' }));
           
           console.log('Accepted schedules for supplier:', acceptedSchedulesForNotif);
           
-          // Get bookings for this supplier (all statuses)
-          // For suppliers, check if they are in the suppliers array or match by company name
           const allBookings = [...pending, ...approved, ...finished].filter(b => {
-            // Check if user email/name matches
+            
             if (b.email === userEmail || b.name === userName) return true;
-            // Check if supplier is in the suppliers array
+            
             if (b.suppliers && Array.isArray(b.suppliers)) {
               return b.suppliers.some(s => 
                 s.email === userEmail || 
@@ -195,7 +180,7 @@ const Notification = () => {
                 s.name === userName
               );
             }
-            // Check if booking has supplier info matching this user
+            
             if (b.supplierEmail === userEmail || b.supplierName === userName) return true;
             if (b.companyName && user.companyName && b.companyName === user.companyName) return true;
             return false;
@@ -212,7 +197,6 @@ const Notification = () => {
             eventType: b.eventType
           }));
           
-          // Get appointments for this supplier
           const appointmentEvents = appointments.map(a => ({
             _id: a._id,
             title: 'Appointment',
@@ -224,12 +208,10 @@ const Notification = () => {
             status: a.status || ''
           }));
           
-          // Combine all events for suppliers - show ALL pending and accepted schedules + notifications
           filtered = [...pendingSchedules, ...acceptedSchedulesForNotif, ...bookingEvents, ...appointmentEvents, ...userNotifications];
           
           console.log('Combined filtered notifications:', filtered);
           
-          // Set all accepted schedules for the accepted tab
           setAcceptedNotifications(userAcceptedSchedules);
           
           const userDeclinedSchedules = declinedSchedules.filter(ev => 
@@ -244,27 +226,22 @@ const Notification = () => {
           );
           setCancelledNotifications(userCancelledSchedules);
         } else {
-          // For customers: show all their events (schedules, accepted schedules, bookings, appointments)
           
-          // 1. Pending schedules
           const userSchedules = schedules.filter(rem => 
             rem.type === 'Customer' && 
             (rem.person === userEmail || rem.person === userName)
           );
           
-          // 2. Get all accepted schedules
           const allUserAcceptedSchedules = acceptedSchedules.filter(ev => 
             ev.type === 'Customer' && 
             (ev.person === userEmail || ev.person === userName)
           ).map(ev => ({ ...ev, status: 'accepted' }));
           
-          // Filter accepted schedules within 1 week for main notifications
           const acceptedWithin1Week = allUserAcceptedSchedules.filter(ev => {
             const days = getDaysUntil(ev.date);
             return days !== null && days >= 0 && days <= 7;
           });
           
-          // 3. Bookings (all statuses)
           const allBookings = [...pending, ...approved, ...finished].filter(b => 
             b.email === userEmail || b.name === userName
           );
@@ -280,7 +257,6 @@ const Notification = () => {
             eventType: b.eventType
           }));
           
-          // 4. Appointments
           const appointmentEvents = appointments.map(a => ({
             _id: a._id,
             title: 'Appointment',
@@ -310,7 +286,7 @@ const Notification = () => {
   const handleAccept = async (notif) => {
     try {
       console.log('Accepting notification:', notif);
-      // Update the schedule status in the database
+      
       const response = await fetch(`/api/schedules/${notif._id}/status`, {
         method: 'PUT',
         headers: {
@@ -328,7 +304,6 @@ const Notification = () => {
         throw new Error(errorData.error || 'Failed to update status');
       }
       
-      // Move notification to accepted list
       const updatedNotif = { 
         ...notif, 
         status: 'accepted',
@@ -339,7 +314,6 @@ const Notification = () => {
       setAcceptedNotifications(prev => [...prev, updatedNotif]);
       setNotifications(prev => prev.filter(n => n._id !== notif._id));
 
-      // Refresh the lists
       const [acceptedRes, declinedRes] = await Promise.all([
         fetch('/api/schedules/status/accepted?supplierId=' + userEmail),
         fetch('/api/schedules/status/declined?supplierId=' + userEmail)
@@ -362,7 +336,7 @@ const Notification = () => {
   const handleDecline = async (notif) => {
     try {
       console.log('Declining notification:', notif);
-      // Update the schedule status in the database
+      
       const response = await fetch(`/api/schedules/${notif._id}/status`, {
         method: 'PUT',
         headers: {
@@ -380,7 +354,6 @@ const Notification = () => {
         throw new Error(errorData.error || 'Failed to update status');
       }
       
-      // Move notification to declined list
       const updatedNotif = { 
         ...notif, 
         status: 'declined',
@@ -391,7 +364,6 @@ const Notification = () => {
       setDeclinedNotifications(prev => [...prev, updatedNotif]);
       setNotifications(prev => prev.filter(n => n._id !== notif._id));
 
-      // Refresh the lists
       const [acceptedRes, declinedRes] = await Promise.all([
         fetch('/api/schedules/status/accepted?supplierId=' + userEmail),
         fetch('/api/schedules/status/declined?supplierId=' + userEmail)
@@ -446,7 +418,6 @@ const Notification = () => {
       setSelectedScheduleToCancel(null);
       setCancelForm({ reason: '', description: '' });
 
-      // Refresh accepted schedules
       const acceptedRes = await fetch('/api/schedules/status/accepted?supplierId=' + userEmail);
       if (acceptedRes.ok) {
         const acceptedData = await acceptedRes.json();
@@ -543,7 +514,7 @@ const Notification = () => {
             )}
           </div>
 
-          {/* Time Filter - Available for all users */}
+          {}
           <div style={{
             display: 'flex',
             gap: '8px',
@@ -595,7 +566,7 @@ const Notification = () => {
           </div>
         </div>
 
-        {/* Notifications Tab */}
+        {}
         {activeTab === 'notifications' && (
           <div className="notification-list">
             {loading ? (
@@ -741,7 +712,7 @@ const Notification = () => {
           </div>
         )}
 
-        {/* Upcoming Schedules Tab */}
+        {}
         {activeTab === 'upcoming' && userRole === 'supplier' && (
           <div className="notification-list">
             {upcomingSchedules.length === 0 ? (
@@ -815,7 +786,6 @@ const Notification = () => {
                             throw new Error('Failed to accept schedule');
                           }
                           
-                          // Remove from upcoming and refresh
                           setUpcomingSchedules(prev => prev.filter(s => s._id !== schedule._id));
                           alert('Schedule accepted successfully!');
                         } catch (error) {
@@ -853,7 +823,6 @@ const Notification = () => {
                             throw new Error('Failed to decline schedule');
                           }
                           
-                          // Remove from upcoming and refresh
                           setUpcomingSchedules(prev => prev.filter(s => s._id !== schedule._id));
                           alert('Schedule declined successfully!');
                         } catch (error) {
@@ -882,7 +851,7 @@ const Notification = () => {
           </div>
         )}
 
-        {/* Accepted Schedules Tab */}
+        {}
         {activeTab === 'accepted' && userRole === 'supplier' && (
           <div className="notification-list">
             {acceptedNotifications.length === 0 ? (
@@ -912,7 +881,7 @@ const Notification = () => {
                     )}
                     <div style={{fontSize: '0.9rem', color: '#888'}}>Date: {notif.date}</div>
                     
-                    {/* Show cancellation request info if pending */}
+                    {}
                     {notif.cancellationRequest?.status === 'pending' && (
                       <div style={{marginTop: '12px', padding: '10px', background: '#fff', borderRadius: '6px', border: '1px solid #ff9800'}}>
                         <div style={{fontWeight: '600', color: '#e65100', fontSize: '0.85rem', marginBottom: '4px'}}>
@@ -976,7 +945,7 @@ const Notification = () => {
           </div>
         )}
 
-        {/* Declined Schedules Tab */}
+        {}
         {activeTab === 'declined' && userRole === 'supplier' && (
           <div className="notification-list">
             {declinedNotifications.length === 0 ? (
@@ -1013,7 +982,7 @@ const Notification = () => {
           </div>
         )}
 
-        {/* Cancelled Schedules Tab */}
+        {}
         {activeTab === 'cancelled' && userRole === 'supplier' && (
           <div className="notification-list">
             {cancelledNotifications.length === 0 ? (
@@ -1043,7 +1012,7 @@ const Notification = () => {
                     )}
                     <div style={{fontSize: '0.9rem', color: '#888'}}>Date: {notif.date}</div>
                     
-                    {/* Show cancellation details */}
+                    {}
                     {notif.cancellationRequest && (
                       <div style={{marginTop: '12px', padding: '10px', background: '#fff', borderRadius: '6px', border: '1px solid #9e9e9e'}}>
                         <div style={{fontWeight: '600', color: '#616161', fontSize: '0.85rem', marginBottom: '4px'}}>
@@ -1070,7 +1039,7 @@ const Notification = () => {
           </div>
         )}
 
-        {/* Cancellation Request Modal */}
+        {}
         {showCancelModal && (
           <div style={{
             position: 'fixed',
@@ -1122,7 +1091,7 @@ const Notification = () => {
                 Please provide the reason for cancelling this accepted schedule. The admin will review your request.
               </p>
 
-              {/* Schedule Info */}
+              {}
               <div style={{
                 background: '#f5f5f5',
                 borderRadius: '8px',
@@ -1142,7 +1111,7 @@ const Notification = () => {
                 )}
               </div>
 
-              {/* Warning */}
+              {}
               <div style={{
                 background: '#fff3e0',
                 border: '2px solid #ff9800',
@@ -1158,7 +1127,7 @@ const Notification = () => {
                 </ul>
               </div>
 
-              {/* Reason Dropdown */}
+              {}
               <div style={{marginBottom: '20px'}}>
                 <label style={{display: 'block', marginBottom: '8px', fontWeight: 600, color: '#555'}}>
                   Reason for Cancellation <span style={{color: '#e53935'}}>*</span>
@@ -1183,7 +1152,7 @@ const Notification = () => {
                 </select>
               </div>
 
-              {/* Description */}
+              {}
               <div style={{marginBottom: '24px'}}>
                 <label style={{display: 'block', marginBottom: '8px', fontWeight: 600, color: '#555'}}>
                   Additional Details <span style={{color: '#e53935'}}>*</span>
