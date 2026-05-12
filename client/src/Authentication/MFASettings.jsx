@@ -30,7 +30,7 @@ export default function MFASettings() {
 
   const handleToggleMFA = async () => {
     if (!mfaEnabled) {
-      // If enabling MFA, open dialog to verify email first
+      
       setDialogOpen(true);
       try {
         const token = localStorage.getItem('token');
@@ -61,7 +61,7 @@ export default function MFASettings() {
         console.error('MFA error:', err);
       }
     } else {
-      // If disabling MFA, just toggle it off
+      
       try {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -88,12 +88,10 @@ export default function MFASettings() {
           throw new Error('Failed to disable MFA');
         }
 
-        // Update local storage with server response
         const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
         const updatedUser = { ...storedUser, mfaEnabled: toggleData.mfaEnabled };
         localStorage.setItem('user', JSON.stringify(updatedUser));
 
-        // Update state with value from server
         setMfaEnabled(toggleData.mfaEnabled);
         setSuccess('Two-Factor Authentication has been disabled');
       } catch (err) {
@@ -113,7 +111,6 @@ export default function MFASettings() {
         throw new Error('Missing email or token');
       }
 
-      // First verify the code
       const verifyResponse = await fetch('/api/mfa/verify-mfa', {
         method: 'POST',
         headers: {
@@ -132,7 +129,6 @@ export default function MFASettings() {
         throw new Error(verifyData.message || verifyData.error || 'Invalid verification code');
       }
 
-      // If verification successful, enable MFA
       const toggleResponse = await fetch('/api/mfa/toggle-mfa', {
         method: 'POST',
         headers: {
@@ -148,11 +144,9 @@ export default function MFASettings() {
         throw new Error(toggleData.error || 'Failed to enable MFA');
       }
 
-      // Get the new MFA state from the response
       const newMFAState = toggleData.mfaEnabled;
       console.log('New MFA state:', newMFAState);
 
-      // Update localStorage
       const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
       const updatedUser = { 
         ...storedUser, 
@@ -161,7 +155,6 @@ export default function MFASettings() {
       localStorage.setItem('user', JSON.stringify(updatedUser));
       console.log('Updated localStorage:', updatedUser);
 
-      // Update component state
       setMfaEnabled(newMFAState);
       console.log('Updated component state to:', newMFAState);
       setDialogOpen(false);

@@ -6,19 +6,17 @@ const LocationSelector = ({ value, onChange, disabled = false }) => {
   const [cities, setCities] = useState([]);
   const [barangays, setBarangays] = useState([]);
 
-  // Fetch provinces on mount
   useEffect(() => {
     fetch('https://psgc.gitlab.io/api/provinces/')
       .then(res => res.json())
       .then(data => {
-        // Sort alphabetically by name
+        
         const sortedProvinces = data.sort((a, b) => a.name.localeCompare(b.name));
         setProvinces(sortedProvinces);
       })
       .catch(err => console.error('Failed to fetch provinces:', err));
   }, []);
 
-  // Fetch cities when province changes
   useEffect(() => {
     if (value?.province) {
       const selectedProvince = provinces.find(p => p.name === value.province);
@@ -37,7 +35,6 @@ const LocationSelector = ({ value, onChange, disabled = false }) => {
     }
   }, [value?.province, provinces]);
 
-  // Fetch barangays when city changes
   useEffect(() => {
     if (value?.city) {
       const selectedCity = cities.find(c => c.name === value.city);

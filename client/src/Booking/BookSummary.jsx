@@ -10,15 +10,14 @@ const BookSummary = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const booking = location.state?.booking || {};
-  // Get user details from localStorage (adjust key if needed)
+  
   let user = {};
   try {
     user = JSON.parse(localStorage.getItem('user')) || {};
   } catch (e) {
     user = {};
   }
-  // Use booking data if present, else fallback to user data
-  // Build full name from user details if available
+  
   let fullName = '';
   if (user?.firstName) {
     fullName = user.firstName;
@@ -32,7 +31,7 @@ const BookSummary = () => {
   const displayName = booking?.name || fullName || '';
   const displayContact = booking?.contact || user?.contact || user?.phone || '';
   const displayEmail = booking?.email || user?.email || '';
-  // Calculate subtotal and total
+  
   const subtotal = (booking?.products || []).reduce((sum, item) => {
     const base = Number(item.price) || 0;
     const adds = Array.isArray(item.__cart_additionals) ? item.__cart_additionals.reduce((a, add) => a + (Number(add.price) || 0), 0) : 0;
@@ -64,7 +63,7 @@ const BookSummary = () => {
                   return booking.date.toString();
                 }
               })() : ""}</span></div>
-              {/* Event Location removed as per request */}
+              {}
               <div style={{ marginBottom: 12, color: '#111' }}><span style={{ fontWeight: 'bold' }}>Event Venue :</span> <span style={{ color: '#111' }}>{booking?.eventVenue || ""}</span></div>
               <div style={{ marginBottom: 12, color: '#111' }}><span style={{ fontWeight: 'bold' }}>Branch Location :</span> <span style={{ color: '#111' }}>{booking?.branchLocation || ""}</span></div>
               {booking?.theme && <div style={{ marginBottom: 12, color: '#111' }}><span style={{ fontWeight: 'bold' }}>Theme :</span> <span style={{ color: '#111' }}>{booking.theme}</span></div>}
@@ -81,7 +80,7 @@ const BookSummary = () => {
              
             </div>
           </div>
-          {/* Services and Products Availed */}
+          {}
           <div style={{ marginTop: 32, marginBottom: 0 }}>
             <div style={{ marginBottom: 12, color: '#111', fontWeight: 'bold'}}>Services and Products Availed:</div>
             {booking?.products && booking.products.length > 0 ? (
@@ -111,7 +110,7 @@ const BookSummary = () => {
               <div style={{ color: '#888', marginBottom: 16 }}>No products/services selected.</div>
             )}
           </div>
-          {/* Special Request full width */}
+          {}
           <div style={{ marginTop: 24, marginBottom: 0 }}>
             <div style={{ marginBottom: 12, color: '#111', fontWeight: 'bold'}}>Special Request :</div>
             <textarea
@@ -121,12 +120,12 @@ const BookSummary = () => {
               readOnly
             />
           </div>
-          {/* Selected Additionals */}
+          {}
           <div style={{ marginTop: 24 }}>
             <div style={{ marginBottom: 12, color: '#111', fontWeight: 'bold'}}>Selected Additionals:</div>
             {booking?.products && booking.products.length > 0 ? (
               (() => {
-                // Gather additionals from booking.products. They may be stored as __cart_additionals or as product.additionals
+                
                 const allAdds = [];
                 booking.products.forEach((p, i) => {
                   const adds = p.__cart_additionals || p.additionals || [];
@@ -162,10 +161,9 @@ const BookSummary = () => {
               className="booking-btn booking-btn-next booking-btn-orange"
               style={{ minWidth: 100, background: '#ff9800', color: '#fff', border: 'none' }}
               onClick={async () => {
-                // Send booking to pending bookings
+                
                 try {
-                  // Convert date to ISO string if needed
-                  // Use user details if booking fields are missing
+                  
                   let fullName = '';
                   if (user?.firstName) {
                     fullName = user.firstName;
@@ -176,7 +174,7 @@ const BookSummary = () => {
                   } else if (user?.name) {
                     fullName = user.name;
                   }
-                  // Ensure each product includes its additionals when sending to backend
+                  
                   const productsWithAdd = (booking.products || []).map(p => ({
                     ...p,
                     additionals: p.__cart_additionals || p.additionals || []

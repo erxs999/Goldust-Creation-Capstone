@@ -8,16 +8,14 @@ import api from '../services/api';
 import './booking-description.css';
 
 export default function BookingDescription({ open, onClose, booking, onSave }) {
-    // Contract picture state
+    
     const [contractPreview, setContractPreview] = React.useState(booking?.contractPicture || '');
     const contractInputRef = React.useRef(null);
 
-    // Update contract preview when booking changes
     React.useEffect(() => {
       setContractPreview(booking?.contractPicture || '');
     }, [booking]);
 
-    // Handle contract picture upload
     const handleContractUpload = (e) => {
       const file = e.target.files?.[0];
       if (file) {
@@ -31,25 +29,21 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
       }
     };
 
-    // Remove contract picture
     const handleRemoveContract = () => {
       setContractPreview('');
       setEditData(prev => ({ ...prev, contractPicture: '' }));
       if (contractInputRef.current) contractInputRef.current.value = '';
     };
 
-    // Print contract picture
     const handlePrintContract = () => {
       if (!contractPreview) return;
       
-      // Create a new window for printing
       const printWindow = window.open('', '_blank');
       if (!printWindow) {
         alert('Please allow pop-ups to print the contract.');
         return;
       }
       
-      // Write HTML content with the contract image
       printWindow.document.write(`
         <!DOCTYPE html>
         <html>
@@ -122,7 +116,6 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
         </html>
       `);
       
-      // Wait for image to load before printing
       printWindow.document.close();
       printWindow.onload = () => {
         printWindow.focus();
@@ -164,7 +157,6 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
   const paymentModes = ['Cash', 'Bank Transfer', 'GCash'];
   const paymentStatuses = ['Pending', 'Partially Paid', 'Fully Paid', 'Refunded'];
   
-  // Product search and management
   const [showProductSearch, setShowProductSearch] = React.useState(false);
   const [availableProducts, setAvailableProducts] = React.useState([]);
   const [productSearchTerm, setProductSearchTerm] = React.useState('');
@@ -172,16 +164,13 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
   const [selectedCategory, setSelectedCategory] = React.useState(null);
   const [categories, setCategories] = React.useState([]);
 
-  // Supplier management
   const [allSuppliers, setAllSuppliers] = React.useState([]);
   const [selectedSupplierIds, setSelectedSupplierIds] = React.useState([]);
   const [availableCategories, setAvailableCategories] = React.useState([]);
   const [supplierCategoryFilter, setSupplierCategoryFilter] = React.useState('all');
 
-  // PSGC API endpoints
   const PSGC_API = 'https://psgc.gitlab.io/api';
 
-  // Load provinces on mount
   React.useEffect(() => {
     setLoading(l => ({ ...l, provinces: true }));
     fetch(`${PSGC_API}/provinces/`)
@@ -191,14 +180,12 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
       .catch(console.error);
   }, []);
 
-  // Load all promos from the database for the dropdown
   React.useEffect(() => {
     api.get('/promos')
       .then(res => setPromos(res.data))
       .catch(() => setPromos([]));
   }, []);
 
-  // Load event types from the API
   React.useEffect(() => {
     api.get('/event-types')
       .then(res => {
@@ -211,7 +198,6 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
       .catch(() => setEventTypes([]));
   }, []);
 
-  // Load categories on mount
   React.useEffect(() => {
     api.get('/categories')
       .then(res => {
@@ -224,7 +210,6 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
       });
   }, []);
   
-  // Load products when category is selected
   React.useEffect(() => {
     if (selectedCategory && selectedCategory.title) {
       console.log('Fetching products for category:', selectedCategory.title);
@@ -243,13 +228,11 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
     }
   }, [selectedCategory]);
 
-  // Handle booking data updates - reset everything when booking changes
   React.useEffect(() => {
     if (booking) {
-      // Reset edit mode when switching bookings
+      
       setIsEditing(false);
       
-      // Find matching promo by title if promoTitle exists but promoId doesn't
       let matchedPromoId = booking.promoId || '';
       let promoTitle = booking.promoTitle || '';
       let discountType = booking.discountType || '';
@@ -257,13 +240,11 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
       if (booking.promoTitle && promos.length > 0) {
         const matchedPromo = promos.find(p => p.title === booking.promoTitle);
         
-        // Check if promo exists and is still valid
         if (matchedPromo) {
           const now = new Date();
           const start = matchedPromo.validFrom ? new Date(matchedPromo.validFrom) : null;
           const end = matchedPromo.validUntil ? new Date(matchedPromo.validUntil) : null;
           
-          // If promo is expired, clear it
           if (start && end && (now < start || now > end)) {
             console.log('Promo expired, clearing:', matchedPromo.title);
             matchedPromoId = '';
@@ -273,14 +254,13 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
             matchedPromoId = matchedPromo._id;
           }
         } else {
-          // Promo not found in database, clear it
+          
           matchedPromoId = '';
           promoTitle = '';
           discountType = '';
         }
       }
       
-      // Reset edit data to the new booking with promo fields mapped
       setEditData({
         ...booking,
         promoId: matchedPromoId,
@@ -288,7 +268,6 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
         discountType: discountType
       });
       
-      // Initialize payment details from booking data
       setPaymentDetails(prev => ({
         ...prev,
         modeOfPayment: booking.paymentMode || '',
@@ -298,7 +277,6 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
         finalTotal: booking.totalPrice || 0
       }));
 
-      // Initialize payment details form if booking has payment details
       if (booking.paymentDetails) {
         setPaymentDetailsForm({
           paymentStatus: booking.paymentDetails.paymentStatus || '',
@@ -310,7 +288,7 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
         });
         setPaymentProofPreview(booking.paymentDetails.paymentProof || '');
       } else {
-        // Reset payment details form if no payment details exist
+        
         setPaymentDetailsForm({
           paymentStatus: '',
           amountPaid: '',
@@ -322,10 +300,8 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
         setPaymentProofPreview('');
       }
       
-      // Reset venue dropdown
       setVenueDropdown({ province: '', city: '', barangay: '' });
       
-      // Initialize selected supplier IDs from booking
       if (booking.suppliers && Array.isArray(booking.suppliers)) {
         const supplierIds = booking.suppliers.map(s => typeof s === 'string' ? s : s._id).filter(Boolean);
         setSelectedSupplierIds(supplierIds);
@@ -335,9 +311,8 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
     }
   }, [booking, promos]);
 
-  // Fetch all suppliers and categories when component mounts
   React.useEffect(() => {
-    // Fetch suppliers
+    
     fetch('/api/admin/suppliers/approved')
       .then(res => res.json())
       .then(data => {
@@ -346,7 +321,6 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
       })
       .catch(err => console.error('Failed to fetch suppliers:', err));
     
-    // Fetch categories
     fetch('/api/categories')
       .then(res => res.json())
       .then(data => {
@@ -356,16 +330,14 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
       .catch(err => console.error('Failed to fetch categories:', err));
   }, []);
 
-  // Update supplier availability status whenever booking or allSuppliers changes
   React.useEffect(() => {
     if (booking && booking.suppliers && allSuppliers.length > 0 && editData.suppliers && editData.suppliers.length > 0) {
       console.log('Updating supplier availability...');
       console.log('Current editData.suppliers:', editData.suppliers);
       console.log('Available suppliers:', allSuppliers);
       
-      // Update editData suppliers with current availability from allSuppliers
       const updatedSuppliers = editData.suppliers.map(bookingSupplier => {
-        // Try multiple matching strategies
+        
         const currentSupplier = allSuppliers.find(s => 
           s._id === bookingSupplier._id || 
           s._id === bookingSupplier.supplierId ||
@@ -394,7 +366,6 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
     }
   }, [booking, allSuppliers, editData.suppliers]);
 
-  // Handle payment proof file upload
   const handlePaymentProofUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -408,7 +379,6 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
     }
   };
 
-  // Remove payment proof
   const handleRemovePaymentProof = () => {
     setPaymentProofPreview('');
     setPaymentDetailsForm(prev => ({ ...prev, paymentProof: '' }));
@@ -417,14 +387,12 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
     }
   };
 
-  // Effect to log state changes (for debugging)
   React.useEffect(() => {
     console.log('Current editData:', editData);
     console.log('Is editing:', isEditing);
     console.log('Formatted date for input:', formatDateForInput(editData.date));
   }, [editData, isEditing]);
 
-  // Auto-recalculate total price when products change
   React.useEffect(() => {
     if (isEditing && editData.products) {
       const totals = calculateTotal(editData.products, null, editData.discountType || '');
@@ -437,7 +405,6 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
     }
   }, [editData.products?.length, isEditing]);
 
-  // Load cities when province changes
   React.useEffect(() => {
     if (venueDropdown.province) {
       setLoading(l => ({ ...l, cities: true }));
@@ -451,7 +418,6 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
     }
   }, [venueDropdown.province]);
 
-  // Load barangays when city changes
   React.useEffect(() => {
     if (venueDropdown.city) {
       setLoading(l => ({ ...l, barangays: true }));
@@ -464,19 +430,17 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
     }
   }, [venueDropdown.city]);
 
-  // Parse and set initial venue data when editing starts
   React.useEffect(() => {
     if (isEditing && editData.eventVenue) {
-      // Try to parse venue string: "Barangay, City/Municipality, Province"
+      
       const parts = editData.eventVenue.split(',').map(s => s.trim());
       
       if (parts.length >= 3) {
-        // First, find the province
+        
         const province = provinces.find(p => p.name === parts[2]);
         if (province) {
           setVenueDropdown(prev => ({ ...prev, province: province.code }));
           
-          // Load cities for this province
           fetch(`${PSGC_API}/provinces/${province.code}/cities-municipalities/`)
             .then(res => res.json())
             .then(cityData => {
@@ -485,7 +449,6 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
               if (city) {
                 setVenueDropdown(prev => ({ ...prev, city: city.code }));
                 
-                // Load barangays for this city
                 fetch(`${PSGC_API}/cities-municipalities/${city.code}/barangays/`)
                   .then(res => res.json())
                   .then(barangayData => {
@@ -502,17 +465,14 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
     }
   }, [isEditing, editData.eventVenue, provinces]);
 
-  // Handle dropdown changes
   const handleVenueChange = (field) => (e) => {
     const value = e.target.value;
     setVenueDropdown(prev => ({ ...prev, [field]: value }));
     
-    // Get the display names for the selected values
     const province = provinces.find(p => p.code === venueDropdown.province)?.name || venueDropdown.province;
     const city = cities.find(c => c.code === venueDropdown.city)?.name || venueDropdown.city;
     const barangay = barangays.find(b => b.code === value)?.name || value;
 
-    // Update eventVenue string in editData based on what's selected
     let parts = [];
     if (field === 'province') {
       const provinceName = provinces.find(p => p.code === value)?.name || value;
@@ -534,17 +494,16 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
   };
 
   const calculateTotal = (products, additionals, discountType) => {
-    // Calculate products total
+    
     const productsTotal = products?.reduce((sum, item) => sum + (Number(item.price) || 0), 0) || 0;
     
-    // Calculate additionals total
     const additionalsTotal = products?.reduce((sum, product) => {
       const productAdditionals = product.__cart_additionals || product.additionals || [];
       return sum + productAdditionals.reduce((addSum, add) => addSum + (Number(add.price) || 0), 0);
     }, 0) || 0;
 
     const subTotal = productsTotal + additionalsTotal;
-    // Parse discount percentage from discountType (supports any percentage value)
+    
     const discountPercentage = discountType ? (Number(discountType) / 100) : 0;
     const discountAmount = subTotal * discountPercentage;
     const finalTotal = subTotal - discountAmount;
@@ -572,22 +531,18 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
     setShowPaymentModal(false);
   };
 
-  // Helper to parse date considering different formats
   const parseDateString = (dateStr) => {
     if (!dateStr) return null;
     
-    // If the date is already in DD/MM/YYYY format
     if (dateStr.includes('/')) {
       const [day, month, year] = dateStr.split('/').map(Number);
-      // Note: month - 1 because JavaScript months are 0-based
+      
       return new Date(year, month - 1, day, 12, 0, 0);
     }
     
-    // For ISO format or other formats, use standard parsing
     return new Date(dateStr);
   };
 
-  // Helper for date formatting to ensure consistent DD/MM/YYYY format
   const formatDate = (date) => {
     if (!date) return '';
     const d = parseDateString(date);
@@ -599,7 +554,6 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
     return `${day}/${month}/${year}`;
   };
 
-  // Helper to format date for input type="date" (YYYY-MM-DD)
   const formatDateForInput = (date) => {
     if (!date) return '';
     const d = parseDateString(date);
@@ -625,12 +579,12 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
       if (response.status === 200) {
         alert('Payment details saved successfully!');
         setShowPaymentDetailsModal(false);
-        // Update the local state
+        
         setEditData(prev => ({
           ...prev,
           paymentDetails: paymentDetailsForm
         }));
-        // Notify parent to refresh
+        
         if (onSave) onSave();
       }
     } catch (err) {
@@ -641,25 +595,24 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
 
   const handleSave = async () => {
     try {
-      // Ensure we have an ID to work with
+      
       const bookingId = editData._id || editData.id;
       if (!bookingId) {
         throw new Error('No booking ID found');
       }
 
-      // Parse and format the date properly without timezone issues
       let formattedDate;
       if (editData.date) {
-        // If date is in DD/MM/YYYY format, convert to YYYY-MM-DD (no timezone conversion)
+        
         if (editData.date.includes('/')) {
           const [day, month, year] = editData.date.split('/').map(Number);
-          // Store as YYYY-MM-DD string to avoid timezone issues
+          
           formattedDate = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
         } else if (editData.date.includes('-')) {
-          // Already in YYYY-MM-DD format
+          
           formattedDate = editData.date;
         } else {
-          // Try to parse and convert to YYYY-MM-DD
+          
           const dateObj = new Date(editData.date);
           if (!isNaN(dateObj)) {
             const year = dateObj.getFullYear();
@@ -670,10 +623,8 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
         }
       }
 
-      // Recalculate totals based on current products and discount
       const totals = calculateTotal(editData.products, null, editData.discountType || '');
 
-      // Prepare the data for saving
       const dataToSave = {
         ...editData,
         eventVenue: editData.eventVenue || `${editData.barangayValue || ''}, ${editData.cityValue || ''}, ${editData.provinceValue || ''}`.trim(),
@@ -683,16 +634,16 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
         branchLocation: editData.branchLocation || '',
         theme: editData.theme || '',
         date: formattedDate || editData.date,
-        // Payment related fields
+        
         paymentMode: editData.paymentMode || '',
         discountType: editData.discountType ? editData.discountType : '',
         discount: totals.discount || 0,
         subTotal: totals.subTotal || 0,
         totalPrice: totals.finalTotal || 0,
-        // Promo fields - explicitly set empty strings to clear database fields
+        
         promoId: editData.promoId ? editData.promoId : '',
         promoTitle: editData.promoTitle ? editData.promoTitle : '',
-        // Ensure other fields have fallback values
+        
         name: editData.name || '',
         contact: editData.contact || '',
         email: editData.email || '',
@@ -702,7 +653,7 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
         suppliers: editData.suppliers || [],
         specialRequest: editData.specialRequest || '',
         outsidePH: editData.outsidePH || '',
-        contractPicture: editData.contractPicture || '' // Always include contractPicture
+        contractPicture: editData.contractPicture || '' 
       };
 
       console.log('Saving booking:', dataToSave);
@@ -718,25 +669,23 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
       if (response.ok) {
         const updatedBooking = await response.json();
         
-        // Deep merge the updated data with current state
         const mergedData = {
           ...editData,
           ...updatedBooking,
-          // Preserve payment-related data
+          
           paymentMode: dataToSave.paymentMode,
           discountType: dataToSave.discountType,
           discount: dataToSave.discount,
           subTotal: dataToSave.subTotal,
           totalPrice: dataToSave.totalPrice,
-          // Preserve promo fields (use what we sent, not what came back)
+          
           promoId: dataToSave.promoId,
           promoTitle: dataToSave.promoTitle,
-          // Preserve other important data
+          
           eventVenue: updatedBooking.eventVenue || editData.eventVenue,
           products: updatedBooking.products || editData.products,
         };
 
-        // Update payment details state
         setPaymentDetails(prev => ({
           ...prev,
           modeOfPayment: mergedData.paymentMode,
@@ -746,16 +695,12 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
           finalTotal: mergedData.totalPrice
         }));
 
-        // Update our local state
         setEditData(mergedData);
         
-        // Exit edit mode
         setIsEditing(false);
 
-        // Notify parent to refresh
         if (onSave) onSave();
 
-        // Show success message
         alert('Changes saved successfully!');
       } else {
         const errorData = await response.json().catch(() => null);
@@ -805,7 +750,7 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
       </DialogTitle>
       <DialogContent dividers>
   <div style={{ padding: 32, background: 'linear-gradient(135deg, #ffffffff 0%, #ffffffff 100%)', borderRadius: 24, minWidth: 900 }}>
-          {/* Reference Number Display (if exists) */}
+          {}
           {booking?.referenceNumber && (
             <div style={{ 
               background: 'linear-gradient(90deg, #3b82f6 0%, #2563eb 100%)', 
@@ -832,7 +777,7 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
               </span>
             </div>
           )}
-          {/* Booker & Event Info */}
+          {}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 48, marginBottom: 40, background: '#fedb71', borderRadius: 18, boxShadow: '0 4px 24px rgba(0,0,0,0.10)', padding: 32, minWidth: 800 }}>
             <div style={{ minWidth: 320, flex: 2 }}>
               {isEditing ? (
@@ -874,17 +819,17 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
                           discount = totals.discount;
                           totalPrice = totals.finalTotal;
                         } else {
-                          // If no promo, recalculate with no discount and clear all promo fields
+                          
                           const totals = calculateTotal(editData.products, null, '');
                           discount = totals.discount;
                           totalPrice = totals.finalTotal;
-                          discountType = ''; // Explicitly clear
+                          discountType = ''; 
                         }
                         setEditData(prev => ({
                           ...prev,
-                          promoId: promoId || '', // Ensure empty string, not undefined
+                          promoId: promoId || '', 
                           promoTitle: selectedPromo ? selectedPromo.title : '',
-                          discountType: discountType || '', // Ensure empty string
+                          discountType: discountType || '', 
                           discount,
                           totalPrice
                         }));
@@ -1075,7 +1020,7 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
               )}
             </div>
           </div>
-          {/* Assigned Suppliers Section */}
+          {}
           <div style={{ marginBottom: 40, background: '#fff3cd', borderRadius: 12, padding: 20, border: '2px solid #F3C13A' }}>
             <div style={{ fontWeight: 800, fontSize: 19, marginBottom: 14, color: '#222', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               Assigned Suppliers
@@ -1088,7 +1033,7 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
 
             {isEditing ? (
               <>
-                {/* Add Supplier Section in Edit Mode - Mobile Friendly Checkboxes */}
+                {}
                 <div style={{ marginBottom: 20 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                     <label style={{ fontWeight: 600, fontSize: 15, color: '#222' }}>
@@ -1126,7 +1071,7 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
                   }}>
                     {allSuppliers
                       .filter(supplier => {
-                        // Filter by branch location
+                        
                         if (!editData.branchLocation) return true;
                         if (!supplier.branchContacts || supplier.branchContacts.length === 0) return false;
                         const branchMatch = supplier.branchContacts.some(branch => 
@@ -1134,7 +1079,6 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
                         );
                         if (!branchMatch) return false;
                         
-                        // Filter by category
                         if (supplierCategoryFilter === 'all') return true;
                         if (!supplier.categories || supplier.categories.length === 0) return false;
                         return supplier.categories.some(cat => {
@@ -1175,15 +1119,15 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
                               let newSelectedIds;
                               
                               if (isChecked) {
-                                // Add supplier
+                                
                                 newSelectedIds = [...selectedSupplierIds, supplier._id];
                               } else {
-                                // Remove supplier
+                                
                                 newSelectedIds = selectedSupplierIds.filter(id => id !== supplier._id);
                               }
                               
                               setSelectedSupplierIds(newSelectedIds);
-                              // Update editData.suppliers with full supplier objects
+                              
                               const selectedSuppliers = allSuppliers.filter(s => newSelectedIds.includes(s._id));
                               setEditData(prev => ({ ...prev, suppliers: selectedSuppliers }));
                             }}
@@ -1228,7 +1172,6 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
                     );
                     if (!branchMatch) return false;
                     
-                    // Filter by category
                     if (supplierCategoryFilter === 'all') return true;
                     if (!supplier.categories || supplier.categories.length === 0) return false;
                     return supplier.categories.some(cat => {
@@ -1245,7 +1188,7 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
                   )}
                 </div>
 
-                {/* Display selected suppliers with remove button */}
+                {}
                 {editData.suppliers && editData.suppliers.length > 0 ? (
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
                     {editData.suppliers.map((supplier, idx) => (
@@ -1318,7 +1261,7 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
                 )}
               </>
             ) : (
-              /* View Mode - Show suppliers without edit controls */
+              
               editData.suppliers && editData.suppliers.length > 0 ? (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
                   {editData.suppliers.map((supplier, idx) => (
@@ -1367,7 +1310,7 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
             )}
           </div>
 
-          {/* Services and Products Availed */}
+          {}
           <div style={{ marginBottom: 40 }}>
             <div style={{ fontWeight: 800, fontSize: 19, marginBottom: 14, color: '#222', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               Services and Products Availed
@@ -1423,7 +1366,7 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
               <div style={{ color: '#fedb71', marginBottom: 16, fontSize: 15 }}>No products/services selected.</div>
             )}
           </div>
-          {/* Selected Additionals (admin view) */}
+          {}
           <div style={{ marginBottom: 24 }}>
             <div style={{ fontWeight: 800, fontSize: 17, marginBottom: 12, color: '#222' }}>Selected Additionals</div>
             {editData.products && editData.products.length > 0 ? (
@@ -1449,7 +1392,7 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
               <div style={{ color: '#222' }}>No additionals selected.</div>
             )}
           </div>
-          {/* Special Request */}
+          {}
           <div style={{ marginBottom: 18 }}>
             <div style={{ fontWeight: 800, fontSize: 17, marginBottom: 10, color: '#222' }}>Special Request</div>
             {isEditing ? (
@@ -1464,7 +1407,7 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
             )}
           </div>
 
-          {/* Payment Information Section (Read-Only for Admin) */}
+          {}
           <div style={{ marginBottom: 24 }}>
             <div style={{ fontWeight: 800, fontSize: 18, marginBottom: 16, color: '#222', display: 'flex', alignItems: 'center', gap: 8 }}>
               💳 Payment Information
@@ -1589,7 +1532,7 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
             )}
           </div>
 
-          {/* Contract Picture Upload (optional) */}
+          {}
           <div style={{ marginBottom: 24 }}>
             <div style={{ fontWeight: 800, fontSize: 17, marginBottom: 12, color: '#222', display: 'flex', alignItems: 'center', gap: 12 }}>
               Contract Picture (optional)
@@ -1667,14 +1610,14 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
             )}
           </div>
 
-          {/* Edit/Save/Cancel Buttons */}
+          {}
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16, gap: 12, alignItems: 'center' }}>
             {isEditing ? (
               <>
                 <button 
                   onClick={() => {
                     setIsEditing(false);
-                    // Reset with proper promoId matching
+                    
                     let matchedPromoId = booking.promoId || '';
                     if (booking.promoTitle && !booking.promoId && promos.length > 0) {
                       const matchedPromo = promos.find(p => p.title === booking.promoTitle);
@@ -1701,7 +1644,7 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
                 >
                   Cancel
                 </button>
-                {/* Removed Add Payment Details button since it's integrated in edit mode */}
+                {}
                 {false && (
                   <Dialog
                     open={showPaymentModal}
@@ -1858,7 +1801,7 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
                   </Dialog>
                 )}
                 
-                {/* Payment Details Modal */}
+                {}
                 <Dialog
                   open={showPaymentDetailsModal}
                   onClose={() => setShowPaymentDetailsModal(false)}
@@ -1899,7 +1842,7 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
                   </DialogTitle>
                   <DialogContent dividers>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginTop: 16 }}>
-                      {/* Payment Status */}
+                      {}
                       <div>
                         <label style={{ fontWeight: 700, marginBottom: 8, display: 'block', color: '#222' }}>
                           Payment Status <span style={{ color: '#e53935' }}>*</span>
@@ -1924,7 +1867,7 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
                         </select>
                       </div>
 
-                      {/* Amount Paid */}
+                      {}
                       <div>
                         <label style={{ fontWeight: 700, marginBottom: 8, display: 'block', color: '#222' }}>
                           Amount Paid (PHP) <span style={{ color: '#e53935' }}>*</span>
@@ -1951,7 +1894,7 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
                         )}
                       </div>
 
-                      {/* Payment Date */}
+                      {}
                       <div>
                         <label style={{ fontWeight: 700, marginBottom: 8, display: 'block', color: '#222' }}>
                           Payment Date <span style={{ color: '#e53935' }}>*</span>
@@ -1972,7 +1915,7 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
                         />
                       </div>
 
-                      {/* Transaction Reference */}
+                      {}
                       <div>
                         <label style={{ fontWeight: 700, marginBottom: 8, display: 'block', color: '#222' }}>
                           Transaction Reference Number
@@ -1994,7 +1937,7 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
                         />
                       </div>
 
-                      {/* Payment Proof Upload */}
+                      {}
                       <div>
                         <label style={{ fontWeight: 700, marginBottom: 8, display: 'block', color: '#222' }}>
                           Payment Proof (Receipt/Screenshot)
@@ -2069,7 +2012,7 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
                         </div>
                       </div>
 
-                      {/* Payment Notes */}
+                      {}
                       <div>
                         <label style={{ fontWeight: 700, marginBottom: 8, display: 'block', color: '#222' }}>
                           Additional Notes
@@ -2093,7 +2036,7 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
                         />
                       </div>
 
-                      {/* Display current payment details if exists */}
+                      {}
                       {editData.paymentDetails && (
                         <div style={{ 
                           background: '#f5f5f5', 
@@ -2191,7 +2134,7 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
         </div>
       </DialogContent>
 
-      {/* Product Search Modal */}
+      {}
       <Dialog open={showProductSearch} onClose={() => { setShowProductSearch(false); setSelectedCategory(null); setProductSearchTerm(''); }} maxWidth="lg" fullWidth>
         <DialogTitle style={{ background: '#F3C13A', color: '#222', fontWeight: 700 }}>
           {selectedCategory ? `${selectedCategory.title || 'Products'} - Products & Services` : 'Select Category'}
@@ -2201,7 +2144,7 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
         </DialogTitle>
         <DialogContent style={{ padding: 24, background: '#fafafa', minHeight: 500 }}>
           {!selectedCategory ? (
-            /* Category Selection - Grid Layout */
+            
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 20 }}>
               {categories.map((category) => {
                 console.log('Rendering category:', category);
@@ -2250,7 +2193,7 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
               })}
             </div>
           ) : (
-            /* Product Selection - Grid Layout */
+            
             <>
               <div style={{ marginBottom: 20, display: 'flex', gap: 12, alignItems: 'center' }}>
                 <button
@@ -2350,7 +2293,7 @@ export default function BookingDescription({ open, onClose, booking, onSave }) {
         </DialogContent>
       </Dialog>
 
-      {/* Product Detail Modal */}
+      {}
       <Dialog open={!!selectedProductDetail} onClose={() => setSelectedProductDetail(null)} maxWidth="sm" fullWidth>
         <DialogTitle style={{ background: '#F3C13A', color: '#222', fontWeight: 700 }}>
           Product/Service Details

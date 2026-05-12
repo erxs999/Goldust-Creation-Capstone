@@ -9,7 +9,7 @@ function formatDate(dateStr) {
 }
 
 export default function AdminAppointment() {
-    // Handle deleting appointment
+    
     async function handleDelete(id) {
       try {
         const res = await fetch(`/api/appointments/${id}`, {
@@ -25,7 +25,6 @@ export default function AdminAppointment() {
   const [filter, setFilter] = useState("upcoming");
   const [branchFilter, setBranchFilter] = useState("all");
 
-  // Handle marking appointment as finished
   async function handleDone(id) {
     try {
       const res = await fetch(`/api/appointments/${id}/status`, {
@@ -56,7 +55,6 @@ export default function AdminAppointment() {
     fetchAppointments();
   }, []);
 
-  // Split appointments
   const now = dayjs();
   let upcoming = appointments.filter(
     a => a.status === 'upcoming' && dayjs(a.date).isAfter(now) || dayjs(a.date).isSame(now, 'day')
@@ -65,7 +63,6 @@ export default function AdminAppointment() {
     a => a.status === 'finished' || (dayjs(a.date).isBefore(now, 'day') && a.status !== 'upcoming')
   );
 
-  // Filter by branch
   const branchMatch = (branch) => {
     if (branchFilter === 'all') return true;
     const b = (branch || '').toLowerCase();
@@ -78,7 +75,6 @@ export default function AdminAppointment() {
   upcoming = upcoming.filter(a => branchMatch(a.branchLocation));
   finished = finished.filter(a => branchMatch(a.branchLocation));
 
-  // NEW: determine which list to show
   const visibleAppointments = filter === "upcoming" ? upcoming : finished;
 
   return (
@@ -88,7 +84,7 @@ export default function AdminAppointment() {
         <div className="admin-appointment-root">
           <h2 className="admin-appointment-title">Appointments</h2>
 
-          {/* NEW FILTER BUTTONS */}
+          {}
           <div className="admin-appointment-filter" style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
             <button
               className={`filter-btn ${filter === "upcoming" ? "active" : ""}`}

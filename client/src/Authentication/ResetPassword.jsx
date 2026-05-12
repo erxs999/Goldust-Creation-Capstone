@@ -24,7 +24,6 @@ function ResetPassword() {
     e.preventDefault();
     setError('');
 
-    // Validate passwords
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;

@@ -1,18 +1,14 @@
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 
-// Configure email transporter (reusing existing email service configuration)
 const { transporter } = require('./emailService');
 
-// Generate a random 6-digit code
 function generateMFACode() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// Store MFA codes with expiration (5 minutes)
 const mfaCodes = new Map();
 
-// Debug function to check stored codes
 function getStoredCode(email) {
     const data = mfaCodes.get(email);
     if (!data) return 'No code stored';
@@ -22,7 +18,6 @@ function getStoredCode(email) {
     };
 }
 
-// Generate and send MFA code
 async function sendMFACode(email) {
     if (!email) {
         throw new Error('Email is required to send MFA code');
@@ -31,15 +26,13 @@ async function sendMFACode(email) {
     const code = generateMFACode();
     console.log('Generated MFA code for:', email, 'Code:', code);
     
-    // Store code with expiration
     mfaCodes.set(email, {
         code,
-        expiry: Date.now() + 5 * 60 * 1000 // 5 minutes
+        expiry: Date.now() + 5 * 60 * 1000 
     });
     
     console.log('Stored code info:', getStoredCode(email));
 
-    // Email content
     const mailOptions = {
         from: process.env.EMAIL_USER || 'truegoldustcreation@gmail.com',
         to: email,
@@ -54,7 +47,7 @@ async function sendMFACode(email) {
     };
 
     try {
-        // Send email
+        
         await transporter.sendMail(mailOptions);
         console.log('MFA code sent successfully to:', email);
         return true;
@@ -64,7 +57,6 @@ async function sendMFACode(email) {
     }
 }
 
-// Verify MFA code
 function verifyMFACode(email, code) {
     console.log('Verifying code for:', email);
     console.log('Received code:', code);
@@ -88,7 +80,6 @@ function verifyMFACode(email, code) {
         return false;
     }
 
-    // Code is valid - clean up
     console.log('Code verified successfully for:', email);
     mfaCodes.delete(email);
     return true;

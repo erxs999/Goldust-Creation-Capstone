@@ -14,29 +14,25 @@ import { useLocation } from 'react-router-dom';
 import TopBar from './TopBar';
 import { API_BASE_URL } from '../utils/apiConfig';
 
-
 const API_BASE = API_BASE_URL;
 
 const CART_LOCAL_KEY = 'gd_event_cart';
 
 export default function PnSDetails() {
-  // Add to cart handler
-  // Additionals modal state
+  
   const [additionalsOpen, setAdditionalsOpen] = useState(false);
-  const [additionalsList, setAdditionalsList] = useState([]); // fetched additionals
+  const [additionalsList, setAdditionalsList] = useState([]); 
   const [selectedAdditionals, setSelectedAdditionals] = useState([]);
   const [pendingProduct, setPendingProduct] = useState(null);
 
-  // Open additionals modal when user clicks add to cart
   async function handleAddToCart(product) {
-    // Check if product is available
+    
     if (product.available === false) {
       alert('This product/service is currently unavailable and cannot be added to cart.');
       return;
     }
     setPendingProduct(product);
-    // Fetch additionals for this product (simulate or from API)
-    // For demo, assume product.additionals or fetch from API
+    
     let additionals = [];
     if (product && product._id) {
       try {
@@ -46,7 +42,7 @@ export default function PnSDetails() {
         }
       } catch {}
     }
-    // fallback: check if product.additionals exists
+    
     if (!additionals.length && Array.isArray(product.additionals)) {
       additionals = product.additionals;
     }
@@ -55,7 +51,6 @@ export default function PnSDetails() {
     setAdditionalsOpen(true);
   }
 
-  // Actually add to cart with additionals
   async function confirmAddToCart() {
     let userEmail = null;
     try {
@@ -76,16 +71,16 @@ export default function PnSDetails() {
         setAdditionalsOpen(false);
         return;
       }
-      // Remove additionals from product if present, send as top-level field
+      
       const { additionals, ...productWithoutAdditionals } = pendingProduct || {};
       await fetch(`${API_BASE}/cart`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ product: productWithoutAdditionals, userEmail, additionals: selectedAdditionals })
       });
-      // Optionally show a success message
+      
     } catch (err) {
-      // Optionally show an error message
+      
     }
     setAdditionalsOpen(false);
   }
@@ -106,22 +101,22 @@ export default function PnSDetails() {
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
-    // Try to get category from location.state or from query param
+    
     let cat = '';
     let categoryProducts = [];
     if (location.state && location.state.category) {
       cat = location.state.category.title || '';
-      // Use the filtered products passed from Home.jsx (already filtered by branch)
+      
       categoryProducts = location.state.category.products || [];
       setCategoryTitle(cat);
       setProducts(Array.isArray(categoryProducts) ? categoryProducts : []);
     } else {
-      // fallback: try to get from URL (e.g. /pns-details?category=we)
+      
       const params = new URLSearchParams(window.location.search);
       cat = params.get('category') || '';
       setCategoryTitle(cat);
       if (cat) {
-        // Fetch products for this category from API (no branch filter applied)
+        
         fetch(`${API_BASE}/products/${encodeURIComponent(cat)}`)
           .then(res => res.json())
           .then(data => setProducts(Array.isArray(data) ? data : []))
@@ -226,7 +221,7 @@ export default function PnSDetails() {
                             PHP {prod.price}
                           </div>
                         )}
-                        {/* Branch availability indicator */}
+                        {}
                         {prod.branches && prod.branches.length > 0 && (
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
                             {prod.branches.map((branch, branchIdx) => (
@@ -266,7 +261,7 @@ export default function PnSDetails() {
               </div>
             ))}
             <ProductDetailsModal open={modalOpen} onClose={() => setModalOpen(false)} product={selectedProduct} />
-            {/* Additionals Modal */}
+            {}
             <Dialog 
               open={additionalsOpen} 
               onClose={() => setAdditionalsOpen(false)}

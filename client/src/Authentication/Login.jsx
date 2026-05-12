@@ -51,7 +51,7 @@ const Login = () => {
 
   const tryLogin = async (type) => {
     try {
-      // If we have tempUserData and mfaCode, use those for MFA verification
+      
       if (tempUserData && mfaCode) {
         const credentials = {
           email: tempUserData.email,
@@ -100,23 +100,21 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // Validate email format
+      
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(form.emailOrPhone.trim())) {
         throw new Error('Please enter a valid email address');
       }
 
-      // Validate password is not empty
       if (!form.password || form.password.length < 1) {
         throw new Error('Password is required');
       }
 
-      // Check for hardcoded admin credentials
       if (
         form.emailOrPhone === 'truegoldustadmin@gmail.com' &&
         form.password === 'admin123'
       ) {
-        // Save admin info with a token
+        
         localStorage.setItem('user', JSON.stringify({
           email: 'truegoldustadmin@gmail.com',
           role: 'admin',
@@ -129,11 +127,9 @@ const Login = () => {
         return;
       }
 
-      // Get the login type from localStorage or default to customer
       const savedLoginType = localStorage.getItem('lastLoginType') || 'customer';
       console.log('Attempting login as:', savedLoginType);
       
-      // Try the saved type first
       const loginResult = await tryLogin(savedLoginType);
       if (loginResult.success) {
         localStorage.setItem('lastLoginType', savedLoginType);
@@ -142,7 +138,6 @@ const Login = () => {
       }
       if (loginResult.requireMFA) return;
       
-      // If that fails, try the other type
       const otherType = savedLoginType === 'customer' ? 'supplier' : 'customer';
       const otherResult = await tryLogin(otherType);
       if (otherResult.success) {
@@ -152,7 +147,6 @@ const Login = () => {
       }
       if (otherResult.requireMFA) return;
 
-      // If both failed and no MFA required, show error
       throw new Error('Invalid email or password. Please check your credentials and try again.');
     } catch (err) {
       setError(err.message || "Login failed. Please try again.");

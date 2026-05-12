@@ -1,7 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import './config.js' // Initialize API configuration before app loads
+import './config.js' 
 import App from './App.jsx'
 
 createRoot(document.getElementById('root')).render(

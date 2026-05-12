@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-// Use environment variable for API URL, fallback to relative path for dev
 const API_BASE = import.meta.env.VITE_API_URL || '';
 const API_URL = API_BASE ? `${API_BASE}/api` : '/api';
 

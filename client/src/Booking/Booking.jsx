@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import api from '../services/api';
-// PSGC API endpoints
+
 const PSGC_API = 'https://psgc.gitlab.io/api';
 import { useNavigate } from "react-router-dom";
 import "./booking.css";
@@ -31,7 +31,7 @@ const Booking = () => {
     branchLocation: '',
     theme: '',
     specialRequest: '',
-    products: [], // will hold selected products/services
+    products: [], 
     guestCount: '',
     totalPrice: '',
     province: '',
@@ -46,14 +46,12 @@ const Booking = () => {
   const [bookingsPerDay, setBookingsPerDay] = useState({});
   const [eventTypes, setEventTypes] = useState([]);
   
-  // Goldust Creation branch locations
   const BRANCH_LOCATIONS = [
     { value: 'Sta. Fe, Nueva Vizcaya', label: 'Sta. Fe, Nueva Vizcaya' },
     { value: 'La Trinidad, Benguet', label: 'La Trinidad, Benguet' },
     { value: 'Maddela, Quirino', label: 'Maddela, Quirino' }
   ];
   
-  // Limited provinces for Goldust branches
   const [provinces] = useState([
     { code: '025000000', name: 'Nueva Vizcaya' },
     { code: '141100000', name: 'Benguet' },
@@ -63,11 +61,10 @@ const Booking = () => {
   const [barangays, setBarangays] = useState([]);
   const [loading, setLoading] = useState({ cities: false, barangays: false });
 
-  // Fetch event types from API on mount
   useEffect(() => {
     api.get('/event-types')
       .then(res => {
-        // Map to array of names (strings)
+        
         const types = Array.isArray(res.data)
           ? res.data.map(e => typeof e === 'string' ? e : e.name)
           : [];
@@ -76,7 +73,6 @@ const Booking = () => {
       .catch(() => setEventTypes([]));
   }, []);
   
-  // Helper to check promo status
   const isPromoActive = (promo) => {
     const now = dayjs();
     const start = promo.validFrom ? dayjs(promo.validFrom) : null;
@@ -84,14 +80,12 @@ const Booking = () => {
     return start && end && now.isAfter(start) && now.isBefore(end.add(1, 'day'));
   };
   
-  // Fetch promos on mount
   useEffect(() => {
     api.get('/promos')
       .then(res => setPromos(res.data))
       .catch(() => setPromos([]));
   }, []);
   
-  // Fetch only active bookings (pending and approved) to count bookings per day
   useEffect(() => {
     const fetchBookings = async () => {
       try {
@@ -100,7 +94,6 @@ const Booking = () => {
           fetch('/api/bookings/approved').then(r => r.json())
         ]);
         
-        // Only count pending and approved bookings, not finished ones
         const activeBookings = [...pending, ...approved];
         const countByDate = {};
         
@@ -120,8 +113,6 @@ const Booking = () => {
     fetchBookings();
   }, []);
 
-
-  // Load cities/municipalities when province changes
   useEffect(() => {
     if (form.province) {
       setLoading(l => ({ ...l, cities: true }));
@@ -138,7 +129,6 @@ const Booking = () => {
     }
   }, [form.province]);
 
-  // Load barangays when city changes
   useEffect(() => {
     if (form.city) {
       setLoading(l => ({ ...l, barangays: true }));
@@ -153,9 +143,8 @@ const Booking = () => {
     }
   }, [form.city]);
 
-  // On mount, load selected products/services from backend cart (with userEmail)
   React.useEffect(() => {
-    // Get userEmail from localStorage user object (same as cart logic)
+    
     let userEmail = null;
     try {
       const user = JSON.parse(localStorage.getItem('user'));
@@ -168,9 +157,9 @@ const Booking = () => {
     fetch(`/api/cart?userEmail=${encodeURIComponent(userEmail)}`)
       .then(res => res.json())
       .then(data => {
-        // include additionals from cart items along with product
+        
         const products = Array.isArray(data) ? data.map(item => {
-          // item.product is the base product, item.additionals may exist
+          
           return { ...(item.product || {}), __cart_additionals: Array.isArray(item.additionals) ? item.additionals : [] };
         }) : [];
         setForm(f => ({ ...f, products }));
@@ -179,11 +168,6 @@ const Booking = () => {
   }, []);
   const navigate = useNavigate();
 
-  // TODO: Wire up form state to inputs if needed
-
-
-
-  // Compute total price from products and promo
   const computeTotalPrice = () => {
     if (!form.products || !Array.isArray(form.products)) return 0;
     let sum = form.products.reduce((sum, item) => {
@@ -200,19 +184,15 @@ const Booking = () => {
     return Math.round(sum);
   };
 
-
-
-  // Get event venue as a string from selected location
   const getEventVenue = () => {
-    // Find names from codes
+    
     const provinceName = provinces.find(p => p.code === form.province)?.name || '';
     const cityName = cities.find(c => c.code === form.city)?.name || '';
     const barangayName = barangays.find(b => b.code === form.barangay)?.name || '';
-    // Only show non-empty parts
+    
     return [barangayName, cityName, provinceName].filter(Boolean).join(', ');
   };
 
-  // Validation: required fields
   const isFormValid = () => {
     return (
       form.date &&
@@ -238,7 +218,7 @@ const Booking = () => {
     });
     
     if (!isFormValid()) {
-      // Show which fields are missing
+      
       const missing = [];
       if (!form.date) missing.push('Date');
       if (!form.province) missing.push('Province');
@@ -252,7 +232,6 @@ const Booking = () => {
       return;
     }
     
-    // Check if any products are unavailable
     const unavailableProducts = form.products.filter(p => p.available === false);
     if (unavailableProducts.length > 0) {
       const productNames = unavailableProducts.map(p => p.title || 'Unknown').join(', ');
@@ -260,7 +239,6 @@ const Booking = () => {
       return;
     }
     
-    // Add computed totalPrice, eventVenue, and promo info to booking object
     const promo = promos.find(p => p._id === selectedPromoId);
     const booking = {
       ...form,
@@ -293,7 +271,7 @@ const Booking = () => {
                 shouldDisableDate={(date) => {
                   const dateStr = dayjs(date).format('YYYY-MM-DD');
                   const count = bookingsPerDay[dateStr] || 0;
-                  return count >= 4; // Disable if 4 or more bookings on this date
+                  return count >= 4; 
                 }}
                 slotProps={{
                   textField: { fullWidth: true, size: 'small' },
@@ -448,7 +426,7 @@ const Booking = () => {
                 </RadioGroup>
               </FormControl>
             </div>
-            {/* Special Request field moved to services card below */}
+            {}
           </div>
         </div>
         <div className="booking-services-box">
@@ -472,7 +450,7 @@ const Booking = () => {
               </IconButton>
             )}
           </div>
-          {/* Show selected products/services from cart */}
+          {}
           {form.products && form.products.length > 0 ? (
             <div className="booking-products-list">
               {form.products.some(p => p.available === false) && (
@@ -525,11 +503,11 @@ const Booking = () => {
                   </div>
                 ))}
               </div>
-              {/* New: Selected Additionals Section */}
+              {}
               <div className="booking-additionals-section">
                 <div className="booking-additionals-title">Selected Additionals</div>
                 {(() => {
-                  // gather all additionals across products
+                  
                   const allAdds = [];
                   form.products.forEach((p, i) => {
                     if (Array.isArray(p.__cart_additionals) && p.__cart_additionals.length) {
@@ -571,7 +549,7 @@ const Booking = () => {
           </div>
         </div>
       </div>
-      {/* Confirm Button */}
+      {}
       <div className="booking-confirm-row">
         <button
           className={`booking-confirm-btn${isFormValid() ? '' : ' booking-confirm-btn-disabled'}`}

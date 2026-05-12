@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import './sidebar.css';
-// MUI icons
+
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import BookOnlineIcon from '@mui/icons-material/BookOnline';
 import StorefrontIcon from '@mui/icons-material/Storefront';
@@ -18,7 +18,6 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 import CropOriginalIcon from '@mui/icons-material/CropOriginal';
-
 
 const navItems = [
   { label: 'Overview', path: '/admin/dashboard', icon: <DashboardIcon fontSize="small" /> },
@@ -41,7 +40,7 @@ export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   
   const handleLogout = () => {
-    // Clear all auth data
+    
     localStorage.removeItem('user');
     localStorage.removeItem('token');
     localStorage.removeItem('userEmail');

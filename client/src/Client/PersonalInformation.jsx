@@ -37,14 +37,13 @@ const PersonalInformation = () => {
   const [availableEventTypes, setAvailableEventTypes] = React.useState([]);
   const [availableCategories, setAvailableCategories] = React.useState([]);
 
-  // Generic handler for all fields
   const handleChange = (field) => (event) => {
     setUser((prev) => ({ ...prev, [field]: event.target.value }));
   };
 
   const fetchUserProfile = async () => {
     try {
-      // Fetch user profile directly from database
+      
       const response = await users.getProfile();
       console.log('Fetched user profile response:', response);
       
@@ -53,7 +52,6 @@ const PersonalInformation = () => {
         console.log('User data from database:', userData);
         console.log('isAvailable value:', userData.isAvailable, 'Type:', typeof userData.isAvailable);
         
-        // Determine user role - if they have companyName, they're a supplier
         const userRole = userData.role || (userData.companyName ? 'supplier' : 'customer');
         
         const newUserState = {
@@ -114,7 +112,6 @@ const PersonalInformation = () => {
       
       toast.success(`You are now ${data.isAvailable ? 'available' : 'unavailable'} for bookings`);
       
-      // Refetch profile to ensure data is in sync with database
       await fetchUserProfile();
       console.log('Profile refetched successfully');
     } catch (error) {
@@ -124,13 +121,12 @@ const PersonalInformation = () => {
   };
 
   const handleSubmit = async () => {
-    // Basic validation
+    
     if (!user.firstName || !user.lastName || !user.email || !user.phone) {
       toast.error('Please fill in all required fields');
       return;
     }
 
-    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(user.email)) {
       toast.error('Please enter a valid email address');
@@ -146,7 +142,7 @@ const PersonalInformation = () => {
         phone: user.phone,
         contact: user.contact
       };
-      // Add supplier-specific fields if user has companyName (is a supplier)
+      
       if (user.companyName) {
         updateData.companyName = user.companyName;
         updateData.categories = (user.categories || []).map(cat => {
@@ -162,7 +158,7 @@ const PersonalInformation = () => {
         console.log('Sending event types:', updateData.eventTypes);
         console.log('Sending branch contacts:', updateData.branchContacts);
       } else {
-        // Add customer location fields if user is a customer (no companyName)
+        
         updateData.province = user.location?.province || '';
         updateData.city = user.location?.city || '';
         updateData.barangay = user.location?.barangay || '';
@@ -256,7 +252,7 @@ const PersonalInformation = () => {
   };
 
   React.useEffect(() => {
-    // Fetch available event types and categories, then fetch user profile
+    
     Promise.all([
       fetch('/api/event-types').then(res => res.json()),
       fetch('/api/categories').then(res => res.json())
@@ -264,12 +260,12 @@ const PersonalInformation = () => {
       .then(([eventTypes, categories]) => {
         setAvailableEventTypes(eventTypes);
         setAvailableCategories(categories);
-        // Fetch profile after data is loaded
+        
         fetchUserProfile();
       })
       .catch(err => {
         console.error('Failed to fetch event types or categories:', err);
-        // Still fetch profile even if fetch fails
+        
         fetchUserProfile();
       });
   }, []);
@@ -336,7 +332,7 @@ const PersonalInformation = () => {
                   }} 
                   onClick={() => {
                     setEditMode(false);
-                    fetchUserProfile(); // Reset to original data
+                    fetchUserProfile(); 
                   }}
                 >
                   Cancel
@@ -346,7 +342,7 @@ const PersonalInformation = () => {
           </div>
         </div>
 
-        {/* Availability Toggle for Suppliers */}
+        {}
         {user.role === 'supplier' && (
           <div style={{ 
             background: '#f9f9f9', 
@@ -387,14 +383,14 @@ const PersonalInformation = () => {
         <form className="personal-info-form" noValidate autoComplete="off">
           {!editMode ? (
             <div className="personal-info-fields" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
-              {/* 2-column grid, each row is a grid with 2 columns: label and value */}
+              {}
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: '1fr 1fr',
                 gap: 64,
-                columnGap: '120px' // extra gap between columns
+                columnGap: '120px' 
               }}>
-                {/* Column 1 */}
+                {}
                 <div>
                   <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: 24 }}>
                     <label htmlFor="firstName" className="personal-info-label" style={{ fontWeight: 'bold', fontSize: '1.125rem', textAlign: 'left', minWidth: 180 }}>First Name:</label>
@@ -437,7 +433,7 @@ const PersonalInformation = () => {
                     </div>
                   )}
                 </div>
-                {/* Column 2 */}
+                {}
                 <div>
                   <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: 24 }}>
                     <label htmlFor="middleName" className="personal-info-label" style={{ fontWeight: 'bold', fontSize: '1.125rem', textAlign: 'left', minWidth: 180 }}>Middle Name:</label>
@@ -481,9 +477,9 @@ const PersonalInformation = () => {
                         <span className="personal-info-value" style={{ fontWeight: 'normal', fontSize: '1.125rem', textAlign: 'left', marginLeft: 12 }}>
                           {user.eventTypes && user.eventTypes.length > 0 ? (
                             user.eventTypes.map((et, idx) => {
-                              // Extract the ID from the event type (could be string or object)
+                              
                               const eventTypeId = typeof et === 'string' ? et : (et._id || et);
-                              // Find the matching event type in availableEventTypes
+                              
                               const eventTypeObj = availableEventTypes.find(aet => aet._id === eventTypeId);
                               const eventTypeName = eventTypeObj?.name || (typeof et === 'object' && et.name) || 'Unknown';
                               
@@ -526,7 +522,7 @@ const PersonalInformation = () => {
                       </div>
                     </>
                   )}
-                  {/* Customer Location display */}
+                  {}
                   {user.role === 'customer' && (
                     <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: 24 }}>
                       <label className="personal-info-label" style={{ fontWeight: 'bold', fontSize: '1.125rem', textAlign: 'left', minWidth: 180 }}>Location:</label>
@@ -548,7 +544,7 @@ const PersonalInformation = () => {
                 gap: 64,
                 columnGap: '120px'
               }}>
-                {/* Column 1 */}
+                {}
                 <div>
                   <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: 24 }}>
                     <label htmlFor="firstName" className="personal-info-label" style={{ fontWeight: 'bold', fontSize: '1.125rem', textAlign: 'left', minWidth: 180 }}>First Name:</label>
@@ -820,7 +816,7 @@ const PersonalInformation = () => {
                       </div>
                     </>
                   )}
-                  {/* Customer Location edit */}
+                  {}
                   {user.role === 'customer' && (
                     <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: 24 }}>
                       <label className="personal-info-label" style={{ fontWeight: 'bold', fontSize: '1.125rem', textAlign: 'left', minWidth: 180, paddingTop: '12px' }}>Location:</label>
@@ -834,7 +830,7 @@ const PersonalInformation = () => {
                     </div>
                   )}
                 </div>
-                {/* Column 2 */}
+                {}
                 <div>
                   <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: 24 }}>
                     <label htmlFor="middleName" className="personal-info-label" style={{ fontWeight: 'bold', fontSize: '1.125rem', textAlign: 'left', minWidth: 180 }}>Middle Name:</label>
@@ -915,25 +911,25 @@ const PersonalInformation = () => {
         
         <Divider sx={{ my: 4 }} />
         
-        {/* MFA Settings Section */}
+        {}
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
           <MFASettings />
         </div>
 
-        {/* Password Confirmation Modal */}
+        {}
         <PasswordConfirmationModal
           open={showConfirmationModal}
           onClose={() => setShowConfirmationModal(false)}
           onSuccess={() => {
             setShowConfirmationModal(false);
-            // Set flag to indicate navigation from client profile
+            
             sessionStorage.setItem('fromClientProfile', 'true');
             navigate('/forgot-password');
           }}
           email={user.email}
         />
 
-        {/* Password Verification Modal */}
+        {}
         <Dialog open={verifyPasswordOpen} onClose={handleCloseVerifyModal}>
           <DialogTitle>Verify Password</DialogTitle>
           <DialogContent>

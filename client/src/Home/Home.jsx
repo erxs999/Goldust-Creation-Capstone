@@ -7,9 +7,6 @@ import api from '../services/api';
 
 import Footer from "./Footer";
 
-
-
-
 const Home = () => {
   const [categories, setCategories] = useState([]);
   const [filteredCategories, setFilteredCategories] = useState([]);
@@ -17,14 +14,14 @@ const Home = () => {
   const [branchFilter, setBranchFilter] = useState('all');
   const [bgImages, setBgImages] = useState([]);
   const [bgIndex, setBgIndex] = useState(0);
-  const [reviewIndex, setReviewIndex] = useState(0); // no longer used for scrolling
+  const [reviewIndex, setReviewIndex] = useState(0); 
   const [userReviews, setUserReviews] = useState([]);
   const [eventTypes, setEventTypes] = useState([]);
   const reviewsContainerRef = useRef(null);
   const promosContainerRef = useRef(null);
   const [activePromos, setActivePromos] = useState([]);
   const navigate = useNavigate();
-  // Fetch active promos
+  
   useEffect(() => {
     api.get('/promos')
       .then(res => {
@@ -40,13 +37,12 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    // Fetch reviews from backend
+    
     api.get('/reviews')
       .then(res => setUserReviews(res.data))
       .catch(() => setUserReviews([]));
   }, []);
 
-  // Filter categories by event type and products by branch
   useEffect(() => {
     let filtered = categories;
     if (eventType !== 'all') {
@@ -65,16 +61,15 @@ const Home = () => {
 
   const allReviews = userReviews;
 
-  // Calculate review summary
   const totalReviews = allReviews.length;
   const avgRating = totalReviews > 0 ? (allReviews.reduce((sum, r) => sum + (r.rating || 0), 0) / totalReviews) : 0;
 
   useEffect(() => {
-    // Fetch categories from API
+    
     api.get('/categories')
       .then(async res => {
         const cats = Array.isArray(res.data) ? res.data : [];
-        // Fetch products for each category to check availability
+        
         const catsWithProducts = await Promise.all(
           cats.map(async cat => {
             try {
@@ -89,14 +84,13 @@ const Home = () => {
       })
       .catch(() => setCategories([]));
 
-    // Scroll to services if ?scroll=services is in the URL
     if (window.location.search.includes('scroll=services')) {
       setTimeout(() => {
         const el = document.getElementById('services');
         if (el) el.scrollIntoView({ behavior: 'smooth' });
       }, 100);
     }
-    // Fetch background images from backend
+    
     api.get('/background-images')
       .then(res => {
         const imgs = res.data;
@@ -109,18 +103,16 @@ const Home = () => {
       });
   }, []);
 
-  // Slideshow effect
   React.useEffect(() => {
     if (bgImages.length <= 1) return;
     const interval = setInterval(() => {
       setBgIndex(idx => (idx + 1) % bgImages.length);
-    }, 5000); // 5 seconds
+    }, 5000); 
     return () => clearInterval(interval);
   }, [bgImages]);
 
   const bgImage = bgImages.length > 0 ? bgImages[bgIndex] : null;
 
-  // Fetch event types from DB
   useEffect(() => {
     api.get('/event-types')
       .then(res => setEventTypes(Array.isArray(res.data) ? res.data : []))
@@ -169,7 +161,7 @@ const Home = () => {
           </div>
         )}
       </section>
-      {/* Active Promos Section - moved above Services */}
+      {}
       <section className="home-promos-section" style={{ marginTop: '3.5rem', marginBottom: '2rem' }}>
         <div className="home-promos-header-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <h2 className="home-promos-title" style={{ fontSize: '3rem', fontWeight: 500, textAlign: 'center', margin: 0 }}>Promos</h2>
@@ -283,7 +275,7 @@ const Home = () => {
             Products and Services
           </h2>
         </div>
-        <div style={{ height: '1.5rem' }}></div> {/* Added extra gap between title and filters */}
+        <div style={{ height: '1.5rem' }}></div> {}
         <div className="home-services-filter-row" style={{ marginBottom: '1rem', display: 'flex', gap: '1rem', alignItems: 'center', justifyContent: 'center' }}>
           <label htmlFor="eventType" style={{ marginRight: '0.5rem' }}>Filter by Event:</label>
           <select
@@ -334,7 +326,7 @@ const Home = () => {
                       <div className="home-service-title-overlay">
                         {cat.title}
                       </div>
-                      {/* Overlay for unavailable category - only shows when ALL products are unavailable */}
+                      {}
                       {cat.products && cat.products.length > 0 && cat.products.every(p => p.available === false) && (
                         <div style={{
                           position: 'absolute',
@@ -372,7 +364,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Review Section */}
+      {}
       <section className="home-reviews-section">
         <div className="home-reviews-header-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
           <h2 className="home-reviews-title" style={{ fontSize: '3rem', fontWeight: 500, margin: 0, textAlign: 'center' }}>Customer Reviews</h2>

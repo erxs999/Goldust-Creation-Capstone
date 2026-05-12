@@ -3,7 +3,6 @@ const express = require('express');
 module.exports = (Appointment) => {
   const router = express.Router();
 
-  // Create a new appointment (always status 'upcoming')
   router.post('/', async (req, res) => {
     try {
       const data = { ...req.body, status: 'upcoming' };
@@ -15,7 +14,6 @@ module.exports = (Appointment) => {
     }
   });
 
-  // Get all appointments
   router.get('/', async (req, res) => {
     try {
       const appointments = await Appointment.find();
@@ -25,7 +23,6 @@ module.exports = (Appointment) => {
     }
   });
 
-  // Get appointments by user email
   router.get('/user/:email', async (req, res) => {
     try {
       const appointments = await Appointment.find({ clientEmail: req.params.email });
@@ -35,7 +32,6 @@ module.exports = (Appointment) => {
     }
   });
 
-    // PATCH: Update appointment status
     router.patch('/:id/status', async (req, res) => {
       try {
         const { status } = req.body;
@@ -51,7 +47,6 @@ module.exports = (Appointment) => {
       }
     });
 
-      // DELETE: Remove appointment
       router.delete('/:id', async (req, res) => {
         try {
           const deleted = await Appointment.findByIdAndDelete(req.params.id);

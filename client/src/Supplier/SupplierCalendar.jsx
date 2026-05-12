@@ -26,7 +26,6 @@ const SupplierCalendar = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Get logged-in supplier info
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const userEmail = user.email;
   const userName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
@@ -50,7 +49,6 @@ const SupplierCalendar = () => {
         const finished = finishedRes.ok ? await finishedRes.json() : [];
         const appointments = appointmentsRes.ok ? await appointmentsRes.json() : [];
         
-        // Filter pending schedules for this supplier by name or email
         const filteredSchedules = schedules.filter(ev => {
           if (ev.type === 'Supplier') {
             return (ev.person === userEmail || ev.person === userName);
@@ -58,7 +56,6 @@ const SupplierCalendar = () => {
           return false;
         });
         
-        // Filter accepted schedules for this supplier
         const filteredAcceptedSchedules = acceptedSchedules.filter(ev => 
           ev.supplierId === userEmail || ev.supplierName === userName || 
           (ev.person === userEmail || ev.person === userName)
@@ -68,18 +65,15 @@ const SupplierCalendar = () => {
           status: 'accepted'
         }));
         
-        // Filter bookings for this supplier
         const allBookings = [...pending, ...approved, ...finished].filter(b => 
           b.supplierEmail === userEmail || b.supplierName === userName
         );
         
-        // Filter appointments for this supplier
         const supplierAppointments = appointments.filter(a => 
           a.supplierEmail === userEmail || a.supplierName === userName ||
           (a.supplier && (a.supplier.email === userEmail || a.supplier.name === userName))
         );
         
-        // Map bookings to calendar event format
         const bookingEvents = allBookings.filter(b => b.date).map(b => ({
           _id: b._id,
           title: `${b.eventType || b.title || 'Booking'} 📅`,
@@ -91,7 +85,6 @@ const SupplierCalendar = () => {
           status: b.status || '',
         }));
         
-        // Map appointments to calendar event format
         const appointmentEvents = supplierAppointments.filter(a => a.date).map(a => ({
           _id: a._id,
           title: `${a.service || 'Appointment'} 🕒`,
@@ -104,7 +97,6 @@ const SupplierCalendar = () => {
           time: a.time || '',
         }));
         
-        // Combine all events
         setEvents([
           ...filteredSchedules, 
           ...filteredAcceptedSchedules, 
@@ -121,7 +113,6 @@ const SupplierCalendar = () => {
     if (userEmail) fetchEventsAndBookings();
   }, [userEmail, userName]);
 
-  // Get events for a specific date (compare as string)
   const getEventsForDate = (date) => {
     let d;
     if (typeof date === 'string') {
@@ -132,7 +123,6 @@ const SupplierCalendar = () => {
     return events.filter(ev => ev.date === d);
   };
 
-  // Custom render cell for calendar with double-click
   const renderCell = (date) => {
     const dayEvents = getEventsForDate(date);
     if (dayEvents.length === 0) return null;
@@ -185,7 +175,7 @@ const SupplierCalendar = () => {
             </div>
           )}
         </div>
-        {/* Modal for viewing events on a day */}
+        {}
         <Modal open={viewEventsModalOpen} onClose={() => setViewEventsModalOpen(false)}>
           <h2 className="sc-modal-title">
             Schedule for {viewEventsDate ? (typeof viewEventsDate === 'string' ? viewEventsDate : `${viewEventsDate.getFullYear()}-${String(viewEventsDate.getMonth()+1).padStart(2,'0')}-${String(viewEventsDate.getDate()).padStart(2,'0')}`) : ''}
@@ -218,7 +208,7 @@ const SupplierCalendar = () => {
               <div className="sc-modal-no-schedule">No schedule for this day.</div>
             )}
           </div>
-          {/* Modal for event details */}
+          {}
           <Modal open={eventDetailsModalOpen} onClose={() => setEventDetailsModalOpen(false)}>
             {selectedEvent && (
               <div className="sc-modal-details">

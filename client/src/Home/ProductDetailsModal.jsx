@@ -9,7 +9,6 @@ export default function ProductDetailsModal({ open, onClose, product, onEdit }) 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   if (!product) return null;
 
-  // Extract fields
   const { image, title, price, description, additionals } = product;
 
   return (
@@ -37,7 +36,7 @@ export default function ProductDetailsModal({ open, onClose, product, onEdit }) 
       }}
     >
       <DialogContent dividers style={{ background: '#f3f3f1', padding: 0 }}>
-        {/* Images Carousel */}
+        {}
         <div style={{ width: '100%', height: 400, background: '#fff', position: 'relative', overflow: 'hidden' }}>
           {((product.images && product.images.length > 0) || image) ? (
             <>
@@ -52,7 +51,7 @@ export default function ProductDetailsModal({ open, onClose, product, onEdit }) 
                 }} 
               />
               
-              {/* Dot Navigation */}
+              {}
               {product.images && product.images.length > 1 && (
                 <div style={{
                   position: 'absolute',
@@ -97,17 +96,17 @@ export default function ProductDetailsModal({ open, onClose, product, onEdit }) 
             </div>
           )}
         </div>
-        {/* Title, Price, Description Row */}
+        {}
         <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div style={{ width: '100%', maxWidth: 1100, padding: '32px 32px 0 32px', boxSizing: 'border-box' }}>
             <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: 32 }}>
-              {/* Title & Price */}
+              {}
               <div style={{ flex: '1 1 260px', minWidth: 260, maxWidth: 340, textAlign: 'left' }}>
                 <div style={{ fontWeight: 700, fontSize: 32, marginBottom: 8, color: '#3d4636', letterSpacing: 1 }}>{title}</div>
                 {price && <div style={{ color: '#888', fontWeight: 700, fontSize: 20, marginBottom: 24, letterSpacing: 1 }}>PHP {price}</div>}
               </div>
             </div>
-            {/* Description contents */}
+            {}
             {description && (
               <div style={{ margin: '32px 0 0 0', fontSize: 17, color: '#222', width: '100%', whiteSpace: 'pre-line', lineHeight: 1.6 }}>
                 {description}
@@ -115,7 +114,7 @@ export default function ProductDetailsModal({ open, onClose, product, onEdit }) 
             )}
           </div>
         </div>
-        {/* Additionals Section */}
+        {}
         {additionals && Array.isArray(additionals) && additionals.length > 0 && (
           <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <div style={{ width: '100%', maxWidth: 1100, padding: '48px 32px 32px 32px', boxSizing: 'border-box' }}>

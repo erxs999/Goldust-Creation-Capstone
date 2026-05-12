@@ -16,7 +16,7 @@ function Modal({ open, onClose, children }) {
 }
 
 export default function Reminders() {
-  // Reminders are fetched from schedules and approved bookings
+  
   const [reminders, setReminders] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedReminder, setSelectedReminder] = useState(null);
@@ -27,7 +27,7 @@ export default function Reminders() {
   useEffect(() => {
     async function fetchReminders() {
       try {
-        // Fetch all calendar data: schedules, accepted schedules, bookings, and appointments
+        
         const [schedulesRes, acceptedSchedulesRes, pendingRes, approvedRes, finishedRes, appointmentsRes] = await Promise.all([
           fetch('/api/schedules'),
           fetch('/api/schedules/status/accepted'),
@@ -44,7 +44,6 @@ export default function Reminders() {
         const finished = finishedRes.ok ? await finishedRes.json() : [];
         const appointments = appointmentsRes.ok ? await appointmentsRes.json() : [];
 
-        // Map bookings to reminder-like objects
         const allBookings = [...pending, ...approved, ...finished];
         const bookingReminders = allBookings
           .filter(b => b.date)
@@ -69,20 +68,16 @@ export default function Reminders() {
             };
           });
 
-        // Create warning reminders for approved bookings without suppliers (within 2 weeks)
-        // These warnings will automatically disappear once suppliers are assigned
         const now = new Date();
         const twoWeeksFromNow = new Date();
         twoWeeksFromNow.setDate(now.getDate() + 14);
         
         const missingSupplierReminders = approved
           .filter(b => {
-            // CRITICAL: Only show warning if booking CURRENTLY has no suppliers
-            // This check happens on every fetch, so warnings disappear when suppliers are assigned
+            
             const hasNoSuppliers = !b.suppliers || b.suppliers.length === 0;
             if (!hasNoSuppliers || !b.date) return false;
             
-            // Check if event is within 2 weeks
             const eventDate = new Date(b.date);
             return eventDate >= now && eventDate <= twoWeeksFromNow;
           })
@@ -108,7 +103,6 @@ export default function Reminders() {
             };
           });
 
-        // Map appointments to reminder-like objects
         const appointmentReminders = appointments.map(a => {
           let dateStr = '';
           if (typeof a.date === 'string') {
@@ -130,7 +124,6 @@ export default function Reminders() {
           };
         });
 
-        // Map schedules to have consistent format
         const scheduleReminders = [
           ...(Array.isArray(schedules) ? schedules : []),
           ...(Array.isArray(acceptedSchedules) ? acceptedSchedules : [])
@@ -144,7 +137,6 @@ export default function Reminders() {
           description: s.description || '',
         }));
 
-        // Combine all reminders including missing supplier warnings
         setReminders([...scheduleReminders, ...bookingReminders, ...appointmentReminders, ...missingSupplierReminders]);
       } catch (err) {
         console.error('Error fetching reminders:', err);
@@ -153,15 +145,14 @@ export default function Reminders() {
     }
     fetchReminders();
     
-    // Auto-refresh reminders every 30 seconds to update supplier warnings
     const intervalId = setInterval(fetchReminders, 30000);
     return () => clearInterval(intervalId);
   }, []);
-  // Filter reminders based on selected time range and type
+  
   const getFilteredReminders = () => {
     const now = new Date();
-    now.setHours(0,0,0,0); // normalize to midnight
-    // Determine end date based on filter
+    now.setHours(0,0,0,0); 
+    
     let endDate;
     if (dateFilter === 'all') {
       endDate = new Date(2099, 11, 31);
@@ -177,14 +168,14 @@ export default function Reminders() {
     } else {
       endDate = new Date(2099, 11, 31);
     }
-    // Filter reminders: show today and future events within the selected range
+    
     let filtered = reminders.filter(reminder => {
       if (!reminder.date) return false;
       const reminderDate = new Date(reminder.date);
       reminderDate.setHours(0,0,0,0);
       return reminderDate >= now && reminderDate <= endDate;
     });
-    // Filter by type
+    
     if (typeFilter !== 'all') {
       filtered = filtered.filter(reminder => {
         if (typeFilter === 'booking') return reminder.type === 'Booking';
@@ -194,7 +185,7 @@ export default function Reminders() {
         return true;
       });
     }
-    // Filter by branch (matching branchLocation field)
+    
     if (branchFilter !== 'all') {
       filtered = filtered.filter(reminder => {
         const branch = (reminder.branch || '').toLowerCase();
@@ -210,7 +201,7 @@ export default function Reminders() {
         return true;
       });
     }
-    // Sort by soonest date first
+    
     return filtered.slice().sort((a, b) => {
       if (!a.date) return 1;
       if (!b.date) return -1;
@@ -266,7 +257,7 @@ export default function Reminders() {
               <li style={{ color: '#888', fontSize: 16, textAlign: 'center', marginTop: 18 }}>No reminders found.</li>
             ) : (
               getFilteredReminders().map(reminder => {
-                // Calculate if due today or tomorrow (urgent)
+                
                 let dueLabel = '';
                 let isDueSoon = false;
                 if (reminder.date) {

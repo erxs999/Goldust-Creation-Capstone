@@ -39,7 +39,7 @@ const promoSchema = new mongoose.Schema({
   }],
   usageLimit: {
     type: Number,
-    default: null // null means unlimited
+    default: null 
   },
   timesUsed: {
     type: Number,
@@ -64,7 +64,6 @@ const promoSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Auto-update status based on dates
 promoSchema.pre('save', function(next) {
   const now = new Date();
   if (this.validFrom > now) {

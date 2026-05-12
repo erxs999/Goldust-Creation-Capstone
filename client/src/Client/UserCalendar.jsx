@@ -1,10 +1,4 @@
 
-
-
-
-
-
-
 import React, { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
 import ClientSidebar from './ClientSidebar';
@@ -24,7 +18,6 @@ function Modal({ open, onClose, children }) {
 	);
 }
 
-
 const UserCalendar = () => {
 	const [selectedDate, setSelectedDate] = useState(new Date());
 	const [events, setEvents] = useState([]);
@@ -34,16 +27,14 @@ const UserCalendar = () => {
 	const [selectedEvent, setSelectedEvent] = useState(null);
 	const [loading, setLoading] = useState(true);
 
-	// Get logged-in user info
 	const user = JSON.parse(localStorage.getItem('user') || '{}');
 	const userEmail = user.email;
 	const userName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
 
-	// Helper to convert a date string to PH timezone (YYYY-MM-DD)
 	function toPHDateString(dateInput) {
 		if (!dateInput) return '';
 		let d = typeof dateInput === 'string' ? new Date(dateInput) : new Date(dateInput);
-		// Convert to PH timezone (UTC+8)
+		
 		const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
 		const phTime = new Date(utc + (8 * 60 * 60000));
 		return phTime.toISOString().slice(0, 10);
@@ -66,7 +57,7 @@ const UserCalendar = () => {
 				const approved = approvedRes.ok ? await approvedRes.json() : [];
 				const finished = finishedRes.ok ? await finishedRes.json() : [];
 				const appointments = appointmentsRes.ok ? await appointmentsRes.json() : [];
-				// Filter events for this user by name or email
+				
 				const filteredSchedules = schedules.filter(ev => {
 					if (ev.type === 'Customer' || ev.type === 'Supplier') {
 						return (ev.person === userEmail || ev.person === userName);
@@ -74,16 +65,15 @@ const UserCalendar = () => {
 					return false;
 				});
 
-				// Filter accepted schedules for this user
 				const filteredAcceptedSchedules = acceptedSchedules.filter(ev => {
 					if (ev.type === 'Customer' || ev.type === 'Supplier') {
 						return (ev.person === userEmail || ev.person === userName);
 					}
 					return false;
-				}).map(ev => ({ ...ev, status: 'accepted' })); // Mark as accepted
-				// Filter bookings for this client
+				}).map(ev => ({ ...ev, status: 'accepted' })); 
+				
 				const allBookings = [...pending, ...approved, ...finished].filter(b => b.email === userEmail || b.name === userName);
-				// Map bookings to calendar event format
+				
 				const bookingEvents = allBookings.filter(b => b.date).map(b => ({
 					_id: b._id,
 					title: b.eventType || b.title || 'Booking',
@@ -94,7 +84,7 @@ const UserCalendar = () => {
 					description: b.specialRequest || b.details || '',
 					status: b.status || '',
 				}));
-				// Map appointments to calendar event format
+				
 				const appointmentEvents = appointments.map(a => ({
 					_id: a._id,
 					title: 'Appointment',
@@ -115,7 +105,6 @@ const UserCalendar = () => {
 		if (userEmail) fetchEventsAndBookings();
 	}, [userEmail, userName]);
 
-	// Get events for a specific date (compare as string)
 	const getEventsForDate = (date) => {
 		let d;
 		if (typeof date === 'string') {
@@ -126,7 +115,6 @@ const UserCalendar = () => {
 		return events.filter(ev => ev.date === d);
 	};
 
-		// Custom render cell for calendar with double-click
 		const renderCell = (date) => {
 			const dayEvents = getEventsForDate(date);
 			if (dayEvents.length === 0) return null;
@@ -179,7 +167,7 @@ const UserCalendar = () => {
 						</div>
 					)}
 				</div>
-				{/* Modal for viewing events on a day */}
+				{}
 				<Modal open={viewEventsModalOpen} onClose={() => setViewEventsModalOpen(false)}>
 					<h2 className="uc-modal-title">
 						Schedule for {viewEventsDate ? (typeof viewEventsDate === 'string' ? viewEventsDate : `${viewEventsDate.getFullYear()}-${String(viewEventsDate.getMonth()+1).padStart(2,'0')}-${String(viewEventsDate.getDate()).padStart(2,'0')}`) : ''}
@@ -206,7 +194,7 @@ const UserCalendar = () => {
 							<div className="uc-modal-no-schedule">No schedule for this day.</div>
 						)}
 					</div>
-					{/* Modal for event details */}
+					{}
 					<Modal open={eventDetailsModalOpen} onClose={() => setEventDetailsModalOpen(false)}>
 						{selectedEvent && (
 							<div className="uc-modal-details">

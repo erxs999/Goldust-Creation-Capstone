@@ -31,7 +31,7 @@ export default function ProductsAndServices() {
   const [editFields, setEditFields] = useState([{ label: '' }]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const navigate = useNavigate();
-  // State for Add Product/Service modal
+  
   const [showProductModal, setShowProductModal] = useState(false);
   const [productImages, setProductImages] = useState([]);
   const [productTitle, setProductTitle] = useState("");
@@ -41,12 +41,12 @@ export default function ProductsAndServices() {
   const [showAdditionals, setShowAdditionals] = useState(false);
   const [additionals, setAdditionals] = useState([{ title: '', price: '', description: '' }]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  // State for products/services added in the selected category
+  
   const PRODUCTS_LOCAL_KEY = 'gd_products_by_category';
   const [products, setProducts] = useState([]);
   const [showProductDetails, setShowProductDetails] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  // Edit modal state
+  
   const [showEditProductModal, setShowEditProductModal] = useState(false);
   const [editProductIdx, setEditProductIdx] = useState(null);
   const [editProductData, setEditProductData] = useState({ 
@@ -57,7 +57,7 @@ export default function ProductsAndServices() {
     additionals: [],
     available: true
   });
-  // Event types state
+  
   const [eventTypes, setEventTypes] = useState([]);
   const [showEventTypeModal, setShowEventTypeModal] = useState(false);
   const [newEventType, setNewEventType] = useState({ name: '', description: '' });
@@ -69,8 +69,6 @@ export default function ProductsAndServices() {
   ];
   const [productBranches, setProductBranches] = useState([]);
 
-
-  // Fetch categories from API
   useEffect(() => {
     fetch(`${API_BASE}/categories`)
       .then(res => res.json())
@@ -78,7 +76,6 @@ export default function ProductsAndServices() {
       .catch(() => setCategories([]));
   }, []);
 
-  // Fetch products for selected category from API
   useEffect(() => {
     if (selectedCategory && selectedCategory.title) {
       fetch(`${API_BASE}/products/${encodeURIComponent(selectedCategory.title)}`)
@@ -88,7 +85,6 @@ export default function ProductsAndServices() {
     }
   }, [selectedCategory]);
 
-  // Fetch event types from DB
   useEffect(() => {
     fetch('/api/event-types')
       .then(res => res.json())
@@ -172,7 +168,6 @@ export default function ProductsAndServices() {
     closeModal();
   };
 
-  // Handle image upload and preview
   const handleImageChange = (e, isEdit) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -187,7 +182,6 @@ export default function ProductsAndServices() {
     reader.readAsDataURL(file);
   };
 
-  // For adding/removing fields in add/edit mode
   const handleAddField = () => {
     if (editIdx !== null) {
       setEditFields([...editFields, { label: '' }]);
@@ -216,20 +210,18 @@ export default function ProductsAndServices() {
     if (!window.confirm('Delete this category? All products/services in this category will also be deleted.')) return;
     const catToDelete = categories[idx];
     try {
-      // Delete all products in this category
+      
       await fetch(`${API_BASE}/products/category/${catToDelete.title}`, { method: 'DELETE' });
-      // Delete the category itself
+      
       await fetch(`${API_BASE}/categories/${catToDelete._id}`, { method: 'DELETE' });
       setCategories(categories.filter((_, i) => i !== idx));
     } catch {}
   };
 
-  // Navigation logic for category cards
   const handleCategoryClick = (cat, idx) => {
     setSelectedCategory({ ...cat, idx });
   };
 
-  // Handler to open edit modal with product data
   const handleEditProduct = () => {
     if (!selectedProduct) return;
     setEditProductData(selectedProduct);
@@ -238,13 +230,12 @@ export default function ProductsAndServices() {
     setShowProductDetails(false);
   };
 
-  // Handler to save edited product
   const handleSaveEditProduct = (e) => {
     e.preventDefault();
     if (!editProductData.title.trim() || !editProductData.description.trim() || !editProductData.price.trim()) return;
     const updatedProducts = products.map((p, i) => i === editProductIdx ? editProductData : p);
     setProducts(updatedProducts);
-    // Save to localStorage if needed
+    
     const PRODUCTS_LOCAL_KEY = 'gd_products_by_category';
     if (selectedCategory && selectedCategory.title) {
       const all = JSON.parse(localStorage.getItem(PRODUCTS_LOCAL_KEY) || '{}');
@@ -254,7 +245,6 @@ export default function ProductsAndServices() {
     setShowEditProductModal(false);
   };
 
-  // Add or update event type
   const handleSaveEventType = async (e) => {
     e.preventDefault();
     if (!newEventType.name.trim()) return;
@@ -279,13 +269,12 @@ export default function ProductsAndServices() {
       setShowEventTypeModal(false);
       setNewEventType({ name: '' });
       setEditEventTypeIdx(null);
-      // Refresh event types
+      
       const updated = await fetch('/api/event-types').then(r => r.json());
       setEventTypes(updated);
     } catch {}
   };
 
-  // Delete event type
   const handleDeleteEventType = async (idx) => {
     const id = eventTypes[idx]._id;
     if (!window.confirm('Delete this event type?')) return;
@@ -296,21 +285,18 @@ export default function ProductsAndServices() {
     } catch {}
   };
 
-  // Open modal for add/edit event type
   const openEventTypeModal = (idx = null) => {
     setEditEventTypeIdx(idx);
     setNewEventType(idx !== null ? { name: eventTypes[idx].name } : { name: '' });
     setShowEventTypeModal(true);
   };
 
-  // Close event type modal
   const closeEventTypeModal = () => {
     setShowEventTypeModal(false);
     setNewEventType({ name: '' });
     setEditEventTypeIdx(null);
   };
 
-  // Handle event type field change
   const handleEventTypeFieldChange = (field, value) => {
     setNewEventType({ ...newEventType, [field]: value });
   };
@@ -440,7 +426,7 @@ export default function ProductsAndServices() {
                   }}
                   onClick={() => handleCategoryClick(cat, idx)}
                 >
-                  {/* Delete IconButton only, top right, like PnSDetails */}
+                  {}
                   <IconButton
                     aria-label="Delete"
                     size="small"
@@ -456,7 +442,7 @@ export default function ProductsAndServices() {
                   >
                     <DeleteIcon style={{ color: '#e53935', fontSize: 24 }} />
                   </IconButton>
-                    {/* Edit and Delete IconButtons, top right, like PnSDetails */}
+                    {}
                     <div style={{ position: 'absolute', top: 12, right: 12, zIndex: 2, display: 'flex', gap: 4 }}>
                       <IconButton
                         aria-label="Edit"
@@ -482,7 +468,7 @@ export default function ProductsAndServices() {
                         <DeleteIcon style={{ color: '#e53935', fontSize: 24 }} />
                       </IconButton>
                     </div>
-                  {/* Image flush to top, left, right */}
+                  {}
                   {cat.image ? (
                     <img src={cat.image} alt={cat.title} style={{
                       display: 'block',
@@ -505,7 +491,7 @@ export default function ProductsAndServices() {
                       color: '#888'
                     }}>No Image</div>
                   )}
-                  {/* Title */}
+                  {}
                   <div style={{ padding: 24, paddingTop: 16, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                     <div style={{ fontWeight: 700, fontSize: 22, marginBottom: 6, textAlign: 'left', width: '100%' }}>{cat.title}</div>
                     {cat.fields && cat.fields.length > 0 && (
@@ -579,7 +565,7 @@ export default function ProductsAndServices() {
                     required
                     margin="normal"
                   />
-                  {/* Event Type Radio Buttons */}
+                  {}
                   <div style={{ margin: '16px 0' }}>
                     <div style={{ fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <span>Event Types:</span>
@@ -666,7 +652,7 @@ export default function ProductsAndServices() {
                       transition: 'background 0.2s',
                     }}
                     onClick={() => {
-                      // Reset form when opening
+                      
                       setProductImages([]);
                       setCurrentImageIndex(0);
                       setProductTitle("");
@@ -681,11 +667,11 @@ export default function ProductsAndServices() {
                   </button>
                 </div>
               </div>
-              {/* Product/Service Modal */}
+              {}
               <Dialog 
                 open={showProductModal} 
                 onClose={() => {
-                  // Reset form when closing via backdrop/escape
+                  
                   setProductImages([]);
                   setCurrentImageIndex(0);
                   setProductTitle("");
@@ -947,7 +933,7 @@ export default function ProductsAndServices() {
                       multiline
                       minRows={3}
                     />
-                    {/* Branch selection checkboxes */}
+                    {}
                     <div style={{ margin: '16px 0' }}>
                       <div style={{ fontWeight: 600, marginBottom: 8 }}>Available In Branches:</div>
                       {BRANCHES.map(branch => (
@@ -1011,7 +997,7 @@ export default function ProductsAndServices() {
                   </DialogContent>
                   <DialogActions>
                     <Button onClick={() => {
-                      // Reset form when canceling
+                      
                       setProductImages([]);
                       setCurrentImageIndex(0);
                       setProductTitle("");
@@ -1025,7 +1011,7 @@ export default function ProductsAndServices() {
                   </DialogActions>
                 </form>
               </Dialog>
-              {/* List of added products/services */}
+              {}
               <div style={{ marginTop: 32 }}>
                 {products.length === 0 ? (
                   <div style={{ color: '#888', textAlign: 'center' }}>No products/services added yet.</div>
@@ -1152,7 +1138,7 @@ export default function ProductsAndServices() {
                                 PHP {prod.price}
                               </div>
                             )}
-                            {/* Branch availability indicator */}
+                            {}
                             {prod.branches && prod.branches.length > 0 && (
                               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8, marginBottom: 4 }}>
                                 {prod.branches.map((branch, branchIdx) => (
@@ -1225,7 +1211,7 @@ export default function ProductsAndServices() {
                       product={selectedProduct}
                       onEdit={handleEditProduct}
                     />
-                    {/* Edit Product Modal */}
+                    {}
                     <Dialog 
                         open={showEditProductModal} 
                         onClose={() => setShowEditProductModal(false)} 
@@ -1255,12 +1241,11 @@ export default function ProductsAndServices() {
                         e.preventDefault();
                         if (!editProductData.title.trim() || !editProductData.description.trim() || !editProductData.price.trim()) return;
                         
-                        // Ensure we have the images array
                         const dataToSave = {
                           ...editProductData,
                           images: editProductData.images || [],
                         };
-                        // If there's a legacy image field, convert it to images array
+                        
                         if (editProductData.image && !editProductData.images) {
                           dataToSave.images = [editProductData.image];
                           delete dataToSave.image;
@@ -1432,7 +1417,7 @@ export default function ProductsAndServices() {
                             multiline
                             minRows={3}
                           />
-                          {/* Branch selection checkboxes for edit */}
+                          {}
                           <div style={{ margin: '16px 0' }}>
                             <div style={{ fontWeight: 600, marginBottom: 8 }}>Available In Branches:</div>
                             {BRANCHES.map(branch => (
@@ -1456,7 +1441,7 @@ export default function ProductsAndServices() {
                               </label>
                             ))}
                           </div>
-                          {/* Additionals Section */}
+                          {}
                           <div style={{ marginTop: 16, width: '100%' }}>
                             <div style={{ fontWeight: 600, marginBottom: 12, fontSize: '1.1rem' }}>Additionals</div>
                             {(editProductData.additionals || []).map((add, idx) => (
@@ -1541,7 +1526,7 @@ export default function ProductsAndServices() {
           )
         )}
       </div>
-      {/* Event Type Customization Modal */}
+      {}
       {showEventTypeModal && (
         <Dialog open={showEventTypeModal} onClose={closeEventTypeModal} maxWidth="xs" fullWidth>
           <DialogTitle>{editEventTypeIdx !== null ? 'Edit' : 'Add'} Event Type</DialogTitle>
@@ -1555,7 +1540,7 @@ export default function ProductsAndServices() {
                 required
                 margin="normal"
               />
-              {/* Show all active event types below the field */}
+              {}
               <div style={{ marginTop: 18 }}>
                 <div style={{ fontWeight: 600, marginBottom: 8 }}>Active Event Types:</div>
                 {eventTypes.length === 0 ? (

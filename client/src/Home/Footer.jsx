@@ -24,7 +24,6 @@ const Footer = () => (
             </a>
           </span>
         
-        
       </ul>
       
     </div>
@@ -64,7 +63,6 @@ const Footer = () => (
     Maddela, Quirino
   </a>
 </li>
-
 
       </ul>
       
